@@ -11,9 +11,17 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedSkillsRouteImport } from './routes/_authenticated/skills'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedRoadmapRouteImport } from './routes/_authenticated/roadmap'
+import { Route as AuthenticatedResourcesRouteImport } from './routes/_authenticated/resources'
+import { Route as AuthenticatedGoalsRouteImport } from './routes/_authenticated/goals'
 import { Route as AuthenticatedCoursesRouteImport } from './routes/_authenticated/courses'
+import { Route as AuthenticatedCoachDashboardRouteImport } from './routes/_authenticated/coach-dashboard'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
+import { Route as AuthenticatedSessionConsultantIdRouteImport } from './routes/_authenticated/session.$consultantId'
+import { Route as AuthenticatedConsultantsConsultantIdRouteImport } from './routes/_authenticated/consultants/$consultantId'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -24,9 +32,29 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSkillsRoute = AuthenticatedSkillsRouteImport.update({
+  id: '/skills',
+  path: '/skills',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRoadmapRoute = AuthenticatedRoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedResourcesRoute = AuthenticatedResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGoalsRoute = AuthenticatedGoalsRouteImport.update({
+  id: '/goals',
+  path: '/goals',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedCoursesRoute = AuthenticatedCoursesRouteImport.update({
@@ -34,44 +62,123 @@ const AuthenticatedCoursesRoute = AuthenticatedCoursesRouteImport.update({
   path: '/courses',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCoachDashboardRoute =
+  AuthenticatedCoachDashboardRouteImport.update({
+    id: '/coach-dashboard',
+    path: '/coach-dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const authSignInRoute = authSignInRouteImport.update({
   id: '/(auth)/sign-in',
   path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedSessionConsultantIdRoute =
+  AuthenticatedSessionConsultantIdRouteImport.update({
+    id: '/session/$consultantId',
+    path: '/session/$consultantId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedConsultantsConsultantIdRoute =
+  AuthenticatedConsultantsConsultantIdRouteImport.update({
+    id: '/consultants/$consultantId',
+    path: '/consultants/$consultantId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/sign-in': typeof authSignInRoute
+  '/coach-dashboard': typeof AuthenticatedCoachDashboardRoute
   '/courses': typeof AuthenticatedCoursesRoute
+  '/goals': typeof AuthenticatedGoalsRoute
+  '/resources': typeof AuthenticatedResourcesRoute
+  '/roadmap': typeof AuthenticatedRoadmapRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/skills': typeof AuthenticatedSkillsRoute
   '/': typeof AuthenticatedIndexRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/consultants/$consultantId': typeof AuthenticatedConsultantsConsultantIdRoute
+  '/session/$consultantId': typeof AuthenticatedSessionConsultantIdRoute
 }
 export interface FileRoutesByTo {
   '/sign-in': typeof authSignInRoute
+  '/coach-dashboard': typeof AuthenticatedCoachDashboardRoute
   '/courses': typeof AuthenticatedCoursesRoute
+  '/goals': typeof AuthenticatedGoalsRoute
+  '/resources': typeof AuthenticatedResourcesRoute
+  '/roadmap': typeof AuthenticatedRoadmapRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/skills': typeof AuthenticatedSkillsRoute
   '/': typeof AuthenticatedIndexRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/consultants/$consultantId': typeof AuthenticatedConsultantsConsultantIdRoute
+  '/session/$consultantId': typeof AuthenticatedSessionConsultantIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/(auth)/sign-in': typeof authSignInRoute
+  '/_authenticated/coach-dashboard': typeof AuthenticatedCoachDashboardRoute
   '/_authenticated/courses': typeof AuthenticatedCoursesRoute
+  '/_authenticated/goals': typeof AuthenticatedGoalsRoute
+  '/_authenticated/resources': typeof AuthenticatedResourcesRoute
+  '/_authenticated/roadmap': typeof AuthenticatedRoadmapRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/skills': typeof AuthenticatedSkillsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/consultants/$consultantId': typeof AuthenticatedConsultantsConsultantIdRoute
+  '/_authenticated/session/$consultantId': typeof AuthenticatedSessionConsultantIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/sign-in' | '/courses' | '/settings' | '/'
+  fullPaths:
+    | '/sign-in'
+    | '/coach-dashboard'
+    | '/courses'
+    | '/goals'
+    | '/resources'
+    | '/roadmap'
+    | '/settings'
+    | '/skills'
+    | '/'
+    | '/admin/users'
+    | '/consultants/$consultantId'
+    | '/session/$consultantId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/sign-in' | '/courses' | '/settings' | '/'
+  to:
+    | '/sign-in'
+    | '/coach-dashboard'
+    | '/courses'
+    | '/goals'
+    | '/resources'
+    | '/roadmap'
+    | '/settings'
+    | '/skills'
+    | '/'
+    | '/admin/users'
+    | '/consultants/$consultantId'
+    | '/session/$consultantId'
   id:
     | '__root__'
     | '/_authenticated'
     | '/(auth)/sign-in'
+    | '/_authenticated/coach-dashboard'
     | '/_authenticated/courses'
+    | '/_authenticated/goals'
+    | '/_authenticated/resources'
+    | '/_authenticated/roadmap'
     | '/_authenticated/settings'
+    | '/_authenticated/skills'
     | '/_authenticated/'
+    | '/_authenticated/admin/users'
+    | '/_authenticated/consultants/$consultantId'
+    | '/_authenticated/session/$consultantId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -95,11 +202,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/skills': {
+      id: '/_authenticated/skills'
+      path: '/skills'
+      fullPath: '/skills'
+      preLoaderRoute: typeof AuthenticatedSkillsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/roadmap': {
+      id: '/_authenticated/roadmap'
+      path: '/roadmap'
+      fullPath: '/roadmap'
+      preLoaderRoute: typeof AuthenticatedRoadmapRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/resources': {
+      id: '/_authenticated/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof AuthenticatedResourcesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/goals': {
+      id: '/_authenticated/goals'
+      path: '/goals'
+      fullPath: '/goals'
+      preLoaderRoute: typeof AuthenticatedGoalsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/courses': {
@@ -109,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCoursesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/coach-dashboard': {
+      id: '/_authenticated/coach-dashboard'
+      path: '/coach-dashboard'
+      fullPath: '/coach-dashboard'
+      preLoaderRoute: typeof AuthenticatedCoachDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/(auth)/sign-in': {
       id: '/(auth)/sign-in'
       path: '/sign-in'
@@ -116,19 +258,57 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authSignInRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/session/$consultantId': {
+      id: '/_authenticated/session/$consultantId'
+      path: '/session/$consultantId'
+      fullPath: '/session/$consultantId'
+      preLoaderRoute: typeof AuthenticatedSessionConsultantIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/consultants/$consultantId': {
+      id: '/_authenticated/consultants/$consultantId'
+      path: '/consultants/$consultantId'
+      fullPath: '/consultants/$consultantId'
+      preLoaderRoute: typeof AuthenticatedConsultantsConsultantIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/users': {
+      id: '/_authenticated/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCoachDashboardRoute: typeof AuthenticatedCoachDashboardRoute
   AuthenticatedCoursesRoute: typeof AuthenticatedCoursesRoute
+  AuthenticatedGoalsRoute: typeof AuthenticatedGoalsRoute
+  AuthenticatedResourcesRoute: typeof AuthenticatedResourcesRoute
+  AuthenticatedRoadmapRoute: typeof AuthenticatedRoadmapRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedSkillsRoute: typeof AuthenticatedSkillsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
+  AuthenticatedConsultantsConsultantIdRoute: typeof AuthenticatedConsultantsConsultantIdRoute
+  AuthenticatedSessionConsultantIdRoute: typeof AuthenticatedSessionConsultantIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCoachDashboardRoute: AuthenticatedCoachDashboardRoute,
   AuthenticatedCoursesRoute: AuthenticatedCoursesRoute,
+  AuthenticatedGoalsRoute: AuthenticatedGoalsRoute,
+  AuthenticatedResourcesRoute: AuthenticatedResourcesRoute,
+  AuthenticatedRoadmapRoute: AuthenticatedRoadmapRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedSkillsRoute: AuthenticatedSkillsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+  AuthenticatedConsultantsConsultantIdRoute:
+    AuthenticatedConsultantsConsultantIdRoute,
+  AuthenticatedSessionConsultantIdRoute: AuthenticatedSessionConsultantIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
