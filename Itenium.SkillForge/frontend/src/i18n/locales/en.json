@@ -28,6 +28,7 @@
     "catalogSection": "Catalog",
     "catalog": "Browse Courses",
     "skills": "Skill Catalogue",
+    "skillCatalogue": "Skill Catalogue",
     "roadmap": "My Roadmap",
     "consultants": "Consultants",
     "resources": "Learning Resources",
@@ -161,17 +162,36 @@
     "title": "User Management",
     "description": "Create, archive, and manage user accounts",
     "createUser": "Create User",
-    "role": "Role",
-    "teams": "Teams",
+    "email": "Email",
+    "emailPlaceholder": "john@example.com",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Invalid email address",
     "firstName": "First Name",
+    "firstNamePlaceholder": "John",
+    "firstNameRequired": "First name is required",
     "lastName": "Last Name",
+    "lastNamePlaceholder": "Doe",
+    "lastNameRequired": "Last name is required",
+    "passwordMinLength": "Password must be at least 8 characters",
+    "role": "Role",
+    "rolePlaceholder": "Select a role",
+    "roles": {
+      "learner": "Learner",
+      "manager": "Manager",
+      "backoffice": "BackOffice"
+    },
+    "teams": "Teams",
+    "createSuccess": "User created successfully",
+    "createError": "Failed to create user",
+    "archiveSuccess": "User archived successfully",
+    "restoreSuccess": "User restored successfully",
     "archived": "Archived",
     "archive": "Archive",
     "restore": "Restore",
     "noUsers": "No users found",
-    "createSuccess": "User created successfully",
-    "archiveSuccess": "User archived successfully",
-    "restoreSuccess": "User restored successfully",
+    "tableEmail": "Email",
+    "tableName": "Name",
+    "tableRole": "Role",
     "orphanedAlert": "{{count}} consultant(s) without an active coach"
   },
   "resources": {
@@ -222,5 +242,32 @@
     "goalCreated": "Goal created",
     "flagRaised": "Flag raised on {{date}}",
     "startSession": "Start Session"
+  },
+  "roadmap": {
+    "title": "My Progress",
+    "showAll": "Show all skills",
+    "showLess": "Show fewer",
+    "noProfile": "You have not been assigned to a competence centre profile yet. Please ask your coach.",
+    "prerequisiteWarning": "{{name}} level {{required}} not yet met — you can explore this skill, but your coach may ask you to address prerequisites first (current: {{current}})"
+  },
+  "seniority": {
+    "progress": "Seniority progress",
+    "junior": "Junior",
+    "medior": "Medior",
+    "senior": "Senior",
+    "meets": "{{met}}/{{required}}"
+  },
+  "skills": {
+    "title": "Skill Catalogue",
+    "category": "Category",
+    "levelCount": "Levels",
+    "noSkills": "No skills found in the catalogue",
+    "checkbox": "Checkbox",
+    "levels": "levels",
+    "addSkill": "Add Skill",
+    "editSkill": "Edit Skill",
+    "isUniversal": "Universal (itenium-wide)",
+    "nameRequired": "Name is required",
+    "deleteConfirm": "Delete \"{{name}}\"? This cannot be undone."
   }
 }

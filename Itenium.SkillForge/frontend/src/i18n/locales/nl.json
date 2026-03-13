@@ -28,6 +28,7 @@
     "catalogSection": "Catalogus",
     "catalog": "Cursussen Bekijken",
     "skills": "Vaardigheidscatalogus",
+    "skillCatalogue": "Vaardighedencatalogus",
     "roadmap": "Mijn Roadmap",
     "consultants": "Consultants",
     "resources": "Leermiddelen",
@@ -161,17 +162,36 @@
     "title": "Gebruikersbeheer",
     "description": "Maak gebruikersaccounts aan, archiveer en beheer ze",
     "createUser": "Gebruiker Aanmaken",
-    "role": "Rol",
-    "teams": "Teams",
+    "email": "E-mail",
+    "emailPlaceholder": "jan@voorbeeld.com",
+    "emailRequired": "E-mail is verplicht",
+    "emailInvalid": "Ongeldig e-mailadres",
     "firstName": "Voornaam",
+    "firstNamePlaceholder": "Jan",
+    "firstNameRequired": "Voornaam is verplicht",
     "lastName": "Achternaam",
+    "lastNamePlaceholder": "De Vries",
+    "lastNameRequired": "Achternaam is verplicht",
+    "passwordMinLength": "Wachtwoord moet minimaal 8 tekens bevatten",
+    "role": "Rol",
+    "rolePlaceholder": "Selecteer een rol",
+    "roles": {
+      "learner": "Leerling",
+      "manager": "Manager",
+      "backoffice": "BackOffice"
+    },
+    "teams": "Teams",
+    "createSuccess": "Gebruiker succesvol aangemaakt",
+    "createError": "Gebruiker aanmaken mislukt",
+    "archiveSuccess": "Gebruiker succesvol gearchiveerd",
+    "restoreSuccess": "Gebruiker succesvol hersteld",
     "archived": "Gearchiveerd",
     "archive": "Archiveren",
     "restore": "Herstellen",
     "noUsers": "Geen gebruikers gevonden",
-    "createSuccess": "Gebruiker succesvol aangemaakt",
-    "archiveSuccess": "Gebruiker succesvol gearchiveerd",
-    "restoreSuccess": "Gebruiker succesvol hersteld",
+    "tableEmail": "E-mail",
+    "tableName": "Naam",
+    "tableRole": "Rol",
     "orphanedAlert": "{{count}} consultant(s) zonder actieve coach"
   },
   "resources": {
@@ -222,5 +242,32 @@
     "goalCreated": "Doel aangemaakt",
     "flagRaised": "Vlag opgeheven op {{date}}",
     "startSession": "Sessie Starten"
+  },
+  "roadmap": {
+    "title": "Mijn Voortgang",
+    "showAll": "Alle vaardigheden tonen",
+    "showLess": "Minder tonen",
+    "noProfile": "U bent nog niet aan een competentiecentrum-profiel toegewezen. Vraag dit aan uw coach.",
+    "prerequisiteWarning": "{{name}} niveau {{required}} nog niet behaald — u kunt deze vaardigheid verkennen, maar uw coach kan vragen om eerst de vereisten aan te pakken (huidig: {{current}})"
+  },
+  "seniority": {
+    "progress": "Senioriteitsvoortgang",
+    "junior": "Junior",
+    "medior": "Medior",
+    "senior": "Senior",
+    "meets": "{{met}}/{{required}}"
+  },
+  "skills": {
+    "title": "Vaardighedencatalogus",
+    "category": "Categorie",
+    "levelCount": "Niveaus",
+    "noSkills": "Geen vaardigheden gevonden in de catalogus",
+    "checkbox": "Afvinken",
+    "levels": "niveaus",
+    "addSkill": "Vaardigheid toevoegen",
+    "editSkill": "Vaardigheid bewerken",
+    "isUniversal": "Universeel (itenium-breed)",
+    "nameRequired": "Naam is verplicht",
+    "deleteConfirm": "\"{{name}}\" verwijderen? Dit kan niet ongedaan worden gemaakt."
   }
 }
