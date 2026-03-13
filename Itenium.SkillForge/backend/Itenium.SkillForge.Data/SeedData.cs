@@ -17,7 +17,9 @@ public static class SeedData
 
         await SeedTeams(db);
         await SeedCourses(db);
+        await SkillSeedData.SeedSkills(db);
         await app.SeedTestUsers();
+        await SeedDemoGoals(app, db);
     }
 
     private static async Task SeedTeams(AppDbContext db)
@@ -143,6 +145,190 @@ public static class SeedData
             {
                 await userManager.AddToRoleAsync(user, "learner");
             }
+        }
+
+        // Journey 1: Lea — .NET consultant with pre-populated goals
+        if (await userManager.FindByEmailAsync("lea@test.local") == null)
+        {
+            var user = new ForgeUser
+            {
+                UserName = "lea",
+                Email = "lea@test.local",
+                EmailConfirmed = true,
+                FirstName = "Lea",
+                LastName = "Demo"
+            };
+            var result = await userManager.CreateAsync(user, "UserPassword123!");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(user, "learner");
+            }
+        }
+
+        // Journey 4: Sander — Java consultant with pre-populated goals
+        if (await userManager.FindByEmailAsync("sander@test.local") == null)
+        {
+            var user = new ForgeUser
+            {
+                UserName = "sander",
+                Email = "sander@test.local",
+                EmailConfirmed = true,
+                FirstName = "Sander",
+                LastName = "Demo"
+            };
+            var result = await userManager.CreateAsync(user, "UserPassword123!");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(user, "learner");
+            }
+        }
+
+        // Journey 2: Nathalie — coach for Lea and Sander
+        if (await userManager.FindByEmailAsync("nathalie@test.local") == null)
+        {
+            var user = new ForgeUser
+            {
+                UserName = "nathalie",
+                Email = "nathalie@test.local",
+                EmailConfirmed = true,
+                FirstName = "Nathalie",
+                LastName = "Coach"
+            };
+            var result = await userManager.CreateAsync(user, "UserPassword123!");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(user, "manager");
+                await userManager.AddClaimAsync(user, new Claim("team", "1")); // Java
+                await userManager.AddClaimAsync(user, new Claim("team", "2")); // .NET
+            }
+        }
+    }
+
+    /// <summary>
+    /// Seed demo goals for Journey 1 (Lea) and Journey 4 (Sander). Story #21.
+    /// </summary>
+    private static async Task SeedDemoGoals(WebApplication app, AppDbContext db)
+    {
+        if (await db.Goals.AnyAsync())
+        {
+            return;
+        }
+
+        using var scope = app.Services.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ForgeUser>>();
+
+        var lea = await userManager.FindByEmailAsync("lea@test.local");
+        var sander = await userManager.FindByEmailAsync("sander@test.local");
+        var nathalie = await userManager.FindByEmailAsync("nathalie@test.local");
+
+        if (lea == null || sander == null || nathalie == null)
+        {
+            return;
+        }
+
+        var now = DateTime.UtcNow;
+
+        // Journey 1: Lea — 3 .NET goals already set by coach
+        // SkillIds match SkillSeedData: C# Fundamentals=10, ASP.NET Core=11, .NET Testing=13
+        db.Goals.AddRange(
+            new GoalEntity
+            {
+                ConsultantId = lea.Id,
+                CoachId = nathalie.Id,
+                SkillId = 10, // C# Fundamentals
+                CurrentNiveau = 1,
+                TargetNiveau = 3,
+                Deadline = now.AddMonths(2),
+                CreatedAt = now.AddDays(-1),
+                Status = GoalStatus.Active,
+            },
+            new GoalEntity
+            {
+                ConsultantId = lea.Id,
+                CoachId = nathalie.Id,
+                SkillId = 11, // ASP.NET Core Web API
+                CurrentNiveau = 1,
+                TargetNiveau = 2,
+                Deadline = now.AddMonths(3),
+                CreatedAt = now.AddDays(-1),
+                Status = GoalStatus.Active,
+            },
+            new GoalEntity
+            {
+                ConsultantId = lea.Id,
+                CoachId = nathalie.Id,
+                SkillId = 13, // .NET Testing
+                CurrentNiveau = 0,
+                TargetNiveau = 2,
+                Deadline = now.AddMonths(6),
+                CreatedAt = now.AddDays(-1),
+                Status = GoalStatus.Active,
+            });
+
+        // Journey 4: Sander — 3 Java goals for first 6 weeks
+        // SkillIds match SkillSeedData: Java Fundamentals=20, Spring Boot=21, Java Testing=22
+        db.Goals.AddRange(
+            new GoalEntity
+            {
+                ConsultantId = sander.Id,
+                CoachId = nathalie.Id,
+                SkillId = 20, // Java Fundamentals
+                CurrentNiveau = 1,
+                TargetNiveau = 3,
+                Deadline = now.AddDays(42),
+                CreatedAt = now.AddDays(-1),
+                Status = GoalStatus.Active,
+            },
+            new GoalEntity
+            {
+                ConsultantId = sander.Id,
+                CoachId = nathalie.Id,
+                SkillId = 21, // Spring Boot
+                CurrentNiveau = 1,
+                TargetNiveau = 2,
+                Deadline = now.AddDays(42),
+                CreatedAt = now.AddDays(-1),
+                Status = GoalStatus.Active,
+            },
+            new GoalEntity
+            {
+                ConsultantId = sander.Id,
+                CoachId = nathalie.Id,
+                SkillId = 22, // Java Testing (JUnit/Mockito)
+                CurrentNiveau = 0,
+                TargetNiveau = 1,
+                Deadline = now.AddDays(42),
+                CreatedAt = now.AddDays(-1),
+                Status = GoalStatus.Active,
+            });
+
+        await db.SaveChangesAsync();
+
+        // Journey 4: Assign Sander to Java profile (Story #19)
+        // Journey 1: Assign Lea to .NET profile
+        if (!await db.ConsultantProfiles.AnyAsync())
+        {
+            if (lea != null)
+            {
+                db.ConsultantProfiles.Add(new ConsultantProfileEntity
+                {
+                    UserId = lea.Id,
+                    Profile = CompetenceCentreProfile.DotNet,
+                    AssignedBy = nathalie?.Id,
+                });
+            }
+
+            if (sander != null)
+            {
+                db.ConsultantProfiles.Add(new ConsultantProfileEntity
+                {
+                    UserId = sander.Id,
+                    Profile = CompetenceCentreProfile.Java,
+                    AssignedBy = nathalie?.Id,
+                });
+            }
+
+            await db.SaveChangesAsync();
         }
     }
 }

@@ -1,3 +1,4 @@
+using Itenium.Forge.Security.OpenIddict;
 using Itenium.SkillForge.Data;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -8,6 +9,17 @@ public abstract class DatabaseTestBase
     private IDbContextTransaction _transaction = null!;
 
     protected AppDbContext Db { get; private set; } = null!;
+
+    /// <summary>
+    /// Creates a minimal ForgeUser row required for ConsultantProfile FK constraints.
+    /// </summary>
+    protected async Task<ForgeUser> CreateTestUser(string userId)
+    {
+        var user = new ForgeUser { Id = userId, UserName = userId };
+        Db.Users.Add(user);
+        await Db.SaveChangesAsync();
+        return user;
+    }
 
     [SetUp]
     public async Task BaseSetUp()

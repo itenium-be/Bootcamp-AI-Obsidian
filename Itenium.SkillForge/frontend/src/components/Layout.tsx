@@ -49,6 +49,8 @@ import {
   ClipboardList,
   MessageSquare,
   CheckCircle,
+  Target,
+  Flag,
 } from 'lucide-react';
 import { useAuthStore, useTeamStore, useThemeStore, type Team } from '@/stores';
 import { fetchUserTeams } from '@/api/client';
@@ -226,16 +228,23 @@ export function Layout() {
 
   // My Learning section - shown for learners and managers
   const myLearningNavItems = [
+    { path: '/goals', icon: Target, label: t('nav.goals') },
+    { path: '/roadmap', icon: TrendingUp, label: t('nav.roadmap') },
     { path: '/my-courses', icon: BookOpen, label: t('nav.myCourses') },
     { path: '/my-progress', icon: TrendingUp, label: t('nav.myProgress') },
     { path: '/my-certificates', icon: Award, label: t('nav.myCertificates') },
   ];
 
   // Catalog - shown for all users
-  const catalogNavItems = [{ path: '/catalog', icon: Library, label: t('nav.catalog') }];
+  const catalogNavItems = [
+    { path: '/catalog', icon: Library, label: t('nav.catalog') },
+    { path: '/skills', icon: GraduationCap, label: t('nav.skills') },
+    { path: '/resources', icon: BookOpen, label: t('nav.resources') },
+  ];
 
   // Team section - shown for managers
   const teamNavItems = [
+    { path: '/coach-dashboard', icon: Flag, label: t('nav.coachDashboard') },
     { path: '/team/members', icon: Users, label: t('nav.teamMembers') },
     { path: '/team/progress', icon: BarChart3, label: t('nav.teamProgress') },
     { path: '/team/assignments', icon: ClipboardList, label: t('nav.assignments') },
