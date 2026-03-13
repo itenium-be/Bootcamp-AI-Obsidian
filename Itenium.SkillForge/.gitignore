@@ -26,6 +26,7 @@ skillforge.db-*
 .env
 .env.local
 .env.e2e
+frontend/.npmrc
 
 # Test artifacts
 e2e/.test-state.json

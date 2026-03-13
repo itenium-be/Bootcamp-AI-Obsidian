@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(gh issue:*)"
+      "Bash(gh issue:*)",
+      "Bash(cd \"C:\\\\Users\\\\igor romy\\\\source\\\\repos\\\\Bootcamp-AI-Obsidian\\\\Itenium.SkillForge\" && docker compose up -d)",
+      "Bash(cd \"C:\\\\Users\\\\igor romy\\\\source\\\\repos\\\\Bootcamp-AI-Obsidian\\\\Itenium.SkillForge\\\\frontend\" && bun run dev 2>&1)",
+      "Bash(cd \"C:\\\\Users\\\\igor romy\\\\source\\\\repos\\\\Bootcamp-AI-Obsidian\\\\Itenium.SkillForge\\\\backend\\\\Itenium.SkillForge.WebApi\" && dotnet run --no-launch-profile)",
+      "Bash(netstat -ano | findstr :5000 | findstr LISTENING)",
+      "Bash(taskkill /PID 16204 /F)",
+      "Bash(cmd /c \"taskkill /PID 16204 /F\")",
+      "Bash(cmd /c \"taskkill /PID 16204 /F 2>&1\")",
+      "Bash(powershell -Command \"Stop-Process -Id 16204 -Force -ErrorAction SilentlyContinue; Start-Sleep 1; \\(Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue\\) -eq $null\")"
     ]
   }
 }
