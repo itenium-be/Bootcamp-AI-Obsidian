@@ -27,7 +27,15 @@ import {
   SelectValue,
   Checkbox,
 } from '@itenium-forge/ui';
-import { fetchUserTeams, fetchUsers, createUser, archiveUser, restoreUser, fetchArchivedUsers } from '@/api/client';
+import {
+  fetchUserTeams,
+  fetchUsers,
+  createUser,
+  updateUserRole,
+  archiveUser,
+  restoreUser,
+  fetchArchivedUsers,
+} from '@/api/client';
 
 const ROLES = ['learner', 'manager', 'backoffice'] as const;
 type Role = (typeof ROLES)[number];
@@ -47,6 +55,7 @@ type FormData = z.infer<ReturnType<typeof createFormSchema>>;
 export function Users() {
   const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
+  const [pendingRoles, setPendingRoles] = useState<Record<string, string>>({});
   const [showArchived, setShowArchived] = useState(false);
   const queryClient = useQueryClient();
 
@@ -99,6 +108,18 @@ export function Users() {
     },
     onError: () => {
       toast.error(t('users.createError'));
+    },
+  });
+
+  const { mutate: mutateRole, isPending: isRolePending } = useMutation({
+    mutationFn: ({ userId, role }: { userId: string; role: string }) => updateUserRole(userId, role),
+    onSuccess: (_data, { userId }) => {
+      toast.success(t('users.updateRoleSuccess'));
+      setPendingRoles((prev) => Object.fromEntries(Object.entries(prev).filter(([k]) => k !== userId)));
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    onError: () => {
+      toast.error(t('users.updateRoleError'));
     },
   });
 
@@ -328,26 +349,64 @@ export function Users() {
                 </td>
               </tr>
             ) : (
-              users.map((user) => (
-                <tr key={user.id} className="border-b">
-                  <td className="p-3">
-                    {user.firstName} {user.lastName}
-                  </td>
-                  <td className="p-3 text-muted-foreground">{user.email}</td>
-                  <td className="p-3">{user.roles[0] ?? '-'}</td>
-                  <td className="p-3">
-                    {showArchived ? (
-                      <Button variant="outline" size="sm" onClick={() => restore(user.id)}>
-                        {t('users.restore')}
-                      </Button>
-                    ) : (
-                      <Button variant="destructive" size="sm" onClick={() => archive(user.id)}>
-                        {t('users.archive')}
-                      </Button>
-                    )}
-                  </td>
-                </tr>
-              ))
+              users.map((user) => {
+                const currentRole = user.roles[0] ?? '';
+                const pendingRole = pendingRoles[user.id];
+                const displayRole = pendingRole ?? currentRole;
+                const isDirty = pendingRole !== undefined && pendingRole !== currentRole;
+                return (
+                  <tr key={user.id} className="border-b">
+                    <td className="p-3">
+                      {user.firstName} {user.lastName}
+                    </td>
+                    <td className="p-3 text-muted-foreground">{user.email}</td>
+                    <td className="p-3">
+                      {showArchived ? (
+                        (user.roles[0] ?? '-')
+                      ) : (
+                        <Select
+                          value={displayRole}
+                          onValueChange={(value) => setPendingRoles((prev) => ({ ...prev, [user.id]: value }))}
+                        >
+                          <SelectTrigger className="w-36">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {ROLES.map((role) => (
+                              <SelectItem key={role} value={role}>
+                                {t(`users.roles.${role}`)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </td>
+                    <td className="p-3 flex gap-2">
+                      {showArchived ? (
+                        <Button variant="outline" size="sm" onClick={() => restore(user.id)}>
+                          {t('users.restore')}
+                        </Button>
+                      ) : (
+                        <>
+                          {isDirty && (
+                            <Button
+                              size="sm"
+                              disabled={isRolePending}
+                              onClick={() => mutateRole({ userId: user.id, role: pendingRole })}
+                            >
+                              {isRolePending && <Loader2 className="size-4 mr-2 animate-spin" />}
+                              {t('common.save')}
+                            </Button>
+                          )}
+                          <Button variant="destructive" size="sm" onClick={() => archive(user.id)}>
+                            {t('users.archive')}
+                          </Button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>

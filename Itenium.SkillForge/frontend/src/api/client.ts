@@ -202,6 +202,10 @@ export async function fetchUsers(): Promise<UserSummary[]> {
   return response.data;
 }
 
+export async function updateUserRole(userId: string, role: string): Promise<void> {
+  await api.put(`/api/user/${userId}/role`, { role });
+}
+
 export async function archiveUser(userId: string): Promise<void> {
   await api.patch(`/api/user/${userId}/archive`);
 }
@@ -213,4 +217,26 @@ export async function restoreUser(userId: string): Promise<void> {
 export async function fetchArchivedUsers(): Promise<UserSummary[]> {
   const response = await api.get<UserSummary[]>('/api/user/archived');
   return response.data;
+}
+
+// ── Team member management (admin) ──────────────────────────────────────────
+
+interface TeamMemberSummary {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
+export async function fetchTeamMembers(teamId: number): Promise<TeamMemberSummary[]> {
+  const response = await api.get<TeamMemberSummary[]>(`/api/team/${teamId}/members`);
+  return response.data;
+}
+
+export async function addTeamMember(teamId: number, userId: string): Promise<void> {
+  await api.post(`/api/team/${teamId}/members`, { userId });
+}
+
+export async function removeTeamMember(teamId: number, userId: string): Promise<void> {
+  await api.delete(`/api/team/${teamId}/members/${userId}`);
 }

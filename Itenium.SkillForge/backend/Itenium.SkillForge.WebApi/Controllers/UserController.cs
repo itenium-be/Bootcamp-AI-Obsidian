@@ -132,6 +132,31 @@ public partial class UserController(UserManager<ForgeUser> userManager, ILogger<
         return Created($"/api/user/{user.Id}", new { user.Id, user.Email, user.FirstName, user.LastName });
     }
 
+    /// <summary>
+    /// Update the role of an existing user.
+    /// </summary>
+    [HttpPut("{id}/role")]
+    public async Task<IActionResult> UpdateUserRole(string id, [FromBody] UpdateUserRoleRequest request)
+    {
+        if (!AllowedRoles.Contains(request.Role))
+            return BadRequest($"Role '{request.Role}' is not valid. Allowed: {string.Join(", ", AllowedRoles)}");
+
+        var user = await userManager.FindByIdAsync(id);
+        if (user == null)
+            return NotFound();
+
+        var currentRoles = await userManager.GetRolesAsync(user);
+        var removeResult = await userManager.RemoveFromRolesAsync(user, currentRoles);
+        if (!removeResult.Succeeded)
+            return StatusCode(500, removeResult.Errors);
+
+        var addResult = await userManager.AddToRoleAsync(user, request.Role);
+        if (!addResult.Succeeded)
+            return StatusCode(500, addResult.Errors);
+
+        return Ok();
+    }
+
     [LoggerMessage(Level = LogLevel.Information, Message = "Archived user {Email}")]
     private static partial void LogUserArchived(ILogger logger, string email);
 

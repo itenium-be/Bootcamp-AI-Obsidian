@@ -130,6 +130,8 @@
     "teams": "Teams",
     "createSuccess": "Gebruiker succesvol aangemaakt",
     "createError": "Gebruiker aanmaken mislukt",
+    "updateRoleSuccess": "Rol succesvol bijgewerkt",
+    "updateRoleError": "Rol bijwerken mislukt",
     "noUsers": "Geen gebruikers gevonden",
     "tableEmail": "E-mail",
     "tableName": "Naam",
@@ -144,6 +146,17 @@
     "showArchived": "Toon Gearchiveerde",
     "showActive": "Toon Actieve",
     "archivedUsers": "Gearchiveerde Gebruikers"
+  },
+  "teams": {
+    "title": "Teams",
+    "noMembers": "Geen leden in dit team",
+    "selectMember": "Selecteer een gebruiker om toe te voegen",
+    "addMember": "Lid Toevoegen",
+    "removeMember": "Verwijderen",
+    "addMemberSuccess": "Lid succesvol toegevoegd",
+    "addMemberError": "Lid toevoegen mislukt",
+    "removeMemberSuccess": "Lid succesvol verwijderd",
+    "removeMemberError": "Lid verwijderen mislukt"
   },
   "errors": {
     "sessionExpired": "Sessie verlopen!",

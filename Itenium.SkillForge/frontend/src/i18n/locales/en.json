@@ -130,6 +130,8 @@
     "teams": "Teams",
     "createSuccess": "User created successfully",
     "createError": "Failed to create user",
+    "updateRoleSuccess": "Role updated successfully",
+    "updateRoleError": "Failed to update role",
     "noUsers": "No users found",
     "tableEmail": "Email",
     "tableName": "Name",
@@ -144,6 +146,17 @@
     "showArchived": "Show Archived",
     "showActive": "Show Active",
     "archivedUsers": "Archived Users"
+  },
+  "teams": {
+    "title": "Teams",
+    "noMembers": "No members in this team",
+    "selectMember": "Select a user to add",
+    "addMember": "Add Member",
+    "removeMember": "Remove",
+    "addMemberSuccess": "Member added successfully",
+    "addMemberError": "Failed to add member",
+    "removeMemberSuccess": "Member removed successfully",
+    "removeMemberError": "Failed to remove member"
   },
   "errors": {
     "sessionExpired": "Session expired!",
