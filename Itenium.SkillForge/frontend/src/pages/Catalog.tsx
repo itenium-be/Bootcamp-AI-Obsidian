@@ -6,7 +6,6 @@ import {
   Card,
   CardHeader,
   CardTitle,
-  CardContent,
   CardDescription,
   CardFooter,
   Badge,
@@ -14,23 +13,9 @@ import {
   Input,
   Skeleton,
 } from '@itenium-forge/ui';
-import { BookOpen, Search, GraduationCap, ChevronRight, Zap } from 'lucide-react';
+import { BookOpen, Search, ChevronRight, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchCourses, fetchEnrollments, enrollInCourse, type Course } from '@/api/client';
-
-function getLevelVariant(level: string | null): 'default' | 'secondary' | 'destructive' | 'outline' {
-  if (!level) return 'outline';
-  switch (level.toLowerCase()) {
-    case 'beginner':
-      return 'default';
-    case 'intermediate':
-      return 'secondary';
-    case 'advanced':
-      return 'destructive';
-    default:
-      return 'outline';
-  }
-}
 
 function getLevelColor(level: string | null): string {
   if (!level) return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';

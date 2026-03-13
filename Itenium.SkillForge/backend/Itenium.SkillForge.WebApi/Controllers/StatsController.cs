@@ -105,7 +105,7 @@ public class StatsController : ControllerBase
             TotalCertificates: totalCertificates,
             CompletionRate: completionRate,
             ActiveLearners: activeLearners,
-            CoursesByCategory: coursesByCategory.ToDictionary(x => x.Category, x => x.Count),
+            CoursesByCategory: coursesByCategory.ToDictionary(x => x.Category, x => x.Count, StringComparer.OrdinalIgnoreCase),
             AverageProgress: averageProgress));
     }
 }

@@ -7,8 +7,8 @@ import {
   CardTitle,
   CardContent,
   Button,
-  Progress,
 } from '@itenium-forge/ui';
+import { Progress } from '@/components/ui-extras';
 import { TrendingUp, Target, BarChart3, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchProgress, fetchCourses, updateProgress, type Progress as ProgressType } from '@/api/client';

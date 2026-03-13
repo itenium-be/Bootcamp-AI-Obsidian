@@ -18,9 +18,9 @@ import {
   CardContent,
   CardDescription,
   Skeleton,
-  Progress,
   Badge,
 } from '@itenium-forge/ui';
+import { Progress } from '@/components/ui-extras';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useAuthStore, useTeamStore } from '@/stores';

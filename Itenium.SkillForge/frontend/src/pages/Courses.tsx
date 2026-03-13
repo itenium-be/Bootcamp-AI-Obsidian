@@ -18,6 +18,21 @@ import { useAuthStore, useTeamStore } from '@/stores';
 import {
   Button,
   Badge,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Skeleton,
+} from '@itenium-forge/ui';
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -33,21 +48,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
   Textarea,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Skeleton,
-} from '@itenium-forge/ui';
+} from '@/components/ui-extras';
 
 const courseSchema = z.object({
   name: z.string().min(1, 'courseManagement.courseNameRequired'),
@@ -138,7 +140,7 @@ function CourseDialog({ open, onClose, course }: CourseDialogProps) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+    <Dialog open={open} onOpenChange={(o: boolean) => !o && onClose()}>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle>

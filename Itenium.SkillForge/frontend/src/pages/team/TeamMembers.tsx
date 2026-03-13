@@ -51,7 +51,7 @@ interface MemberStats {
 }
 
 function getMemberStats(userId: string, enrollments: Enrollment[]): MemberStats {
-  const userEnrollments = enrollments.filter((e) => e.userId === userId);
+  const userEnrollments = enrollments.filter((e) => e.learnerId === userId);
   return {
     enrolled: userEnrollments.length,
     completed: userEnrollments.filter((e) => e.completedAt !== null).length,
@@ -74,7 +74,7 @@ export function TeamMembers() {
   const { t } = useTranslation();
   const { selectedTeam } = useTeamStore();
   const [searchQuery, setSearchQuery] = useState('');
-  const [accessDenied, setAccessDenied] = useState(false);
+  const [accessDenied] = useState(false);
 
   const {
     data: users,
@@ -85,12 +85,6 @@ export function TeamMembers() {
     queryFn: fetchUsers,
     retry: false,
     throwOnError: false,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onError: (err: any) => {
-      if (err?.response?.status === 403) {
-        setAccessDenied(true);
-      }
-    },
   });
 
   const { data: enrollments = [], isLoading: enrollmentsLoading } = useQuery({
@@ -100,10 +94,8 @@ export function TeamMembers() {
 
   const isLoading = usersLoading || enrollmentsLoading;
 
-  const is403 =
-    accessDenied ||
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (usersError && (usersError as any)?.response?.status === 403);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const is403 = accessDenied || (usersError && (usersError as any)?.response?.status === 403);
 
   const filteredUsers = (users ?? []).filter((user) => {
     const name = getMemberDisplayName(user).toLowerCase();

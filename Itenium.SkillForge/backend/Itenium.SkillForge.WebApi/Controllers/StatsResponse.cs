@@ -18,5 +18,5 @@ public record StatsResponse(
     int TotalCertificates,
     double CompletionRate,
     int ActiveLearners,
-    Dictionary<string, int> CoursesByCategory,
+    IDictionary<string, int> CoursesByCategory,
     double AverageProgress);

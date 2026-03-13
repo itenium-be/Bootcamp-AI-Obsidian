@@ -15,8 +15,23 @@ import {
   Settings2,
   BookOpen,
 } from 'lucide-react';
-import { fetchUserTeams, type Course } from '@/api/client';
+import { fetchUserTeams } from '@/api/client';
 import { useAuthStore } from '@/stores';
+import {
+  Button,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  Input,
+  Skeleton,
+} from '@itenium-forge/ui';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,29 +42,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
-  Separator,
-  Skeleton,
-} from '@itenium-forge/ui';
+} from '@/components/ui-extras';
 
 interface Team {
   id: number;
@@ -200,7 +199,7 @@ function TeamDialog({ open, onClose, team }: TeamDialogProps) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+    <Dialog open={open} onOpenChange={(o: boolean) => !o && onClose()}>
       <DialogContent className="sm:max-w-[420px]">
         <DialogHeader>
           <DialogTitle>

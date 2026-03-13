@@ -17,8 +17,8 @@ import {
   TableHeader,
   TableRow,
   Skeleton,
-  Separator,
 } from '@itenium-forge/ui';
+import { Separator } from '@/components/ui-extras';
 import {
   ClipboardList,
   BookOpen,
@@ -62,8 +62,8 @@ interface MemberCardProps {
   onSelect: () => void;
 }
 
-function MemberCard({ user, enrollments, courses, isSelected, onSelect }: MemberCardProps) {
-  const userEnrollments = enrollments.filter((e) => e.userId === user.id);
+function MemberCard({ user, enrollments, courses: _courses, isSelected, onSelect }: MemberCardProps) {
+  const userEnrollments = enrollments.filter((e) => e.learnerId === user.id);
   const completedCount = userEnrollments.filter((e) => e.completedAt !== null).length;
 
   return (
@@ -222,7 +222,7 @@ export function Assignments() {
   });
 
   const selectedMember = users.find((u) => u.id === selectedMemberId) ?? null;
-  const selectedMemberEnrollments = enrollments.filter((e) => e.userId === selectedMemberId);
+  const selectedMemberEnrollments = enrollments.filter((e) => e.learnerId === selectedMemberId);
   const enrolledCourseIds = new Set(selectedMemberEnrollments.map((e) => e.courseId));
 
   const filteredCourses = courses.filter((c) =>
@@ -233,16 +233,16 @@ export function Assignments() {
   const allEnrollmentRows = enrollments
     .filter((e) => {
       if (!enrollmentFilter) return true;
-      const user = users.find((u) => u.id === e.userId);
-      const name = user ? getUserDisplayName(user).toLowerCase() : e.userId.toLowerCase();
+      const user = users.find((u) => u.id === e.learnerId);
+      const name = user ? getUserDisplayName(user).toLowerCase() : e.learnerId.toLowerCase();
       return name.includes(enrollmentFilter.toLowerCase());
     })
     .map((e) => {
-      const user = users.find((u) => u.id === e.userId);
+      const user = users.find((u) => u.id === e.learnerId);
       const course = courses.find((c) => c.id === e.courseId);
       return {
         ...e,
-        userName: user ? getUserDisplayName(user) : e.userId.slice(0, 8),
+        userName: user ? getUserDisplayName(user) : e.learnerId.slice(0, 8),
         courseName: course?.name ?? `Course #${e.courseId}`,
       };
     });

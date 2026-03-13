@@ -8,8 +8,6 @@ import {
   CardDescription,
   Button,
   Badge,
-  Alert,
-  AlertDescription,
 } from '@itenium-forge/ui';
 import { toast } from 'sonner';
 
@@ -53,13 +51,13 @@ export function FeedbackReport() {
       </div>
 
       {/* Coming Soon Alert */}
-      <Alert>
-        <MessageSquare className="size-4" />
-        <AlertDescription>
+      <div className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950">
+        <MessageSquare className="size-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+        <p className="text-sm text-blue-700 dark:text-blue-300">
           {t('reports.feedbackComingSoon')} — The feedback module will allow learners to rate
           courses and provide structured feedback after completion.
-        </AlertDescription>
-      </Alert>
+        </p>
+      </div>
 
       {/* What's Coming Section */}
       <Card>

@@ -16,9 +16,16 @@ import {
   TableHeader,
   TableRow,
   Skeleton,
-  Progress,
   Button,
 } from '@itenium-forge/ui';
+
+function ProgressBar({ value, className = '' }: { value: number; className?: string }) {
+  return (
+    <div className={`bg-muted rounded-full overflow-hidden ${className}`} style={{ height: '6px' }}>
+      <div className="bg-primary h-full rounded-full transition-all" style={{ width: `${Math.min(100, value)}%` }} />
+    </div>
+  );
+}
 import { TrendingUp, BarChart3, Award, CheckCircle, Clock, Search, Filter, Download } from 'lucide-react';
 import { useTeamStore } from '@/stores';
 import {
@@ -27,10 +34,10 @@ import {
   fetchCourses,
   fetchUsers,
   type Enrollment,
-  type ProgressEntry,
   type Course,
   type User,
 } from '@/api/client';
+import type { Progress as ProgressEntry } from '@/api/client';
 
 type ProgressStatus = 'completed' | 'inProgress' | 'notStarted';
 
@@ -47,7 +54,7 @@ interface ProgressRow {
 
 function getStatus(enrollment: Enrollment, progress: ProgressEntry | undefined): ProgressStatus {
   if (enrollment.completedAt) return 'completed';
-  if (progress && progress.progressPercentage > 0) return 'inProgress';
+  if (progress && progress.percentageComplete > 0) return 'inProgress';
   return 'notStarted';
 }
 
@@ -84,24 +91,24 @@ function buildRows(
 ): ProgressRow[] {
   return enrollments.map((enrollment) => {
     const course = courses.find((c) => c.id === enrollment.courseId);
-    const user = users.find((u) => u.id === enrollment.userId);
+    const user = users.find((u) => u.id === enrollment.learnerId);
     const progress = progressEntries.find(
-      (p) => p.courseId === enrollment.courseId && p.userId === enrollment.userId,
+      (p) => p.courseId === enrollment.courseId && p.learnerId === enrollment.learnerId,
     );
     const status = getStatus(enrollment, progress);
     const progressPct =
-      status === 'completed' ? 100 : progress?.progressPercentage ?? 0;
+      status === 'completed' ? 100 : progress?.percentageComplete ?? 0;
 
     const userName =
       user
         ? user.firstName && user.lastName
           ? `${user.firstName} ${user.lastName}`
           : user.userName
-        : enrollment.userId.slice(0, 8);
+        : enrollment.learnerId.slice(0, 8);
 
     return {
       enrollmentId: enrollment.id,
-      userId: enrollment.userId,
+      userId: enrollment.learnerId,
       userName,
       courseId: enrollment.courseId,
       courseName: course?.name ?? `Course #${enrollment.courseId}`,
@@ -215,7 +222,7 @@ export function TeamProgress() {
               {isLoading ? <Skeleton className="h-8 w-12" /> : totalEnrollments}
             </div>
             <div className="mt-2">
-              <Progress value={completionRate} className="h-1.5" />
+              <ProgressBar value={completionRate} className="h-1.5" />
             </div>
             <p className="text-xs text-muted-foreground mt-1">{completedCount} completed</p>
           </CardContent>
@@ -235,7 +242,7 @@ export function TeamProgress() {
               {isLoading ? <Skeleton className="h-8 w-16" /> : `${avgProgress}%`}
             </div>
             <div className="mt-2">
-              <Progress value={avgProgress} className="h-1.5" />
+              <ProgressBar value={avgProgress} className="h-1.5" />
             </div>
             <p className="text-xs text-muted-foreground mt-1">Across all enrollments</p>
           </CardContent>
@@ -255,7 +262,7 @@ export function TeamProgress() {
               {isLoading ? <Skeleton className="h-8 w-16" /> : `${completionRate}%`}
             </div>
             <div className="mt-2">
-              <Progress value={completionRate} className="h-1.5" />
+              <ProgressBar value={completionRate} className="h-1.5" />
             </div>
             <p className="text-xs text-muted-foreground mt-1">{completedCount} of {totalEnrollments} courses</p>
           </CardContent>
@@ -374,7 +381,7 @@ export function TeamProgress() {
                     </TableCell>
                     <TableCell className="w-48">
                       <div className="flex items-center gap-2">
-                        <Progress value={row.progressPct} className="flex-1 h-2" />
+                        <ProgressBar value={row.progressPct} className="flex-1 h-2" />
                         <span className="text-xs text-muted-foreground w-8 text-right">
                           {row.progressPct}%
                         </span>

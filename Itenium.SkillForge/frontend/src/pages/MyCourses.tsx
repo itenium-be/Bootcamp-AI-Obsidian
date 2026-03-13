@@ -9,8 +9,8 @@ import {
   CardContent,
   Badge,
   Button,
-  Progress,
 } from '@itenium-forge/ui';
+import { Progress } from '@/components/ui-extras';
 import { BookOpen, CheckCircle, Clock, PlayCircle, BookMarked, Trophy } from 'lucide-react';
 import { fetchEnrollments, fetchCourses, fetchProgress, type Enrollment, type Course, type Progress as ProgressType } from '@/api/client';
 

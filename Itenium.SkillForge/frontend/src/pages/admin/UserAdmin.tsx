@@ -11,22 +11,22 @@ import {
   Button,
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
+  Input,
+  Skeleton,
+} from '@itenium-forge/ui';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  Input,
   Separator,
-  Skeleton,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from '@itenium-forge/ui';
+} from '@/components/ui-extras';
 
 function getRoleBadgeClass(role: string) {
   switch (role.toLowerCase()) {
@@ -86,7 +86,7 @@ function UserDetailDialog({ user, open, onClose }: UserDetailDialogProps) {
   if (!user) return null;
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+    <Dialog open={open} onOpenChange={(o: boolean) => !o && onClose()}>
       <DialogContent className="sm:max-w-[440px]">
         <DialogHeader>
           <DialogTitle>{t('userAdmin.userDetails')}</DialogTitle>
@@ -326,7 +326,7 @@ export function UserAdmin() {
         <CardContent className="p-0">
           <Tabs
             value={roleFilter}
-            onValueChange={(v) => setRoleFilter(v as RoleFilter)}
+            onValueChange={(v: string) => setRoleFilter(v as RoleFilter)}
             className="w-full"
           >
             <div className="border-b px-4">

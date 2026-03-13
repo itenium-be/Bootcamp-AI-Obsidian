@@ -8,7 +8,6 @@ import {
   CardDescription,
   Button,
   Skeleton,
-  Progress,
   Badge,
   Table,
   TableBody,
@@ -146,7 +145,7 @@ export function CompletionReport() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{overallRate}%</div>
-                <Progress value={overallRate} className="mt-1 h-1.5" />
+                <div className="bg-muted rounded-full overflow-hidden mt-1 h-1.5"><div className="bg-primary rounded-full transition-all" style={{ height: "100%", width: `${Math.min(100, overallRate)}%` }} /></div>
               </CardContent>
             </Card>
 
@@ -230,7 +229,7 @@ export function CompletionReport() {
                 <div className="relative flex items-center justify-center">
                   <div className="text-5xl font-bold text-primary">{overallRate}%</div>
                 </div>
-                <Progress value={overallRate} className="w-full h-3" />
+                <div className="bg-muted rounded-full overflow-hidden w-full h-3"><div className="bg-primary rounded-full transition-all" style={{ height: "100%", width: `${Math.min(100, overallRate)}%` }} /></div>
                 <div className="grid grid-cols-2 gap-4 w-full text-center">
                   <div>
                     <div className="text-xl font-bold text-green-600">{totalCompleted}</div>
