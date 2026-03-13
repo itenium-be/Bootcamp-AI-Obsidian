@@ -5,3 +5,4 @@ _bmad
 .~lock.Bootcamp-AI.pptx#
 dashboard
 .env
+docker-compose.yml
