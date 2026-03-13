@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import type { AxiosError } from 'axios';
 import { Loader2, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -106,8 +107,9 @@ export function Users() {
       setShowForm(false);
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
-    onError: () => {
-      toast.error(t('users.createError'));
+    onError: (error: AxiosError<{ message?: string }>) => {
+      const message = error.response?.data?.message ?? t('users.createError');
+      toast.error(message);
     },
   });
 

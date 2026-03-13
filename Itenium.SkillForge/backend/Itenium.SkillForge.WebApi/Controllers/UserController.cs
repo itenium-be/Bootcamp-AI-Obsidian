@@ -116,19 +116,32 @@ public partial class UserController(UserManager<ForgeUser> userManager, ILogger<
 
         var createResult = await userManager.CreateAsync(user, request.Password);
         if (!createResult.Succeeded)
-            return BadRequest(createResult.Errors);
+        {
+            var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
+            LogUserCreateFailed(logger, request.Email, errors);
+            return BadRequest(new { message = errors });
+        }
 
         var roleResult = await userManager.AddToRoleAsync(user, request.Role);
         if (!roleResult.Succeeded)
-            return StatusCode(500, roleResult.Errors);
+        {
+            var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
+            LogUserRoleFailed(logger, request.Role, request.Email, errors);
+            return StatusCode(500, new { message = errors });
+        }
 
         foreach (var teamId in request.TeamIds)
         {
             var claimResult = await userManager.AddClaimAsync(user, new Claim("team", teamId.ToString(System.Globalization.CultureInfo.InvariantCulture)));
             if (!claimResult.Succeeded)
-                return StatusCode(500, claimResult.Errors);
+            {
+                var errors = string.Join(", ", claimResult.Errors.Select(e => e.Description));
+                LogUserTeamClaimFailed(logger, teamId, request.Email, errors);
+                return StatusCode(500, new { message = errors });
+            }
         }
 
+        LogUserCreated(logger, request.Email, request.Role);
         return Created($"/api/user/{user.Id}", new { user.Id, user.Email, user.FirstName, user.LastName });
     }
 
@@ -156,6 +169,18 @@ public partial class UserController(UserManager<ForgeUser> userManager, ILogger<
 
         return Ok();
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Created user {Email} with role {Role}")]
+    private static partial void LogUserCreated(ILogger logger, string email, string role);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to create user {Email}: {Errors}")]
+    private static partial void LogUserCreateFailed(ILogger logger, string email, string errors);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to assign role {Role} to user {Email}: {Errors}")]
+    private static partial void LogUserRoleFailed(ILogger logger, string role, string email, string errors);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to add team claim {TeamId} to user {Email}: {Errors}")]
+    private static partial void LogUserTeamClaimFailed(ILogger logger, int teamId, string email, string errors);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Archived user {Email}")]
     private static partial void LogUserArchived(ILogger logger, string email);
