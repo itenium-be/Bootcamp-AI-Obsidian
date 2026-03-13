@@ -12,7 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedMyProgressRouteImport } from './routes/_authenticated/my-progress'
+import { Route as AuthenticatedMyCoursesRouteImport } from './routes/_authenticated/my-courses'
+import { Route as AuthenticatedMyCertificatesRouteImport } from './routes/_authenticated/my-certificates'
 import { Route as AuthenticatedCoursesRouteImport } from './routes/_authenticated/courses'
+import { Route as AuthenticatedCatalogRouteImport } from './routes/_authenticated/catalog'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
 import { Route as AuthenticatedTeamRouteRouteImport } from './routes/_authenticated/team/route'
 import { Route as AuthenticatedReportsRouteRouteImport } from './routes/_authenticated/reports/route'
@@ -40,9 +44,30 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMyProgressRoute = AuthenticatedMyProgressRouteImport.update({
+  id: '/my-progress',
+  path: '/my-progress',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMyCoursesRoute = AuthenticatedMyCoursesRouteImport.update({
+  id: '/my-courses',
+  path: '/my-courses',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMyCertificatesRoute =
+  AuthenticatedMyCertificatesRouteImport.update({
+    id: '/my-certificates',
+    path: '/my-certificates',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCoursesRoute = AuthenticatedCoursesRouteImport.update({
   id: '/courses',
   path: '/courses',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCatalogRoute = AuthenticatedCatalogRouteImport.update({
+  id: '/catalog',
+  path: '/catalog',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const authSignInRoute = authSignInRouteImport.update({
@@ -118,7 +143,11 @@ export interface FileRoutesByFullPath {
   '/reports': typeof AuthenticatedReportsRouteRouteWithChildren
   '/team': typeof AuthenticatedTeamRouteRouteWithChildren
   '/sign-in': typeof authSignInRoute
+  '/catalog': typeof AuthenticatedCatalogRoute
   '/courses': typeof AuthenticatedCoursesRoute
+  '/my-certificates': typeof AuthenticatedMyCertificatesRoute
+  '/my-courses': typeof AuthenticatedMyCoursesRoute
+  '/my-progress': typeof AuthenticatedMyProgressRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/': typeof AuthenticatedIndexRoute
   '/admin/teams': typeof AuthenticatedAdminTeamsRoute
@@ -135,7 +164,11 @@ export interface FileRoutesByTo {
   '/reports': typeof AuthenticatedReportsRouteRouteWithChildren
   '/team': typeof AuthenticatedTeamRouteRouteWithChildren
   '/sign-in': typeof authSignInRoute
+  '/catalog': typeof AuthenticatedCatalogRoute
   '/courses': typeof AuthenticatedCoursesRoute
+  '/my-certificates': typeof AuthenticatedMyCertificatesRoute
+  '/my-courses': typeof AuthenticatedMyCoursesRoute
+  '/my-progress': typeof AuthenticatedMyProgressRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/': typeof AuthenticatedIndexRoute
   '/admin/teams': typeof AuthenticatedAdminTeamsRoute
@@ -154,7 +187,11 @@ export interface FileRoutesById {
   '/_authenticated/reports': typeof AuthenticatedReportsRouteRouteWithChildren
   '/_authenticated/team': typeof AuthenticatedTeamRouteRouteWithChildren
   '/(auth)/sign-in': typeof authSignInRoute
+  '/_authenticated/catalog': typeof AuthenticatedCatalogRoute
   '/_authenticated/courses': typeof AuthenticatedCoursesRoute
+  '/_authenticated/my-certificates': typeof AuthenticatedMyCertificatesRoute
+  '/_authenticated/my-courses': typeof AuthenticatedMyCoursesRoute
+  '/_authenticated/my-progress': typeof AuthenticatedMyProgressRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/admin/teams': typeof AuthenticatedAdminTeamsRoute
@@ -173,7 +210,11 @@ export interface FileRouteTypes {
     | '/reports'
     | '/team'
     | '/sign-in'
+    | '/catalog'
     | '/courses'
+    | '/my-certificates'
+    | '/my-courses'
+    | '/my-progress'
     | '/settings'
     | '/'
     | '/admin/teams'
@@ -190,7 +231,11 @@ export interface FileRouteTypes {
     | '/reports'
     | '/team'
     | '/sign-in'
+    | '/catalog'
     | '/courses'
+    | '/my-certificates'
+    | '/my-courses'
+    | '/my-progress'
     | '/settings'
     | '/'
     | '/admin/teams'
@@ -208,7 +253,11 @@ export interface FileRouteTypes {
     | '/_authenticated/reports'
     | '/_authenticated/team'
     | '/(auth)/sign-in'
+    | '/_authenticated/catalog'
     | '/_authenticated/courses'
+    | '/_authenticated/my-certificates'
+    | '/_authenticated/my-courses'
+    | '/_authenticated/my-progress'
     | '/_authenticated/settings'
     | '/_authenticated/'
     | '/_authenticated/admin/teams'
@@ -249,11 +298,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/my-progress': {
+      id: '/_authenticated/my-progress'
+      path: '/my-progress'
+      fullPath: '/my-progress'
+      preLoaderRoute: typeof AuthenticatedMyProgressRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-courses': {
+      id: '/_authenticated/my-courses'
+      path: '/my-courses'
+      fullPath: '/my-courses'
+      preLoaderRoute: typeof AuthenticatedMyCoursesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-certificates': {
+      id: '/_authenticated/my-certificates'
+      path: '/my-certificates'
+      fullPath: '/my-certificates'
+      preLoaderRoute: typeof AuthenticatedMyCertificatesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/courses': {
       id: '/_authenticated/courses'
       path: '/courses'
       fullPath: '/courses'
       preLoaderRoute: typeof AuthenticatedCoursesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/catalog': {
+      id: '/_authenticated/catalog'
+      path: '/catalog'
+      fullPath: '/catalog'
+      preLoaderRoute: typeof AuthenticatedCatalogRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/(auth)/sign-in': {
@@ -399,7 +476,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedReportsRouteRoute: typeof AuthenticatedReportsRouteRouteWithChildren
   AuthenticatedTeamRouteRoute: typeof AuthenticatedTeamRouteRouteWithChildren
+  AuthenticatedCatalogRoute: typeof AuthenticatedCatalogRoute
   AuthenticatedCoursesRoute: typeof AuthenticatedCoursesRoute
+  AuthenticatedMyCertificatesRoute: typeof AuthenticatedMyCertificatesRoute
+  AuthenticatedMyCoursesRoute: typeof AuthenticatedMyCoursesRoute
+  AuthenticatedMyProgressRoute: typeof AuthenticatedMyProgressRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
@@ -408,7 +489,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedReportsRouteRoute: AuthenticatedReportsRouteRouteWithChildren,
   AuthenticatedTeamRouteRoute: AuthenticatedTeamRouteRouteWithChildren,
+  AuthenticatedCatalogRoute: AuthenticatedCatalogRoute,
   AuthenticatedCoursesRoute: AuthenticatedCoursesRoute,
+  AuthenticatedMyCertificatesRoute: AuthenticatedMyCertificatesRoute,
+  AuthenticatedMyCoursesRoute: AuthenticatedMyCoursesRoute,
+  AuthenticatedMyProgressRoute: AuthenticatedMyProgressRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
