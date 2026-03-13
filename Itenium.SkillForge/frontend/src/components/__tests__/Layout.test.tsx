@@ -115,6 +115,8 @@ function setupStores(options: {
       email: 'test@test.com',
       name: userName,
       isBackOffice,
+      isManager: false,
+      role: isBackOffice ? 'backoffice' : 'learner',
     },
   });
 
