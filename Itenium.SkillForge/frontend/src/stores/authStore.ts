@@ -16,6 +16,8 @@ interface User {
   email: string;
   name: string;
   isBackOffice: boolean;
+  isManager: boolean;
+  role: string;
 }
 
 interface AuthState {
@@ -34,6 +36,8 @@ function parseUserFromToken(token: string): User {
     email: decoded.email || decoded.preferred_username || '',
     name: decoded.name || decoded.preferred_username || 'User',
     isBackOffice: roles.includes('backoffice'),
+    isManager: roles.includes('manager'),
+    role: roles[0] ?? 'learner',
   };
 }
 
