@@ -105,11 +105,6 @@ export async function fetchSkills(): Promise<Skill[]> {
   return response.data;
 }
 
-async function fetchSkill(id: number): Promise<Skill> {
-  const response = await api.get<Skill>(`/api/skill/${id}`);
-  return response.data;
-}
-
 export interface SkillFormData {
   name: string;
   description: string | null;
@@ -138,13 +133,6 @@ export interface PrerequisiteCheckItem {
   skillName: string;
   requiredLevel: number;
   currentLevel: number;
-}
-
-async function fetchPrerequisiteCheck(skillId: number, userId: string): Promise<PrerequisiteCheckItem[]> {
-  const response = await api.get<PrerequisiteCheckItem[]>(`/api/skill/${skillId}/prerequisite-check`, {
-    params: { userId },
-  });
-  return response.data;
 }
 
 // ── Roadmap ──────────────────────────────────────────────────────────────────
@@ -195,16 +183,6 @@ interface ImportSkillRequest {
   levelCount: number;
   isUniversal: boolean;
   levelDescriptors: { level: number; description: string }[];
-}
-
-interface ImportResult {
-  created: number;
-  updated: number;
-}
-
-async function importSkills(skills: ImportSkillRequest[]): Promise<ImportResult> {
-  const response = await api.post<ImportResult>('/api/admin/skills/import', skills);
-  return response.data;
 }
 
 // ── User management (admin) ──────────────────────────────────────────────────
