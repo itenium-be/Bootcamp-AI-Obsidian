@@ -7,7 +7,6 @@ const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
-// Add auth token to requests
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
   if (token) {
@@ -16,7 +15,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle 401 responses
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -40,20 +38,13 @@ export async function loginApi(username: string, password: string): Promise<Logi
   params.append('password', password);
   params.append('client_id', 'skillforge-spa');
   params.append('scope', 'openid profile email');
-
   const response = await axios.post<LoginResponse>(`${API_BASE_URL}/connect/token`, params, {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
   });
-
   return response.data;
 }
 
-interface Team {
-  id: number;
-  name: string;
-}
+export interface Team { id: number; name: string; }
 
 export async function fetchUserTeams(): Promise<Team[]> {
   const response = await api.get<Team[]>('/api/team');
@@ -61,81 +52,76 @@ export async function fetchUserTeams(): Promise<Team[]> {
 }
 
 export interface Course {
-  id: number;
-  name: string;
-  description: string | null;
-  category: string | null;
-  level: string | null;
+  id: number; name: string; description: string | null; category: string | null; level: string | null;
+}
+
+export interface CourseFormData {
+  name: string; description?: string; category?: string; level?: string;
 }
 
 export async function fetchCourses(): Promise<Course[]> {
-  const response = await api.get<Course[]>('/api/course');
-  return response.data;
+  return (await api.get<Course[]>('/api/course')).data;
+}
+export async function createCourse(data: CourseFormData): Promise<Course> {
+  return (await api.post<Course>('/api/course', data)).data;
+}
+export async function updateCourse(id: number, data: CourseFormData): Promise<Course> {
+  return (await api.put<Course>(`/api/course/${id}`, data)).data;
+}
+export async function deleteCourse(id: number): Promise<void> {
+  await api.delete(`/api/course/${id}`);
 }
 
 export interface User {
-  id: string;
-  userName: string;
-  email: string;
-  firstName: string | null;
-  lastName: string | null;
-  roles: string[];
+  id: string; userName: string; email: string;
+  firstName: string | null; lastName: string | null; roles: string[];
 }
-
 export async function fetchUsers(): Promise<User[]> {
-  const response = await api.get<User[]>('/api/user');
-  return response.data;
+  return (await api.get<User[]>('/api/user')).data;
 }
-
 export async function fetchUser(id: string): Promise<User> {
-  const response = await api.get<User>(`/api/user/${id}`);
-  return response.data;
+  return (await api.get<User>(`/api/user/${id}`)).data;
 }
 
 export interface Enrollment {
-  id: number;
-  courseId: number;
-  userId: string;
-  enrolledAt: string;
-  completedAt: string | null;
+  id: number; learnerId: string; courseId: number; enrolledAt: string; completedAt: string | null;
 }
-
 export async function fetchEnrollments(): Promise<Enrollment[]> {
-  const response = await api.get<Enrollment[]>('/api/enrollment');
-  return response.data;
+  return (await api.get<Enrollment[]>('/api/enrollment')).data;
 }
-
 export async function enrollInCourse(courseId: number): Promise<Enrollment> {
-  const response = await api.post<Enrollment>(`/api/enrollment/${courseId}`);
-  return response.data;
+  return (await api.post<Enrollment>(`/api/enrollment/${courseId}`)).data;
 }
-
 export async function unenrollFromCourse(courseId: number): Promise<void> {
   await api.delete(`/api/enrollment/${courseId}`);
 }
 
-export interface ProgressEntry {
-  id: number;
-  courseId: number;
-  userId: string;
-  progressPercentage: number;
-  lastUpdated: string;
+export interface Progress {
+  id: number; learnerId: string; courseId: number;
+  percentageComplete: number; lastUpdated: string; notes: string | null;
+}
+export async function fetchProgress(): Promise<Progress[]> {
+  return (await api.get<Progress[]>('/api/progress')).data;
+}
+export async function fetchCourseProgress(courseId: number): Promise<Progress> {
+  return (await api.get<Progress>(`/api/progress/${courseId}`)).data;
+}
+export async function updateProgress(courseId: number, data: { percentageComplete: number; notes?: string }): Promise<Progress> {
+  return (await api.put<Progress>(`/api/progress/${courseId}`, data)).data;
 }
 
-export async function fetchProgress(): Promise<ProgressEntry[]> {
-  const response = await api.get<ProgressEntry[]>('/api/progress');
-  return response.data;
+export interface Certificate {
+  id: number; learnerId: string; learnerName: string; courseId: number;
+  courseName: string; issuedAt: string; certificateNumber: string;
+}
+export async function fetchCertificates(): Promise<Certificate[]> {
+  return (await api.get<Certificate[]>('/api/certificate')).data;
 }
 
 export interface Stats {
-  totalCourses: number;
-  totalLearners: number;
-  totalEnrollments: number;
-  totalCertificates: number;
-  completionRate: number;
+  totalCourses: number; totalLearners: number; totalEnrollments: number;
+  totalCertificates: number; completionRate: number;
 }
-
 export async function fetchStats(): Promise<Stats> {
-  const response = await api.get<Stats>('/api/stats');
-  return response.data;
+  return (await api.get<Stats>('/api/stats')).data;
 }
