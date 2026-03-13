@@ -201,3 +201,7 @@ export async function fetchUsers(): Promise<UserSummary[]> {
   const response = await api.get<UserSummary[]>('/api/user');
   return response.data;
 }
+
+export async function archiveUser(userId: string): Promise<void> {
+  await api.patch(`/api/user/${userId}/archive`);
+}
