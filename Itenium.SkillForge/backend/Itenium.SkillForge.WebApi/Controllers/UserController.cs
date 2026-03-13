@@ -36,6 +36,27 @@ public partial class UserController(UserManager<ForgeUser> userManager, ILogger<
     }
 
     /// <summary>
+    /// Get all archived user accounts.
+    /// </summary>
+    [HttpGet("archived")]
+    public async Task<IActionResult> GetArchivedUsers()
+    {
+        var users = userManager.Users.ToList();
+        var result = new List<object>();
+        foreach (var u in users)
+        {
+            var claims = await userManager.GetClaimsAsync(u);
+            if (!claims.Any(c => c.Type == "archived" && c.Value == "true"))
+                continue;
+
+            var roles = await userManager.GetRolesAsync(u);
+            result.Add(new { u.Id, u.Email, u.FirstName, u.LastName, Roles = roles });
+        }
+
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Archive a user account (soft-delete: disables login, preserves history).
     /// </summary>
     [HttpPatch("{id}/archive")]
@@ -50,6 +71,28 @@ public partial class UserController(UserManager<ForgeUser> userManager, ILogger<
         await userManager.AddClaimAsync(user, new Claim("archived", "true"));
 
         LogUserArchived(logger, user.Email ?? id);
+        return Ok();
+    }
+
+    /// <summary>
+    /// Restore an archived user account.
+    /// </summary>
+    [HttpPatch("{id}/restore")]
+    public async Task<IActionResult> RestoreUser(string id)
+    {
+        var user = await userManager.FindByIdAsync(id);
+        if (user is null)
+            return NotFound();
+
+        await userManager.SetLockoutEnabledAsync(user, false);
+        await userManager.SetLockoutEndDateAsync(user, null);
+
+        var claims = await userManager.GetClaimsAsync(user);
+        var archivedClaim = claims.FirstOrDefault(c => c.Type == "archived");
+        if (archivedClaim != null)
+            await userManager.RemoveClaimAsync(user, archivedClaim);
+
+        LogUserRestored(logger, user.Email ?? id);
         return Ok();
     }
 
@@ -91,4 +134,7 @@ public partial class UserController(UserManager<ForgeUser> userManager, ILogger<
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Archived user {Email}")]
     private static partial void LogUserArchived(ILogger logger, string email);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Restored user {Email}")]
+    private static partial void LogUserRestored(ILogger logger, string email);
 }
