@@ -159,4 +159,69 @@ public class UserControllerTests
         Assert.That(capturedUser.FirstName, Is.EqualTo("Alice"));
         Assert.That(capturedUser.LastName, Is.EqualTo("Smith"));
     }
+
+    // --- UpdateUserRole ---
+
+    [Test]
+    public async Task UpdateUserRole_WhenValidRequest_ReturnsOk()
+    {
+        var user = new ForgeUser { Id = "1", Email = "a@test.com" };
+        _userManager.FindByIdAsync("1").Returns(user);
+        _userManager.GetRolesAsync(user).Returns(["learner"]);
+        _userManager.RemoveFromRolesAsync(user, Arg.Any<IEnumerable<string>>()).Returns(IdentityResult.Success);
+        _userManager.AddToRoleAsync(user, "manager").Returns(IdentityResult.Success);
+
+        var result = await _sut.UpdateUserRole("1", new UpdateUserRoleRequest("manager"));
+
+        Assert.That(result, Is.InstanceOf<OkResult>());
+    }
+
+    [Test]
+    public async Task UpdateUserRole_WhenInvalidRole_ReturnsBadRequest()
+    {
+        var result = await _sut.UpdateUserRole("1", new UpdateUserRoleRequest("superadmin"));
+
+        Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+        await _userManager.DidNotReceive().FindByIdAsync(Arg.Any<string>());
+    }
+
+    [Test]
+    public async Task UpdateUserRole_WhenUserNotFound_ReturnsNotFound()
+    {
+        _userManager.FindByIdAsync("999").Returns((ForgeUser?)null);
+
+        var result = await _sut.UpdateUserRole("999", new UpdateUserRoleRequest("learner"));
+
+        Assert.That(result, Is.InstanceOf<NotFoundResult>());
+    }
+
+    [Test]
+    public async Task UpdateUserRole_RemovesExistingRoleAndAssignsNew()
+    {
+        var user = new ForgeUser { Id = "1", Email = "a@test.com" };
+        _userManager.FindByIdAsync("1").Returns(user);
+        _userManager.GetRolesAsync(user).Returns(["learner"]);
+        _userManager.RemoveFromRolesAsync(user, Arg.Any<IEnumerable<string>>()).Returns(IdentityResult.Success);
+        _userManager.AddToRoleAsync(user, "backoffice").Returns(IdentityResult.Success);
+
+        await _sut.UpdateUserRole("1", new UpdateUserRoleRequest("backoffice"));
+
+        await _userManager.Received(1).RemoveFromRolesAsync(user, Arg.Is<IEnumerable<string>>(r => r.Contains("learner")));
+        await _userManager.Received(1).AddToRoleAsync(user, "backoffice");
+    }
+
+    [Test]
+    public async Task UpdateUserRole_WhenRemoveRolesFails_ReturnsServerError()
+    {
+        var user = new ForgeUser { Id = "1", Email = "a@test.com" };
+        _userManager.FindByIdAsync("1").Returns(user);
+        _userManager.GetRolesAsync(user).Returns(["learner"]);
+        _userManager.RemoveFromRolesAsync(user, Arg.Any<IEnumerable<string>>())
+            .Returns(IdentityResult.Failed(new IdentityError { Description = "Remove failed" }));
+
+        var result = await _sut.UpdateUserRole("1", new UpdateUserRoleRequest("manager"));
+
+        Assert.That(result, Is.InstanceOf<ObjectResult>());
+        Assert.That((result as ObjectResult)!.StatusCode, Is.EqualTo(500));
+    }
 }

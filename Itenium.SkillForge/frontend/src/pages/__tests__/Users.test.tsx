@@ -24,6 +24,7 @@ vi.mock('@/api/client', () => ({
   fetchUserTeams: vi.fn(),
   fetchUsers: vi.fn(),
   createUser: vi.fn(),
+  updateUserRole: vi.fn(),
 }));
 
 vi.mock('lucide-react', () => ({
@@ -104,7 +105,7 @@ describe('Users', () => {
     render(<Users />);
     expect(screen.getByText('Alice Smith')).toBeInTheDocument();
     expect(screen.getByText('a@test.com')).toBeInTheDocument();
-    expect(screen.getByText('learner')).toBeInTheDocument();
+    expect(screen.getByText('users.roles.learner')).toBeInTheDocument();
   });
 
   it('shows the form when create user button is clicked', () => {
@@ -127,5 +128,41 @@ describe('Users', () => {
     render(<Users />);
     fireEvent.click(screen.getByText('users.createUser'));
     expect(screen.queryByTestId('user-plus-icon')).not.toBeInTheDocument();
+  });
+
+  it('shows a role select for each user row', () => {
+    mockUseQuery.mockReturnValue({
+      data: [{ id: '1', email: 'a@test.com', firstName: 'Alice', lastName: 'Smith', roles: ['learner'] }],
+      isLoading: false,
+    });
+    render(<Users />);
+    expect(screen.getByText('users.roles.learner')).toBeInTheDocument();
+  });
+
+  it('does not show save button when role is unchanged', () => {
+    mockUseQuery.mockReturnValue({
+      data: [{ id: '1', email: 'a@test.com', firstName: 'Alice', lastName: 'Smith', roles: ['learner'] }],
+      isLoading: false,
+    });
+    render(<Users />);
+    expect(screen.queryByText('common.save')).not.toBeInTheDocument();
+  });
+
+  it('shows save button and calls mutate when role is changed', async () => {
+    mockUseQuery.mockReturnValue({
+      data: [{ id: '1', email: 'a@test.com', firstName: 'Alice', lastName: 'Smith', roles: ['learner'] }],
+      isLoading: false,
+    });
+    render(<Users />);
+
+    // The Select mock triggers onValueChange with 'manager' on click
+    fireEvent.click(screen.getByText('users.roles.learner'));
+
+    await waitFor(() => {
+      expect(screen.getByText('common.save')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText('common.save'));
+    expect(mockMutate).toHaveBeenCalled();
   });
 });

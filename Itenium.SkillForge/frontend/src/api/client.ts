@@ -201,3 +201,29 @@ export async function fetchUsers(): Promise<UserSummary[]> {
   const response = await api.get<UserSummary[]>('/api/user');
   return response.data;
 }
+
+export async function updateUserRole(userId: string, role: string): Promise<void> {
+  await api.put(`/api/user/${userId}/role`, { role });
+}
+
+// ── Team member management (admin) ──────────────────────────────────────────
+
+interface TeamMemberSummary {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
+export async function fetchTeamMembers(teamId: number): Promise<TeamMemberSummary[]> {
+  const response = await api.get<TeamMemberSummary[]>(`/api/team/${teamId}/members`);
+  return response.data;
+}
+
+export async function addTeamMember(teamId: number, userId: string): Promise<void> {
+  await api.post(`/api/team/${teamId}/members`, { userId });
+}
+
+export async function removeTeamMember(teamId: number, userId: string): Promise<void> {
+  await api.delete(`/api/team/${teamId}/members/${userId}`);
+}

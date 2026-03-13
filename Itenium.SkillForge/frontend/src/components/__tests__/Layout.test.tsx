@@ -165,7 +165,7 @@ describe('Layout', () => {
       render(<Layout />);
 
       expect(screen.getByText('nav.administration')).toBeInTheDocument();
-      expect(screen.getByText('nav.users')).toBeInTheDocument();
+      expect(screen.getByText('nav.teamMembers')).toBeInTheDocument();
       expect(screen.getByText('nav.teams')).toBeInTheDocument();
 
       expect(screen.getByText('nav.reports')).toBeInTheDocument();

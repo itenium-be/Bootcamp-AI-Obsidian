@@ -27,7 +27,7 @@ import {
   SelectValue,
   Checkbox,
 } from '@itenium-forge/ui';
-import { fetchUserTeams, fetchUsers, createUser } from '@/api/client';
+import { fetchUserTeams, fetchUsers, createUser, updateUserRole } from '@/api/client';
 
 const ROLES = ['learner', 'manager', 'backoffice'] as const;
 type Role = (typeof ROLES)[number];
@@ -47,6 +47,7 @@ type FormData = z.infer<ReturnType<typeof createFormSchema>>;
 export function Users() {
   const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
+  const [pendingRoles, setPendingRoles] = useState<Record<string, string>>({});
   const queryClient = useQueryClient();
 
   // Memoized so zodResolver doesn't get a new schema reference every render
@@ -88,6 +89,18 @@ export function Users() {
     },
     onError: () => {
       toast.error(t('users.createError'));
+    },
+  });
+
+  const { mutate: mutateRole, isPending: isRolePending } = useMutation({
+    mutationFn: ({ userId, role }: { userId: string; role: string }) => updateUserRole(userId, role),
+    onSuccess: (_data, { userId }) => {
+      toast.success(t('users.updateRoleSuccess'));
+      setPendingRoles((prev) => Object.fromEntries(Object.entries(prev).filter(([k]) => k !== userId)));
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    onError: () => {
+      toast.error(t('users.updateRoleError'));
     },
   });
 
@@ -270,31 +283,66 @@ export function Users() {
               <th className="p-3 text-left font-medium">{t('users.tableName')}</th>
               <th className="p-3 text-left font-medium">{t('users.tableEmail')}</th>
               <th className="p-3 text-left font-medium">{t('users.tableRole')}</th>
+              <th className="p-3 text-left font-medium">{t('common.edit')}</th>
             </tr>
           </thead>
           <tbody>
             {isLoadingUsers ? (
               <tr>
-                <td colSpan={3} className="p-3 text-center text-muted-foreground">
+                <td colSpan={4} className="p-3 text-center text-muted-foreground">
                   {t('common.loading')}
                 </td>
               </tr>
             ) : users.length === 0 ? (
               <tr>
-                <td colSpan={3} className="p-3 text-center text-muted-foreground">
+                <td colSpan={4} className="p-3 text-center text-muted-foreground">
                   {t('users.noUsers')}
                 </td>
               </tr>
             ) : (
-              users.map((user) => (
-                <tr key={user.id} className="border-b">
-                  <td className="p-3">
-                    {user.firstName} {user.lastName}
-                  </td>
-                  <td className="p-3 text-muted-foreground">{user.email}</td>
-                  <td className="p-3">{user.roles[0] ?? '-'}</td>
-                </tr>
-              ))
+              users.map((user) => {
+                const currentRole = user.roles[0] ?? '';
+                const pendingRole = pendingRoles[user.id];
+                const displayRole = pendingRole ?? currentRole;
+                const isDirty = pendingRole !== undefined && pendingRole !== currentRole;
+                return (
+                  <tr key={user.id} className="border-b">
+                    <td className="p-3">
+                      {user.firstName} {user.lastName}
+                    </td>
+                    <td className="p-3 text-muted-foreground">{user.email}</td>
+                    <td className="p-3">
+                      <Select
+                        value={displayRole}
+                        onValueChange={(value) => setPendingRoles((prev) => ({ ...prev, [user.id]: value }))}
+                      >
+                        <SelectTrigger className="w-36">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ROLES.map((role) => (
+                            <SelectItem key={role} value={role}>
+                              {t(`users.roles.${role}`)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </td>
+                    <td className="p-3">
+                      {isDirty && (
+                        <Button
+                          size="sm"
+                          disabled={isRolePending}
+                          onClick={() => mutateRole({ userId: user.id, role: pendingRole })}
+                        >
+                          {isRolePending && <Loader2 className="size-4 mr-2 animate-spin" />}
+                          {t('common.save')}
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
