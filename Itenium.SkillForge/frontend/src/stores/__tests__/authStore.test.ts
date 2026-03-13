@@ -41,6 +41,8 @@ describe('useAuthStore', () => {
         name: 'Alice',
         email: 'alice@example.com',
         isBackOffice: true,
+        isManager: false,
+        role: 'backoffice',
       });
     });
 
@@ -105,6 +107,97 @@ describe('useAuthStore', () => {
       const user = useAuthStore.getState().user;
       expect(user?.email).toBe('');
       expect(user?.name).toBe('User');
+    });
+
+    // --- Issue #12: Coach login with team-scoped access ---
+
+    it('sets isManager to true for manager role', () => {
+      const token = createToken({
+        sub: 'manager-1',
+        name: 'Coach',
+        email: 'coach@example.com',
+        role: 'manager',
+      });
+
+      useAuthStore.getState().setToken(token);
+
+      expect(useAuthStore.getState().user?.isManager).toBe(true);
+    });
+
+    it('sets isManager to false for backoffice role', () => {
+      const token = createToken({
+        sub: 'admin-1',
+        name: 'Admin',
+        email: 'admin@example.com',
+        role: 'backoffice',
+      });
+
+      useAuthStore.getState().setToken(token);
+
+      expect(useAuthStore.getState().user?.isManager).toBe(false);
+    });
+
+    it('sets isManager to false for learner role', () => {
+      const token = createToken({
+        sub: 'learner-1',
+        name: 'Learner',
+        email: 'learner@example.com',
+        role: 'learner',
+      });
+
+      useAuthStore.getState().setToken(token);
+
+      expect(useAuthStore.getState().user?.isManager).toBe(false);
+    });
+
+    it('sets isManager to false when role is missing', () => {
+      const token = createToken({
+        sub: 'user-000',
+        name: 'Dave',
+        email: 'dave@example.com',
+      });
+
+      useAuthStore.getState().setToken(token);
+
+      expect(useAuthStore.getState().user?.isManager).toBe(false);
+    });
+
+    it('sets role field from token', () => {
+      const token = createToken({
+        sub: 'manager-2',
+        name: 'Coach',
+        email: 'coach2@example.com',
+        role: 'manager',
+      });
+
+      useAuthStore.getState().setToken(token);
+
+      expect(useAuthStore.getState().user?.role).toBe('manager');
+    });
+
+    it('sets role to learner as default when role is missing', () => {
+      const token = createToken({
+        sub: 'user-no-role',
+        name: 'No Role',
+        email: 'norole@example.com',
+      });
+
+      useAuthStore.getState().setToken(token);
+
+      expect(useAuthStore.getState().user?.role).toBe('learner');
+    });
+
+    it('sets role to first role when role is an array', () => {
+      const token = createToken({
+        sub: 'user-multi',
+        name: 'Multi',
+        email: 'multi@example.com',
+        role: ['manager', 'backoffice'],
+      });
+
+      useAuthStore.getState().setToken(token);
+
+      expect(useAuthStore.getState().user?.role).toBe('manager');
     });
   });
 
