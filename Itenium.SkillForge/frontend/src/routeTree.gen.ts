@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedMyProgressRouteImport } from './routes/_authenticated/my-progress'
 import { Route as AuthenticatedCoursesRouteImport } from './routes/_authenticated/courses'
+import { Route as AuthenticatedCatalogRouteImport } from './routes/_authenticated/catalog'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 
@@ -30,9 +32,19 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMyProgressRoute = AuthenticatedMyProgressRouteImport.update({
+  id: '/my-progress',
+  path: '/my-progress',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCoursesRoute = AuthenticatedCoursesRouteImport.update({
   id: '/courses',
   path: '/courses',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCatalogRoute = AuthenticatedCatalogRouteImport.update({
+  id: '/catalog',
+  path: '/catalog',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const authSignInRoute = authSignInRouteImport.update({
@@ -48,14 +60,18 @@ const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/sign-in': typeof authSignInRoute
+  '/catalog': typeof AuthenticatedCatalogRoute
   '/courses': typeof AuthenticatedCoursesRoute
+  '/my-progress': typeof AuthenticatedMyProgressRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/': typeof AuthenticatedIndexRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
 }
 export interface FileRoutesByTo {
   '/sign-in': typeof authSignInRoute
+  '/catalog': typeof AuthenticatedCatalogRoute
   '/courses': typeof AuthenticatedCoursesRoute
+  '/my-progress': typeof AuthenticatedMyProgressRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/': typeof AuthenticatedIndexRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -64,21 +80,39 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/(auth)/sign-in': typeof authSignInRoute
+  '/_authenticated/catalog': typeof AuthenticatedCatalogRoute
   '/_authenticated/courses': typeof AuthenticatedCoursesRoute
+  '/_authenticated/my-progress': typeof AuthenticatedMyProgressRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/sign-in' | '/courses' | '/settings' | '/' | '/admin/users'
+  fullPaths:
+    | '/sign-in'
+    | '/catalog'
+    | '/courses'
+    | '/my-progress'
+    | '/settings'
+    | '/'
+    | '/admin/users'
   fileRoutesByTo: FileRoutesByTo
-  to: '/sign-in' | '/courses' | '/settings' | '/' | '/admin/users'
+  to:
+    | '/sign-in'
+    | '/catalog'
+    | '/courses'
+    | '/my-progress'
+    | '/settings'
+    | '/'
+    | '/admin/users'
   id:
     | '__root__'
     | '/_authenticated'
     | '/(auth)/sign-in'
+    | '/_authenticated/catalog'
     | '/_authenticated/courses'
+    | '/_authenticated/my-progress'
     | '/_authenticated/settings'
     | '/_authenticated/'
     | '/_authenticated/admin/users'
@@ -112,11 +146,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/my-progress': {
+      id: '/_authenticated/my-progress'
+      path: '/my-progress'
+      fullPath: '/my-progress'
+      preLoaderRoute: typeof AuthenticatedMyProgressRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/courses': {
       id: '/_authenticated/courses'
       path: '/courses'
       fullPath: '/courses'
       preLoaderRoute: typeof AuthenticatedCoursesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/catalog': {
+      id: '/_authenticated/catalog'
+      path: '/catalog'
+      fullPath: '/catalog'
+      preLoaderRoute: typeof AuthenticatedCatalogRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/(auth)/sign-in': {
@@ -137,14 +185,18 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCatalogRoute: typeof AuthenticatedCatalogRoute
   AuthenticatedCoursesRoute: typeof AuthenticatedCoursesRoute
+  AuthenticatedMyProgressRoute: typeof AuthenticatedMyProgressRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCatalogRoute: AuthenticatedCatalogRoute,
   AuthenticatedCoursesRoute: AuthenticatedCoursesRoute,
+  AuthenticatedMyProgressRoute: AuthenticatedMyProgressRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,

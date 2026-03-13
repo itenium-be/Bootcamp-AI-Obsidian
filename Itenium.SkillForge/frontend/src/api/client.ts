@@ -73,6 +73,109 @@ export async function fetchCourses(): Promise<Course[]> {
   return response.data;
 }
 
+// ── Skill Catalogue ──────────────────────────────────────────────────────────
+
+export interface SkillLevelDescriptor {
+  id: number;
+  level: number;
+  description: string;
+}
+
+export interface SkillPrerequisite {
+  id: number;
+  skillId: number;
+  prerequisiteSkillId: number;
+  requiredLevel: number;
+  prerequisiteSkill: Skill;
+}
+
+export interface Skill {
+  id: number;
+  name: string;
+  description: string | null;
+  category: string | null;
+  levelCount: number;
+  isUniversal: boolean;
+  levelDescriptors: SkillLevelDescriptor[];
+  prerequisites: SkillPrerequisite[];
+}
+
+export async function fetchSkills(): Promise<Skill[]> {
+  const response = await api.get<Skill[]>('/api/skill');
+  return response.data;
+}
+
+export interface SkillFormData {
+  name: string;
+  description: string | null;
+  category: string | null;
+  levelCount: number;
+  isUniversal: boolean;
+}
+
+export async function createSkill(data: SkillFormData): Promise<Skill> {
+  const response = await api.post<Skill>('/api/skill', { ...data, levelDescriptors: [] });
+  return response.data;
+}
+
+export async function updateSkill(id: number, data: SkillFormData): Promise<Skill> {
+  const response = await api.put<Skill>(`/api/skill/${id}`, data);
+  return response.data;
+}
+
+export async function deleteSkill(id: number): Promise<void> {
+  await api.delete(`/api/skill/${id}`);
+}
+
+// ── Prerequisite check ───────────────────────────────────────────────────────
+
+export interface PrerequisiteCheckItem {
+  skillName: string;
+  requiredLevel: number;
+  currentLevel: number;
+}
+
+// ── Roadmap ──────────────────────────────────────────────────────────────────
+
+export interface RoadmapSkillItem {
+  skillId: number;
+  name: string;
+  category: string | null;
+  levelCount: number;
+  achievedLevel: number;
+  unmetPrerequisites: PrerequisiteCheckItem[];
+}
+
+interface RoadmapResponse {
+  skills: RoadmapSkillItem[];
+}
+
+export async function fetchRoadmap(userId: string, showAll?: boolean): Promise<RoadmapResponse> {
+  const response = await api.get<RoadmapResponse>(`/api/roadmap/${userId}`, {
+    params: showAll !== undefined ? { showAll } : undefined,
+  });
+  return response.data;
+}
+
+export async function updateSkillProgress(userId: string, skillId: number, achievedLevel: number): Promise<void> {
+  await api.put(`/api/roadmap/${userId}/progress`, { skillId, achievedLevel });
+}
+
+// ── Seniority ────────────────────────────────────────────────────────────────
+
+interface SeniorityProgressItem {
+  level: string;
+  met: number;
+  required: number;
+}
+
+export async function fetchSeniority(userId: string): Promise<SeniorityProgressItem[]> {
+  const response = await api.get<SeniorityProgressItem[]>(`/api/seniority/${userId}`);
+  return response.data;
+}
+
+// ── User management (admin) ──────────────────────────────────────────────────
+
 interface CreateUserPayload {
   email: string;
   firstName: string;

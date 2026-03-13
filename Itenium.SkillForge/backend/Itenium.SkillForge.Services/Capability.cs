@@ -8,4 +8,8 @@ public enum Capability
 {
     ReadCourse,
     ManageCourse,
+    ReadSkill,
+    ManageSkill,
+    ManageProfile,
+    ReadProgress,
 }

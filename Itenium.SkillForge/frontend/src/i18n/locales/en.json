@@ -25,6 +25,7 @@
     "myCertificates": "My Certificates",
     "catalogSection": "Catalog",
     "catalog": "Browse Courses",
+    "skillCatalogue": "Skill Catalogue",
     "team": "Team",
     "teamMembers": "Members",
     "teamProgress": "Progress",
@@ -137,5 +138,32 @@
   "errors": {
     "sessionExpired": "Session expired!",
     "internalServerError": "Internal Server Error!"
+  },
+  "roadmap": {
+    "title": "My Progress",
+    "showAll": "Show all skills",
+    "showLess": "Show fewer",
+    "noProfile": "You have not been assigned to a competence centre profile yet. Please ask your coach.",
+    "prerequisiteWarning": "{{name}} level {{required}} not yet met — you can explore this skill, but your coach may ask you to address prerequisites first (current: {{current}})"
+  },
+  "seniority": {
+    "progress": "Seniority progress",
+    "junior": "Junior",
+    "medior": "Medior",
+    "senior": "Senior",
+    "meets": "{{met}}/{{required}}"
+  },
+  "skills": {
+    "title": "Skill Catalogue",
+    "category": "Category",
+    "levelCount": "Levels",
+    "noSkills": "No skills found in the catalogue",
+    "checkbox": "Checkbox",
+    "levels": "levels",
+    "addSkill": "Add Skill",
+    "editSkill": "Edit Skill",
+    "isUniversal": "Universal (itenium-wide)",
+    "nameRequired": "Name is required",
+    "deleteConfirm": "Delete \"{{name}}\"? This cannot be undone."
   }
 }
