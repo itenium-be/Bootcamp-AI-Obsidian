@@ -1,5 +1,8 @@
 # SkillForge
 
+## Architecture
+Read Itenium.SkillForge/docs/architecture.md before making any code changes.
+
 ## Before writing code
 Write the tests TDD-style (red/green)
 
