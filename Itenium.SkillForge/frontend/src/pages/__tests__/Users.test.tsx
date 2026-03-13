@@ -26,6 +26,8 @@ vi.mock('@/api/client', () => ({
   createUser: vi.fn(),
   updateUserRole: vi.fn(),
   archiveUser: vi.fn(),
+  restoreUser: vi.fn(),
+  fetchArchivedUsers: vi.fn(),
 }));
 
 vi.mock('lucide-react', () => ({
@@ -179,5 +181,20 @@ describe('Users', () => {
     render(<Users />);
     const archiveButtons = screen.getAllByText('users.archive');
     expect(archiveButtons).toHaveLength(2);
+  });
+
+  it('shows show archived toggle button', () => {
+    render(<Users />);
+    expect(screen.getByText('users.showArchived')).toBeInTheDocument();
+  });
+
+  it('shows restore button when in archived view', () => {
+    mockUseQuery.mockReturnValue({
+      data: [{ id: '1', email: 'a@test.com', firstName: 'Alice', lastName: 'Smith', roles: ['learner'] }],
+      isLoading: false,
+    });
+    render(<Users />);
+    fireEvent.click(screen.getByText('users.showArchived'));
+    expect(screen.getByText('users.restore')).toBeInTheDocument();
   });
 });

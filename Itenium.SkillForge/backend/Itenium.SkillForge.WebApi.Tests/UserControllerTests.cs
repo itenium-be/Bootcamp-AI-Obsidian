@@ -335,4 +335,98 @@ public class UserControllerTests
         var list = ok!.Value as List<object>;
         Assert.That(list, Has.Count.EqualTo(1));
     }
+
+    // --- RestoreUser (Issue #37) ---
+
+    [Test]
+    public async Task RestoreUser_WhenUserNotFound_ReturnsNotFound()
+    {
+        _userManager.FindByIdAsync("999").Returns(Task.FromResult<ForgeUser?>(null));
+
+        var result = await _sut.RestoreUser("999");
+
+        Assert.That(result, Is.InstanceOf<NotFoundResult>());
+    }
+
+    [Test]
+    public async Task RestoreUser_WhenUserExists_ReturnsOk()
+    {
+        var user = new ForgeUser { Id = "1", Email = "a@test.com" };
+        _userManager.FindByIdAsync("1").Returns(Task.FromResult<ForgeUser?>(user));
+        _userManager.SetLockoutEnabledAsync(Arg.Any<ForgeUser>(), Arg.Any<bool>()).Returns(IdentityResult.Success);
+        _userManager.SetLockoutEndDateAsync(Arg.Any<ForgeUser>(), Arg.Any<DateTimeOffset?>()).Returns(IdentityResult.Success);
+        _userManager.GetClaimsAsync(Arg.Any<ForgeUser>()).Returns(Task.FromResult<IList<Claim>>(new List<Claim>()));
+
+        var result = await _sut.RestoreUser("1");
+
+        Assert.That(result, Is.InstanceOf<OkResult>());
+    }
+
+    [Test]
+    public async Task RestoreUser_ClearsLockout()
+    {
+        var user = new ForgeUser { Id = "1", Email = "a@test.com" };
+        _userManager.FindByIdAsync("1").Returns(Task.FromResult<ForgeUser?>(user));
+        _userManager.SetLockoutEnabledAsync(Arg.Any<ForgeUser>(), Arg.Any<bool>()).Returns(IdentityResult.Success);
+        _userManager.SetLockoutEndDateAsync(Arg.Any<ForgeUser>(), Arg.Any<DateTimeOffset?>()).Returns(IdentityResult.Success);
+        _userManager.GetClaimsAsync(Arg.Any<ForgeUser>()).Returns(Task.FromResult<IList<Claim>>(new List<Claim>()));
+
+        await _sut.RestoreUser("1");
+
+        await _userManager.Received(1).SetLockoutEndDateAsync(user, null);
+    }
+
+    [Test]
+    public async Task RestoreUser_DisablesLockout()
+    {
+        var user = new ForgeUser { Id = "1", Email = "a@test.com" };
+        _userManager.FindByIdAsync("1").Returns(Task.FromResult<ForgeUser?>(user));
+        _userManager.SetLockoutEnabledAsync(Arg.Any<ForgeUser>(), Arg.Any<bool>()).Returns(IdentityResult.Success);
+        _userManager.SetLockoutEndDateAsync(Arg.Any<ForgeUser>(), Arg.Any<DateTimeOffset?>()).Returns(IdentityResult.Success);
+        _userManager.GetClaimsAsync(Arg.Any<ForgeUser>()).Returns(Task.FromResult<IList<Claim>>(new List<Claim>()));
+
+        await _sut.RestoreUser("1");
+
+        await _userManager.Received(1).SetLockoutEnabledAsync(user, false);
+    }
+
+    [Test]
+    public async Task RestoreUser_RemovesArchivedClaim()
+    {
+        var user = new ForgeUser { Id = "1", Email = "a@test.com" };
+        var archivedClaim = new Claim("archived", "true");
+        _userManager.FindByIdAsync("1").Returns(Task.FromResult<ForgeUser?>(user));
+        _userManager.SetLockoutEnabledAsync(Arg.Any<ForgeUser>(), Arg.Any<bool>()).Returns(IdentityResult.Success);
+        _userManager.SetLockoutEndDateAsync(Arg.Any<ForgeUser>(), Arg.Any<DateTimeOffset?>()).Returns(IdentityResult.Success);
+        _userManager.GetClaimsAsync(Arg.Any<ForgeUser>()).Returns(Task.FromResult<IList<Claim>>(new List<Claim> { archivedClaim }));
+        _userManager.RemoveClaimAsync(Arg.Any<ForgeUser>(), Arg.Any<Claim>()).Returns(IdentityResult.Success);
+
+        await _sut.RestoreUser("1");
+
+        await _userManager.Received(1).RemoveClaimAsync(
+            user,
+            Arg.Is<Claim>(c => c.Type == "archived"));
+    }
+
+    // --- GetArchivedUsers (Issue #37) ---
+
+    [Test]
+    public async Task GetArchivedUsers_ReturnsOnlyArchivedUsers()
+    {
+        var activeUser = new ForgeUser { Id = "1", Email = "active@test.com" };
+        var archivedUser = new ForgeUser { Id = "2", Email = "archived@test.com" };
+        _userManager.Users.Returns(new List<ForgeUser> { activeUser, archivedUser }.AsQueryable());
+        _userManager.GetRolesAsync(Arg.Any<ForgeUser>()).Returns(new List<string> { "learner" }.ToArray() as IList<string>);
+        _userManager.GetClaimsAsync(Arg.Is<ForgeUser>(u => u.Id == activeUser.Id))
+            .Returns(Task.FromResult<IList<Claim>>(new List<Claim>()));
+        _userManager.GetClaimsAsync(Arg.Is<ForgeUser>(u => u.Id == archivedUser.Id))
+            .Returns(Task.FromResult<IList<Claim>>(new List<Claim> { new Claim("archived", "true") }));
+
+        var result = await _sut.GetArchivedUsers();
+
+        var ok = result as OkObjectResult;
+        Assert.That(ok, Is.Not.Null);
+        var list = ok!.Value as List<object>;
+        Assert.That(list, Has.Count.EqualTo(1));
+    }
 }

@@ -210,6 +210,15 @@ export async function archiveUser(userId: string): Promise<void> {
   await api.patch(`/api/user/${userId}/archive`);
 }
 
+export async function restoreUser(userId: string): Promise<void> {
+  await api.patch(`/api/user/${userId}/restore`);
+}
+
+export async function fetchArchivedUsers(): Promise<UserSummary[]> {
+  const response = await api.get<UserSummary[]>('/api/user/archived');
+  return response.data;
+}
+
 // ── Team member management (admin) ──────────────────────────────────────────
 
 interface TeamMemberSummary {
