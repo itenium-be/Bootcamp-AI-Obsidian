@@ -174,17 +174,6 @@ export async function fetchSeniority(userId: string): Promise<SeniorityProgressI
   return response.data;
 }
 
-// ── Skill Import (admin) ─────────────────────────────────────────────────────
-
-interface ImportSkillRequest {
-  name: string;
-  description: string | null;
-  category: string | null;
-  levelCount: number;
-  isUniversal: boolean;
-  levelDescriptors: { level: number; description: string }[];
-}
-
 // ── User management (admin) ──────────────────────────────────────────────────
 
 interface CreateUserPayload {
