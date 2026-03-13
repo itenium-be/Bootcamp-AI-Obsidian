@@ -233,5 +233,52 @@
     "enrolledAt": "Enrolled",
     "removeSuccess": "Enrollment removed successfully",
     "removeError": "Failed to remove enrollment"
+  },
+  "catalog": {
+    "title": "Course Catalog",
+    "subtitle": "Explore our curated learning paths",
+    "enrollNow": "Enroll Now",
+    "enrolled": "Enrolled",
+    "viewProgress": "View Progress",
+    "allCategories": "All Categories",
+    "allLevels": "All Levels",
+    "searchPlaceholder": "Search courses...",
+    "noCoursesFound": "No courses match your filters",
+    "enrollSuccess": "Successfully enrolled!",
+    "unenrollSuccess": "Successfully unenrolled"
+  },
+  "myCourses": {
+    "title": "My Courses",
+    "subtitle": "Track your enrolled courses",
+    "noEnrollments": "You haven't enrolled in any courses yet",
+    "browseCatalog": "Browse the Catalog",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "notStarted": "Not Started",
+    "completedOn": "Completed on",
+    "enrolledOn": "Enrolled on",
+    "continueLearning": "Continue Learning",
+    "startLearning": "Start Learning"
+  },
+  "myProgress": {
+    "title": "My Progress",
+    "subtitle": "Your learning journey at a glance",
+    "overallProgress": "Overall Progress",
+    "coursesCompleted": "Courses Completed",
+    "inProgress": "In Progress",
+    "noProgress": "No progress recorded yet",
+    "updateProgress": "Update Progress",
+    "progressUpdated": "Progress updated!",
+    "lastUpdated": "Last updated",
+    "notes": "Notes",
+    "saveProgress": "Save Progress"
+  },
+  "myCertificates": {
+    "title": "My Certificates",
+    "subtitle": "Your achievements and certifications",
+    "noCertificates": "No certificates earned yet",
+    "earnedOn": "Earned on",
+    "certificateNumber": "Certificate",
+    "completeCourseToEarn": "Complete courses to earn certificates"
   }
 }
