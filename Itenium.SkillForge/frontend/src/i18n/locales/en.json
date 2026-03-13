@@ -192,6 +192,8 @@
     "tableEmail": "Email",
     "tableName": "Name",
     "tableRole": "Role",
+    "tableActions": "Actions",
+    "archiveError": "Failed to archive user",
     "orphanedAlert": "{{count}} consultant(s) without an active coach"
   },
   "resources": {

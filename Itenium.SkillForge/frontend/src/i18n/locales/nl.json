@@ -192,6 +192,8 @@
     "tableEmail": "E-mail",
     "tableName": "Naam",
     "tableRole": "Rol",
+    "tableActions": "Acties",
+    "archiveError": "Archiveren mislukt",
     "orphanedAlert": "{{count}} consultant(s) zonder actieve coach"
   },
   "resources": {
