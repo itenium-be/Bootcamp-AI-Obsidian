@@ -1,11 +1,29 @@
+using System.Reflection;
 using System.Security.Claims;
 using Itenium.Forge.Security.OpenIddict;
 using Itenium.SkillForge.WebApi.Controllers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 
 namespace Itenium.SkillForge.WebApi.Tests;
+
+[TestFixture]
+public class UserControllerAuthorizationTests
+{
+    // --- Issue #13: Admin login with platform-wide access ---
+    // Verifies that UserController requires backoffice role at the API middleware level.
+
+    [Test]
+    public void UserController_RequiresBackofficeRole()
+    {
+        var type = typeof(UserController);
+        var attr = type.GetCustomAttribute<AuthorizeAttribute>();
+        Assert.That(attr, Is.Not.Null);
+        Assert.That(attr!.Roles, Is.EqualTo("backoffice"));
+    }
+}
 
 [TestFixture]
 public class UserControllerTests
