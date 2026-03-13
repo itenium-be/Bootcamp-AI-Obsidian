@@ -25,6 +25,7 @@
     "myCertificates": "Mijn Certificaten",
     "catalogSection": "Catalogus",
     "catalog": "Cursussen Bekijken",
+    "skillCatalogue": "Vaardighedencatalogus",
     "team": "Team",
     "teamMembers": "Leden",
     "teamProgress": "Voortgang",
@@ -108,5 +109,32 @@
   "errors": {
     "sessionExpired": "Sessie verlopen!",
     "internalServerError": "Interne serverfout!"
+  },
+  "roadmap": {
+    "title": "Mijn Voortgang",
+    "showAll": "Alle vaardigheden tonen",
+    "showLess": "Minder tonen",
+    "noProfile": "U bent nog niet aan een competentiecentrum-profiel toegewezen. Vraag dit aan uw coach.",
+    "prerequisiteWarning": "{{name}} niveau {{required}} nog niet behaald — u kunt deze vaardigheid verkennen, maar uw coach kan vragen om eerst de vereisten aan te pakken (huidig: {{current}})"
+  },
+  "seniority": {
+    "progress": "Senioriteitsvoortgang",
+    "junior": "Junior",
+    "medior": "Medior",
+    "senior": "Senior",
+    "meets": "{{met}}/{{required}}"
+  },
+  "skills": {
+    "title": "Vaardighedencatalogus",
+    "category": "Categorie",
+    "levelCount": "Niveaus",
+    "noSkills": "Geen vaardigheden gevonden in de catalogus",
+    "checkbox": "Afvinken",
+    "levels": "niveaus",
+    "addSkill": "Vaardigheid toevoegen",
+    "editSkill": "Vaardigheid bewerken",
+    "isUniversal": "Universeel (itenium-breed)",
+    "nameRequired": "Naam is verplicht",
+    "deleteConfirm": "\"{{name}}\" verwijderen? Dit kan niet ongedaan worden gemaakt."
   }
 }
