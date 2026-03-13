@@ -105,6 +105,31 @@
     "active": "Active",
     "user": "User"
   },
+  "users": {
+    "title": "Users",
+    "createUser": "Create User",
+    "email": "Email",
+    "emailPlaceholder": "john@example.com",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Invalid email address",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "John",
+    "firstNameRequired": "First name is required",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Doe",
+    "lastNameRequired": "Last name is required",
+    "passwordMinLength": "Password must be at least 8 characters",
+    "role": "Role",
+    "rolePlaceholder": "Select a role",
+    "roles": {
+      "learner": "Learner",
+      "manager": "Manager",
+      "backoffice": "BackOffice"
+    },
+    "teams": "Teams",
+    "createSuccess": "User created successfully",
+    "createError": "Failed to create user"
+  },
   "errors": {
     "sessionExpired": "Session expired!",
     "internalServerError": "Internal Server Error!"
