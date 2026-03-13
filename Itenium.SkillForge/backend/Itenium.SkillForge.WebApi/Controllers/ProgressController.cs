@@ -112,7 +112,7 @@ public class ProgressController : ControllerBase
                 _db.Certificates.Add(new CertificateEntity
                 {
                     LearnerId = _user.UserId!,
-                    LearnerName = _user.FullName ?? _user.UserId!,
+                    LearnerName = _user.UserId!,
                     CourseId = courseId,
                     CourseName = course!.Name,
                     IssuedAt = DateTime.UtcNow,
