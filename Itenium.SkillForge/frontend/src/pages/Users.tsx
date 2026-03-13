@@ -27,7 +27,7 @@ import {
   SelectValue,
   Checkbox,
 } from '@itenium-forge/ui';
-import { fetchUserTeams, fetchUsers, createUser } from '@/api/client';
+import { fetchUserTeams, fetchUsers, createUser, archiveUser } from '@/api/client';
 
 const ROLES = ['learner', 'manager', 'backoffice'] as const;
 type Role = (typeof ROLES)[number];
@@ -88,6 +88,17 @@ export function Users() {
     },
     onError: () => {
       toast.error(t('users.createError'));
+    },
+  });
+
+  const { mutate: archive } = useMutation({
+    mutationFn: archiveUser,
+    onSuccess: () => {
+      toast.success(t('users.archiveSuccess'));
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    onError: () => {
+      toast.error(t('users.archiveError'));
     },
   });
 
@@ -270,18 +281,19 @@ export function Users() {
               <th className="p-3 text-left font-medium">{t('users.tableName')}</th>
               <th className="p-3 text-left font-medium">{t('users.tableEmail')}</th>
               <th className="p-3 text-left font-medium">{t('users.tableRole')}</th>
+              <th className="p-3 text-left font-medium">{t('users.tableActions')}</th>
             </tr>
           </thead>
           <tbody>
             {isLoadingUsers ? (
               <tr>
-                <td colSpan={3} className="p-3 text-center text-muted-foreground">
+                <td colSpan={4} className="p-3 text-center text-muted-foreground">
                   {t('common.loading')}
                 </td>
               </tr>
             ) : users.length === 0 ? (
               <tr>
-                <td colSpan={3} className="p-3 text-center text-muted-foreground">
+                <td colSpan={4} className="p-3 text-center text-muted-foreground">
                   {t('users.noUsers')}
                 </td>
               </tr>
@@ -293,6 +305,11 @@ export function Users() {
                   </td>
                   <td className="p-3 text-muted-foreground">{user.email}</td>
                   <td className="p-3">{user.roles[0] ?? '-'}</td>
+                  <td className="p-3">
+                    <Button variant="destructive" size="sm" onClick={() => archive(user.id)}>
+                      {t('users.archive')}
+                    </Button>
+                  </td>
                 </tr>
               ))
             )}

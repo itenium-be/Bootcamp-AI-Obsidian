@@ -24,11 +24,13 @@ vi.mock('@/api/client', () => ({
   fetchUserTeams: vi.fn(),
   fetchUsers: vi.fn(),
   createUser: vi.fn(),
+  archiveUser: vi.fn(),
 }));
 
 vi.mock('lucide-react', () => ({
   Loader2: () => <span data-testid="loader" />,
   UserPlus: () => <span data-testid="user-plus-icon" />,
+  Archive: () => <span data-testid="archive-icon" />,
 }));
 
 vi.mock('@itenium-forge/ui', () => {
@@ -127,5 +129,18 @@ describe('Users', () => {
     render(<Users />);
     fireEvent.click(screen.getByText('users.createUser'));
     expect(screen.queryByTestId('user-plus-icon')).not.toBeInTheDocument();
+  });
+
+  it('shows archive button for each user in the table', () => {
+    mockUseQuery.mockReturnValue({
+      data: [
+        { id: '1', email: 'a@test.com', firstName: 'Alice', lastName: 'Smith', roles: ['learner'] },
+        { id: '2', email: 'b@test.com', firstName: 'Bob', lastName: 'Jones', roles: ['manager'] },
+      ],
+      isLoading: false,
+    });
+    render(<Users />);
+    const archiveButtons = screen.getAllByText('users.archive');
+    expect(archiveButtons).toHaveLength(2);
   });
 });

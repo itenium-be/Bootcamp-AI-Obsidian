@@ -3,18 +3,19 @@ using Itenium.Forge.Security.OpenIddict;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Itenium.SkillForge.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(Roles = "backoffice")]
-public class UserController(UserManager<ForgeUser> userManager) : ControllerBase
+public partial class UserController(UserManager<ForgeUser> userManager, ILogger<UserController> logger) : ControllerBase
 {
     private static readonly HashSet<string> AllowedRoles = ["learner", "manager", "backoffice"];
 
     /// <summary>
-    /// Get all user accounts.
+    /// Get all active (non-archived) user accounts.
     /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetUsers()
@@ -23,11 +24,33 @@ public class UserController(UserManager<ForgeUser> userManager) : ControllerBase
         var result = new List<object>();
         foreach (var u in users)
         {
+            var claims = await userManager.GetClaimsAsync(u);
+            if (claims.Any(c => c.Type == "archived" && c.Value == "true"))
+                continue;
+
             var roles = await userManager.GetRolesAsync(u);
             result.Add(new { u.Id, u.Email, u.FirstName, u.LastName, Roles = roles });
         }
 
         return Ok(result);
+    }
+
+    /// <summary>
+    /// Archive a user account (soft-delete: disables login, preserves history).
+    /// </summary>
+    [HttpPatch("{id}/archive")]
+    public async Task<IActionResult> ArchiveUser(string id)
+    {
+        var user = await userManager.FindByIdAsync(id);
+        if (user is null)
+            return NotFound();
+
+        await userManager.SetLockoutEnabledAsync(user, true);
+        await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+        await userManager.AddClaimAsync(user, new Claim("archived", "true"));
+
+        LogUserArchived(logger, user.Email ?? id);
+        return Ok();
     }
 
     /// <summary>
@@ -65,4 +88,7 @@ public class UserController(UserManager<ForgeUser> userManager) : ControllerBase
 
         return Created($"/api/user/{user.Id}", new { user.Id, user.Email, user.FirstName, user.LastName });
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Archived user {Email}")]
+    private static partial void LogUserArchived(ILogger logger, string email);
 }

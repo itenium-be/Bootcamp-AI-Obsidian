@@ -133,7 +133,11 @@
     "noUsers": "Geen gebruikers gevonden",
     "tableEmail": "E-mail",
     "tableName": "Naam",
-    "tableRole": "Rol"
+    "tableRole": "Rol",
+    "tableActions": "Acties",
+    "archive": "Archiveren",
+    "archiveSuccess": "Gebruiker succesvol gearchiveerd",
+    "archiveError": "Archiveren mislukt"
   },
   "errors": {
     "sessionExpired": "Sessie verlopen!",

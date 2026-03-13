@@ -133,7 +133,11 @@
     "noUsers": "No users found",
     "tableEmail": "Email",
     "tableName": "Name",
-    "tableRole": "Role"
+    "tableRole": "Role",
+    "tableActions": "Actions",
+    "archive": "Archive",
+    "archiveSuccess": "User archived successfully",
+    "archiveError": "Failed to archive user"
   },
   "errors": {
     "sessionExpired": "Session expired!",
