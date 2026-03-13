@@ -45,7 +45,7 @@ export const useTeamStore = create<TeamState>()(
             selectedTeam,
           });
         } else {
-          set({ teams });
+          set({ teams, mode: 'backoffice' });
         }
       },
 
