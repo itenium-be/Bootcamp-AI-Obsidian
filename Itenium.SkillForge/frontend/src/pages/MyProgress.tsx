@@ -1,17 +1,11 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  Button,
-} from '@itenium-forge/ui';
-import { Progress } from '@/components/ui-extras';
+import { Card, CardHeader, CardTitle, CardContent, Button } from '@itenium-forge/ui';
 import { TrendingUp, Target, BarChart3, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchProgress, fetchCourses, updateProgress, type Progress as ProgressType } from '@/api/client';
+import { Progress } from '@/components/ui-extras';
 
 function getProgressColor(pct: number): string {
   if (pct < 33) return '[&>div]:bg-red-500';
@@ -59,16 +53,17 @@ function ProgressCard({ progress, courseName }: { progress: ProgressType; course
               {t('myProgress.lastUpdated')}: {new Date(progress.lastUpdated).toLocaleDateString()}
             </p>
           </div>
-          <div className="text-3xl font-bold tabular-nums" style={{ color: pct >= 66 ? '#16a34a' : pct >= 33 ? '#d97706' : '#dc2626' }}>
+          <div
+            className="text-3xl font-bold tabular-nums"
+            style={{ color: pct >= 66 ? '#16a34a' : pct >= 33 ? '#d97706' : '#dc2626' }}
+          >
             {pct}%
           </div>
         </div>
 
         <Progress value={pct} className={`h-3 ${colorClass}`} />
 
-        {progress.notes && !editing && (
-          <p className="text-sm text-muted-foreground italic">{progress.notes}</p>
-        )}
+        {progress.notes && !editing && <p className="text-sm text-muted-foreground italic">{progress.notes}</p>}
 
         {editing ? (
           <div className="space-y-3 border rounded-lg p-3 bg-muted/30">
@@ -145,7 +140,9 @@ export function MyProgress() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">{t('myProgress.overallProgress')}</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {t('myProgress.overallProgress')}
+            </CardTitle>
             <BarChart3 className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -164,7 +161,9 @@ export function MyProgress() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">{t('myProgress.coursesCompleted')}</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {t('myProgress.coursesCompleted')}
+            </CardTitle>
             <CheckCircle className="size-4 text-green-500" />
           </CardHeader>
           <CardContent>

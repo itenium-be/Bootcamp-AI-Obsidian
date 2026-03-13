@@ -7,15 +7,6 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, BookOpen } from 'lucide-react';
 import {
-  fetchCourses,
-  createCourse,
-  updateCourse,
-  deleteCourse,
-  type Course,
-  type CourseFormData,
-} from '@/api/client';
-import { useAuthStore, useTeamStore } from '@/stores';
-import {
   Button,
   Badge,
   Form,
@@ -32,6 +23,8 @@ import {
   SelectValue,
   Skeleton,
 } from '@itenium-forge/ui';
+import { fetchCourses, createCourse, updateCourse, deleteCourse, type Course, type CourseFormData } from '@/api/client';
+import { useAuthStore, useTeamStore } from '@/stores';
 import {
   Dialog,
   DialogContent,
@@ -112,6 +105,7 @@ function CourseDialog({ open, onClose, course }: CourseDialogProps) {
   });
 
   const updateMutation = useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     mutationFn: (data: CourseFormData) => updateCourse(course!.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['courses'] });
@@ -143,12 +137,8 @@ function CourseDialog({ open, onClose, course }: CourseDialogProps) {
     <Dialog open={open} onOpenChange={(o: boolean) => !o && onClose()}>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>
-            {course ? t('courseManagement.editCourse') : t('courseManagement.addCourse')}
-          </DialogTitle>
-          <DialogDescription>
-            {course ? t('courses.editCourse') : t('courses.addCourse')}
-          </DialogDescription>
+          <DialogTitle>{course ? t('courseManagement.editCourse') : t('courseManagement.addCourse')}</DialogTitle>
+          <DialogDescription>{course ? t('courses.editCourse') : t('courses.addCourse')}</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -172,11 +162,7 @@ function CourseDialog({ open, onClose, course }: CourseDialogProps) {
                 <FormItem>
                   <FormLabel>{t('courseManagement.description')}</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder={t('courseManagement.description')}
-                      rows={3}
-                      {...field}
-                    />
+                    <Textarea placeholder={t('courseManagement.description')} rows={3} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -208,15 +194,9 @@ function CourseDialog({ open, onClose, course }: CourseDialogProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Beginner">
-                        {t('courseManagement.levelBeginner')}
-                      </SelectItem>
-                      <SelectItem value="Intermediate">
-                        {t('courseManagement.levelIntermediate')}
-                      </SelectItem>
-                      <SelectItem value="Advanced">
-                        {t('courseManagement.levelAdvanced')}
-                      </SelectItem>
+                      <SelectItem value="Beginner">{t('courseManagement.levelBeginner')}</SelectItem>
+                      <SelectItem value="Intermediate">{t('courseManagement.levelIntermediate')}</SelectItem>
+                      <SelectItem value="Advanced">{t('courseManagement.levelAdvanced')}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -325,9 +305,7 @@ export function Courses() {
               <th className="p-3 text-left text-sm font-semibold">{t('courses.description')}</th>
               <th className="p-3 text-left text-sm font-semibold">{t('courses.category')}</th>
               <th className="p-3 text-left text-sm font-semibold">{t('courses.level')}</th>
-              {canManage && (
-                <th className="p-3 text-right text-sm font-semibold">{t('courses.actions')}</th>
-              )}
+              {canManage && <th className="p-3 text-right text-sm font-semibold">{t('courses.actions')}</th>}
             </tr>
           </thead>
           <tbody>
@@ -358,12 +336,7 @@ export function Courses() {
                 {canManage && (
                   <td className="p-3 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEdit(course)}
-                        className="h-8 w-8 p-0"
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => handleEdit(course)} className="h-8 w-8 p-0">
                         <Pencil className="h-4 w-4" />
                         <span className="sr-only">{t('common.edit')}</span>
                       </Button>
@@ -380,12 +353,8 @@ export function Courses() {
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              {t('courseManagement.confirmDelete')}
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              {t('courseManagement.deleteWarning')}
-                            </AlertDialogDescription>
+                            <AlertDialogTitle>{t('courseManagement.confirmDelete')}</AlertDialogTitle>
+                            <AlertDialogDescription>{t('courseManagement.deleteWarning')}</AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
@@ -405,10 +374,7 @@ export function Courses() {
             ))}
             {courses?.length === 0 && (
               <tr>
-                <td
-                  colSpan={canManage ? 5 : 4}
-                  className="p-8 text-center text-muted-foreground"
-                >
+                <td colSpan={canManage ? 5 : 4} className="p-8 text-center text-muted-foreground">
                   <BookOpen className="mx-auto mb-2 h-8 w-8 opacity-40" />
                   {t('courses.noCourses')}
                 </td>

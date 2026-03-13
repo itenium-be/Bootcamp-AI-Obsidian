@@ -18,18 +18,9 @@ import {
   TableRow,
   Skeleton,
 } from '@itenium-forge/ui';
-import { Separator } from '@/components/ui-extras';
-import {
-  ClipboardList,
-  BookOpen,
-  Users,
-  Search,
-  Plus,
-  Trash2,
-  Info,
-  CheckCircle,
-} from 'lucide-react';
+import { ClipboardList, BookOpen, Users, Search, Plus, Trash2, Info, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { Separator } from '@/components/ui-extras';
 import { useTeamStore } from '@/stores';
 import {
   fetchEnrollments,
@@ -62,6 +53,7 @@ interface MemberCardProps {
   onSelect: () => void;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function MemberCard({ user, enrollments, courses: _courses, isSelected, onSelect }: MemberCardProps) {
   const userEnrollments = enrollments.filter((e) => e.learnerId === user.id);
   const completedCount = userEnrollments.filter((e) => e.completedAt !== null).length;
@@ -119,7 +111,9 @@ function CourseCard({ course, isEnrolled, onAssign, isAssigning }: CourseCardPro
   return (
     <div
       className={`p-3 rounded-lg border transition-colors ${
-        isEnrolled ? 'border-green-200 bg-green-50/50 dark:border-green-800 dark:bg-green-950/30' : 'border-border hover:bg-muted/30'
+        isEnrolled
+          ? 'border-green-200 bg-green-50/50 dark:border-green-800 dark:bg-green-950/30'
+          : 'border-border hover:bg-muted/30'
       }`}
     >
       <div className="flex items-start justify-between gap-2">
@@ -135,7 +129,9 @@ function CourseCard({ course, isEnrolled, onAssign, isAssigning }: CourseCardPro
               </Badge>
             )}
             {course.level && (
-              <span className={`text-xs px-1.5 py-0.5 rounded-full ${levelColors[course.level] ?? 'bg-gray-100 text-gray-600'}`}>
+              <span
+                className={`text-xs px-1.5 py-0.5 rounded-full ${levelColors[course.level] ?? 'bg-gray-100 text-gray-600'}`}
+              >
                 {course.level}
               </span>
             )}
@@ -148,13 +144,7 @@ function CourseCard({ course, isEnrolled, onAssign, isAssigning }: CourseCardPro
               Enrolled
             </div>
           ) : (
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-1 h-7 text-xs"
-              onClick={onAssign}
-              disabled={isAssigning}
-            >
+            <Button size="sm" variant="outline" className="gap-1 h-7 text-xs" onClick={onAssign} disabled={isAssigning}>
               <Plus className="size-3" />
               Assign
             </Button>
@@ -225,9 +215,7 @@ export function Assignments() {
   const selectedMemberEnrollments = enrollments.filter((e) => e.learnerId === selectedMemberId);
   const enrolledCourseIds = new Set(selectedMemberEnrollments.map((e) => e.courseId));
 
-  const filteredCourses = courses.filter((c) =>
-    c.name.toLowerCase().includes(courseSearch.toLowerCase()),
-  );
+  const filteredCourses = courses.filter((c) => c.name.toLowerCase().includes(courseSearch.toLowerCase()));
 
   // All enrollments table rows
   const allEnrollmentRows = enrollments
@@ -288,9 +276,7 @@ export function Assignments() {
           <CardContent>
             <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
               {isLoading ? (
-                Array.from({ length: 4 }).map((_, i) => (
-                  <Skeleton key={i} className="h-16 w-full rounded-lg" />
-                ))
+                Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-lg" />)
               ) : filteredMembers.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-8">No members found</p>
               ) : (
@@ -301,9 +287,7 @@ export function Assignments() {
                     enrollments={enrollments}
                     courses={courses}
                     isSelected={selectedMemberId === user.id}
-                    onSelect={() =>
-                      setSelectedMemberId(selectedMemberId === user.id ? null : user.id)
-                    }
+                    onSelect={() => setSelectedMemberId(selectedMemberId === user.id ? null : user.id)}
                   />
                 ))
               )}
@@ -319,9 +303,7 @@ export function Assignments() {
               <CardTitle className="text-base">{t('assignments.courseCatalog')}</CardTitle>
             </div>
             <CardDescription>
-              {selectedMember
-                ? `Assigning to: ${getUserDisplayName(selectedMember)}`
-                : 'Select a team member first'}
+              {selectedMember ? `Assigning to: ${getUserDisplayName(selectedMember)}` : 'Select a team member first'}
             </CardDescription>
             <div className="relative mt-2">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
@@ -336,9 +318,7 @@ export function Assignments() {
           <CardContent>
             <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
               {isLoading ? (
-                Array.from({ length: 4 }).map((_, i) => (
-                  <Skeleton key={i} className="h-14 w-full rounded-lg" />
-                ))
+                Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-14 w-full rounded-lg" />)
               ) : filteredCourses.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-8">No courses found</p>
               ) : (

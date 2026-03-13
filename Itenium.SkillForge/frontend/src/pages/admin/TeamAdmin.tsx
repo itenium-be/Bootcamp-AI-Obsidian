@@ -5,18 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import {
-  Users,
-  Shield,
-  Plus,
-  Pencil,
-  Trash2,
-  AlertTriangle,
-  Settings2,
-  BookOpen,
-} from 'lucide-react';
-import { fetchUserTeams } from '@/api/client';
-import { useAuthStore } from '@/stores';
+import { Users, Shield, Plus, Pencil, Trash2, AlertTriangle, Settings2, BookOpen } from 'lucide-react';
 import {
   Button,
   Card,
@@ -32,6 +21,8 @@ import {
   Input,
   Skeleton,
 } from '@itenium-forge/ui';
+import { fetchUserTeams } from '@/api/client';
+import { useAuthStore } from '@/stores';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -113,22 +104,13 @@ function TeamCard({ team, onEdit, canManage }: TeamCardProps) {
           </div>
           {canManage && (
             <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => onEdit(team)}
-              >
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => onEdit(team)}>
                 <Pencil className="h-3.5 w-3.5" />
                 <span className="sr-only">{t('common.edit')}</span>
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                  >
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive">
                     <Trash2 className="h-3.5 w-3.5" />
                     <span className="sr-only">{t('common.delete')}</span>
                   </Button>
@@ -136,9 +118,7 @@ function TeamCard({ team, onEdit, canManage }: TeamCardProps) {
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>{t('teamAdmin.confirmDelete')}</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {t('teamAdmin.notImplemented')}
-                    </AlertDialogDescription>
+                    <AlertDialogDescription>{t('teamAdmin.notImplemented')}</AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
@@ -192,6 +172,7 @@ function TeamDialog({ open, onClose, team }: TeamDialogProps) {
     values: { name: team?.name ?? '' },
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function onSubmit(_values: TeamFormValues) {
     // POST /api/team not yet implemented
     toast.error(t('teamAdmin.notImplemented'));
@@ -202,9 +183,7 @@ function TeamDialog({ open, onClose, team }: TeamDialogProps) {
     <Dialog open={open} onOpenChange={(o: boolean) => !o && onClose()}>
       <DialogContent className="sm:max-w-[420px]">
         <DialogHeader>
-          <DialogTitle>
-            {team ? t('teamAdmin.editTeam') : t('teamAdmin.addTeam')}
-          </DialogTitle>
+          <DialogTitle>{team ? t('teamAdmin.editTeam') : t('teamAdmin.addTeam')}</DialogTitle>
           <DialogDescription>{t('teamAdmin.teamName')}</DialogDescription>
         </DialogHeader>
 
@@ -212,12 +191,8 @@ function TeamDialog({ open, onClose, team }: TeamDialogProps) {
         <div className="flex items-start gap-3 rounded-lg border border-orange-200 bg-orange-50 p-3 text-sm dark:border-orange-800 dark:bg-orange-900/20">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-orange-500" />
           <div>
-            <p className="font-medium text-orange-800 dark:text-orange-400">
-              {t('teamAdmin.notImplemented')}
-            </p>
-            <p className="mt-0.5 text-orange-700 dark:text-orange-500">
-              {t('teamAdmin.notImplementedNote')}
-            </p>
+            <p className="font-medium text-orange-800 dark:text-orange-400">{t('teamAdmin.notImplemented')}</p>
+            <p className="mt-0.5 text-orange-700 dark:text-orange-500">{t('teamAdmin.notImplementedNote')}</p>
           </div>
         </div>
 
@@ -304,12 +279,8 @@ export function TeamAdmin() {
       <div className="flex items-start gap-3 rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-900/20">
         <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-orange-500" />
         <div>
-          <p className="font-semibold text-orange-800 dark:text-orange-400">
-            {t('teamAdmin.notImplemented')}
-          </p>
-          <p className="mt-1 text-sm text-orange-700 dark:text-orange-500">
-            {t('teamAdmin.notImplementedNote')}
-          </p>
+          <p className="font-semibold text-orange-800 dark:text-orange-400">{t('teamAdmin.notImplemented')}</p>
+          <p className="mt-1 text-sm text-orange-700 dark:text-orange-500">{t('teamAdmin.notImplementedNote')}</p>
         </div>
       </div>
 

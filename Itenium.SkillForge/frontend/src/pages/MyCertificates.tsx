@@ -104,7 +104,10 @@ export function MyCertificates() {
       {isLoading ? (
         <div className="grid gap-4 md:grid-cols-2">
           {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="border-2 border-yellow-200 rounded-xl bg-yellow-50 dark:bg-yellow-950 p-6 animate-pulse h-52" />
+            <div
+              key={i}
+              className="border-2 border-yellow-200 rounded-xl bg-yellow-50 dark:bg-yellow-950 p-6 animate-pulse h-52"
+            />
           ))}
         </div>
       ) : total === 0 ? (
@@ -123,7 +126,7 @@ export function MyCertificates() {
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {certificates!.map((cert) => (
+          {(certificates ?? []).map((cert) => (
             <CertificateCard key={cert.id} cert={cert} />
           ))}
         </div>

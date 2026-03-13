@@ -2,25 +2,28 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  Badge,
-  Button,
-} from '@itenium-forge/ui';
-import { Progress } from '@/components/ui-extras';
+import { Card, CardHeader, CardTitle, CardContent, Badge, Button } from '@itenium-forge/ui';
 import { BookOpen, CheckCircle, Clock, PlayCircle, BookMarked, Trophy } from 'lucide-react';
-import { fetchEnrollments, fetchCourses, fetchProgress, type Enrollment, type Course, type Progress as ProgressType } from '@/api/client';
+import {
+  fetchEnrollments,
+  fetchCourses,
+  fetchProgress,
+  type Enrollment,
+  type Course,
+  type Progress as ProgressType,
+} from '@/api/client';
+import { Progress } from '@/components/ui-extras';
 
-type EnrichedCourse = {
+interface EnrichedCourse {
   enrollment: Enrollment;
   course: Course | undefined;
   progress: ProgressType | undefined;
-};
+}
 
-function getStatus(enrollment: Enrollment, progress: ProgressType | undefined): 'completed' | 'inProgress' | 'notStarted' {
+function getStatus(
+  enrollment: Enrollment,
+  progress: ProgressType | undefined,
+): 'completed' | 'inProgress' | 'notStarted' {
   if (enrollment.completedAt !== null) return 'completed';
   if (progress && progress.percentageComplete > 0) return 'inProgress';
   return 'notStarted';
@@ -195,9 +198,7 @@ export function MyCourses() {
           <BookOpen className="size-16 opacity-20" />
           <p className="text-lg font-medium">{t('myCourses.noEnrollments')}</p>
           <Button asChild>
-            <Link to="/catalog">
-              {t('myCourses.browseCatalog')}
-            </Link>
+            <Link to="/catalog">{t('myCourses.browseCatalog')}</Link>
           </Button>
         </div>
       ) : (

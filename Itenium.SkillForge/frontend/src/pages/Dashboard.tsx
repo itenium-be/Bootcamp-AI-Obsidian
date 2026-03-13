@@ -11,20 +11,12 @@ import {
   Activity,
   FileText,
 } from 'lucide-react';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardDescription,
-  Skeleton,
-  Badge,
-} from '@itenium-forge/ui';
-import { Progress } from '@/components/ui-extras';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription, Skeleton, Badge } from '@itenium-forge/ui';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useAuthStore, useTeamStore } from '@/stores';
 import { fetchStats, fetchProgress } from '@/api/client';
+import { Progress } from '@/components/ui-extras';
 
 function StatCardSkeleton() {
   return (
@@ -307,9 +299,7 @@ export function Dashboard() {
           <Card>
             <CardHeader>
               <CardTitle className="text-base">{t('dashboard.teamOverview')}</CardTitle>
-              <CardDescription>
-                {selectedTeam ? `Team: ${selectedTeam.name}` : 'Your team at a glance'}
-              </CardDescription>
+              <CardDescription>{selectedTeam ? `Team: ${selectedTeam.name}` : 'Your team at a glance'}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">

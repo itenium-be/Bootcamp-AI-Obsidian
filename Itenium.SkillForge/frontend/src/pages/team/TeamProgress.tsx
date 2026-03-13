@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
+import { TrendingUp, BarChart3, Award, CheckCircle, Clock, Search, Filter, Download } from 'lucide-react';
 import {
   Card,
   CardHeader,
@@ -18,6 +19,17 @@ import {
   Skeleton,
   Button,
 } from '@itenium-forge/ui';
+import { useTeamStore } from '@/stores';
+import {
+  fetchEnrollments,
+  fetchProgress,
+  fetchCourses,
+  fetchUsers,
+  type Enrollment,
+  type Progress as ProgressEntry,
+  type Course,
+  type User,
+} from '@/api/client';
 
 function ProgressBar({ value, className = '' }: { value: number; className?: string }) {
   return (
@@ -26,18 +38,6 @@ function ProgressBar({ value, className = '' }: { value: number; className?: str
     </div>
   );
 }
-import { TrendingUp, BarChart3, Award, CheckCircle, Clock, Search, Filter, Download } from 'lucide-react';
-import { useTeamStore } from '@/stores';
-import {
-  fetchEnrollments,
-  fetchProgress,
-  fetchCourses,
-  fetchUsers,
-  type Enrollment,
-  type Course,
-  type User,
-} from '@/api/client';
-import type { Progress as ProgressEntry } from '@/api/client';
 
 type ProgressStatus = 'completed' | 'inProgress' | 'notStarted';
 
@@ -96,15 +96,13 @@ function buildRows(
       (p) => p.courseId === enrollment.courseId && p.learnerId === enrollment.learnerId,
     );
     const status = getStatus(enrollment, progress);
-    const progressPct =
-      status === 'completed' ? 100 : progress?.percentageComplete ?? 0;
+    const progressPct = status === 'completed' ? 100 : (progress?.percentageComplete ?? 0);
 
-    const userName =
-      user
-        ? user.firstName && user.lastName
-          ? `${user.firstName} ${user.lastName}`
-          : user.userName
-        : enrollment.learnerId.slice(0, 8);
+    const userName = user
+      ? user.firstName && user.lastName
+        ? `${user.firstName} ${user.lastName}`
+        : user.userName
+      : enrollment.learnerId.slice(0, 8);
 
     return {
       enrollmentId: enrollment.id,
@@ -131,9 +129,7 @@ function formatDate(dateStr: string | null): string {
 function StatCircle({ value, label, color }: { value: string; label: string; color: string }) {
   return (
     <div className="flex flex-col items-center justify-center gap-2">
-      <div
-        className={`size-24 rounded-full flex items-center justify-center text-2xl font-bold border-4 ${color}`}
-      >
+      <div className={`size-24 rounded-full flex items-center justify-center text-2xl font-bold border-4 ${color}`}>
         {value}
       </div>
       <span className="text-xs text-muted-foreground text-center">{label}</span>
@@ -184,11 +180,8 @@ export function TeamProgress() {
   const totalEnrollments = allRows.length;
   const completedCount = allRows.filter((r) => r.status === 'completed').length;
   const avgProgress =
-    allRows.length > 0
-      ? Math.round(allRows.reduce((sum, r) => sum + r.progressPct, 0) / allRows.length)
-      : 0;
-  const completionRate =
-    allRows.length > 0 ? Math.round((completedCount / allRows.length) * 100) : 0;
+    allRows.length > 0 ? Math.round(allRows.reduce((sum, r) => sum + r.progressPct, 0) / allRows.length) : 0;
+  const completionRate = allRows.length > 0 ? Math.round((completedCount / allRows.length) * 100) : 0;
 
   return (
     <div className="space-y-6">
@@ -218,9 +211,7 @@ export function TeamProgress() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">
-              {isLoading ? <Skeleton className="h-8 w-12" /> : totalEnrollments}
-            </div>
+            <div className="text-3xl font-bold">{isLoading ? <Skeleton className="h-8 w-12" /> : totalEnrollments}</div>
             <div className="mt-2">
               <ProgressBar value={completionRate} className="h-1.5" />
             </div>
@@ -264,7 +255,9 @@ export function TeamProgress() {
             <div className="mt-2">
               <ProgressBar value={completionRate} className="h-1.5" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">{completedCount} of {totalEnrollments} courses</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {completedCount} of {totalEnrollments} courses
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -382,17 +375,13 @@ export function TeamProgress() {
                     <TableCell className="w-48">
                       <div className="flex items-center gap-2">
                         <ProgressBar value={row.progressPct} className="flex-1 h-2" />
-                        <span className="text-xs text-muted-foreground w-8 text-right">
-                          {row.progressPct}%
-                        </span>
+                        <span className="text-xs text-muted-foreground w-8 text-right">{row.progressPct}%</span>
                       </div>
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={row.status} />
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {formatDate(row.lastUpdated)}
-                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{formatDate(row.lastUpdated)}</TableCell>
                   </TableRow>
                 ))
               )}

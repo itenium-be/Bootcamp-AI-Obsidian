@@ -28,25 +28,20 @@ export function Separator({
   className?: string;
   orientation?: 'horizontal' | 'vertical';
 }) {
-  return (
-    <div
-      className={`bg-border ${orientation === 'horizontal' ? 'h-px w-full' : 'w-px h-full'} ${className}`}
-    />
-  );
+  return <div className={`bg-border ${orientation === 'horizontal' ? 'h-px w-full' : 'w-px h-full'} ${className}`} />;
 }
 
 // ─── Textarea ─────────────────────────────────────────────────────────────────
 
-export const Textarea = React.forwardRef<
-  HTMLTextAreaElement,
-  React.TextareaHTMLAttributes<HTMLTextAreaElement>
->(({ className = '', ...props }, ref) => (
-  <textarea
-    ref={ref}
-    className={`flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
-    {...props}
-  />
-));
+export const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
+  ({ className = '', ...props }, ref) => (
+    <textarea
+      ref={ref}
+      className={`flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      {...props}
+    />
+  ),
+);
 Textarea.displayName = 'Textarea';
 
 // ─── Tabs ────────────────────────────────────────────────────────────────────
@@ -57,6 +52,7 @@ interface TabsContextValue {
 }
 const TabsContext = React.createContext<TabsContextValue>({
   activeTab: '',
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   setActiveTab: () => {},
 });
 
@@ -144,11 +140,7 @@ export function TabsContent({
 export const Dialog = DialogPrimitive.Root;
 export const DialogTrigger = DialogPrimitive.Trigger;
 
-export function DialogContent({
-  children,
-  className = '',
-  ...props
-}: DialogPrimitive.DialogContentProps) {
+export function DialogContent({ children, className = '', ...props }: DialogPrimitive.DialogContentProps) {
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
@@ -171,39 +163,29 @@ export function DialogHeader({ children, className = '' }: { children: React.Rea
 }
 
 export function DialogFooter({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 ${className}`}>
-      {children}
-    </div>
-  );
+  return <div className={`flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 ${className}`}>{children}</div>;
 }
 
-export const DialogTitle = React.forwardRef<
-  HTMLHeadingElement,
-  React.HTMLAttributes<HTMLHeadingElement>
->(({ children, className = '', ...props }, ref) => (
-  <DialogPrimitive.Title
-    ref={ref}
-    className={`text-lg font-semibold leading-none tracking-tight ${className}`}
-    {...props}
-  >
-    {children}
-  </DialogPrimitive.Title>
-));
+export const DialogTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
+  ({ children, className = '', ...props }, ref) => (
+    <DialogPrimitive.Title
+      ref={ref}
+      className={`text-lg font-semibold leading-none tracking-tight ${className}`}
+      {...props}
+    >
+      {children}
+    </DialogPrimitive.Title>
+  ),
+);
 DialogTitle.displayName = 'DialogTitle';
 
-export const DialogDescription = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
->(({ children, className = '', ...props }, ref) => (
-  <DialogPrimitive.Description
-    ref={ref}
-    className={`text-sm text-muted-foreground ${className}`}
-    {...props}
-  >
-    {children}
-  </DialogPrimitive.Description>
-));
+export const DialogDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
+  ({ children, className = '', ...props }, ref) => (
+    <DialogPrimitive.Description ref={ref} className={`text-sm text-muted-foreground ${className}`} {...props}>
+      {children}
+    </DialogPrimitive.Description>
+  ),
+);
 DialogDescription.displayName = 'DialogDescription';
 
 // ─── AlertDialog (uses Dialog with alert semantics) ──────────────────────────

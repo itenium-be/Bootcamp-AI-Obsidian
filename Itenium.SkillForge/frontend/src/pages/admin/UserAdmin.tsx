@@ -2,8 +2,6 @@ import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Users, UserPlus, Shield, Search, UserCheck } from 'lucide-react';
-import { fetchUsers, type User } from '@/api/client';
-import { useAuthStore } from '@/stores';
 import {
   Avatar,
   AvatarFallback,
@@ -15,6 +13,8 @@ import {
   Input,
   Skeleton,
 } from '@itenium-forge/ui';
+import { fetchUsers, type User } from '@/api/client';
+import { useAuthStore } from '@/stores';
 import {
   Dialog,
   DialogContent,
@@ -95,9 +95,7 @@ function UserDetailDialog({ user, open, onClose }: UserDetailDialogProps) {
         <div className="space-y-4">
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
-              <AvatarFallback
-                className={`text-lg font-bold text-white ${getAvatarColor(user.id)}`}
-              >
+              <AvatarFallback className={`text-lg font-bold text-white ${getAvatarColor(user.id)}`}>
                 {getUserInitials(user)}
               </AvatarFallback>
             </Avatar>
@@ -145,9 +143,7 @@ function UserDetailDialog({ user, open, onClose }: UserDetailDialogProps) {
                   {getRoleLabel(role, t)}
                 </span>
               ))}
-              {user.roles.length === 0 && (
-                <span className="text-sm text-muted-foreground">—</span>
-              )}
+              {user.roles.length === 0 && <span className="text-sm text-muted-foreground">—</span>}
             </div>
           </div>
         </div>
@@ -218,13 +214,10 @@ export function UserAdmin() {
 
       const matchesRole =
         roleFilter === 'all' ||
-        (roleFilter === 'backoffice' &&
-          u.roles.some((r) => r.toLowerCase() === 'backoffice')) ||
+        (roleFilter === 'backoffice' && u.roles.some((r) => r.toLowerCase() === 'backoffice')) ||
         (roleFilter === 'manager' && u.roles.some((r) => r.toLowerCase() === 'manager')) ||
         (roleFilter === 'learner' &&
-          !u.roles.some(
-            (r) => r.toLowerCase() === 'backoffice' || r.toLowerCase() === 'manager',
-          ));
+          !u.roles.some((r) => r.toLowerCase() === 'backoffice' || r.toLowerCase() === 'manager'));
 
       return matchesSearch && matchesRole;
     });
@@ -234,15 +227,10 @@ export function UserAdmin() {
     if (!users) return { total: 0, backoffice: 0, managers: 0, learners: 0 };
     return {
       total: users.length,
-      backoffice: users.filter((u) =>
-        u.roles.some((r) => r.toLowerCase() === 'backoffice'),
-      ).length,
+      backoffice: users.filter((u) => u.roles.some((r) => r.toLowerCase() === 'backoffice')).length,
       managers: users.filter((u) => u.roles.some((r) => r.toLowerCase() === 'manager')).length,
       learners: users.filter(
-        (u) =>
-          !u.roles.some(
-            (r) => r.toLowerCase() === 'backoffice' || r.toLowerCase() === 'manager',
-          ),
+        (u) => !u.roles.some((r) => r.toLowerCase() === 'backoffice' || r.toLowerCase() === 'manager'),
       ).length,
     };
   }, [users]);
@@ -293,17 +281,13 @@ export function UserAdmin() {
         <Card className="border-l-4 border-l-blue-500">
           <CardContent className="pt-4">
             <p className="text-sm text-muted-foreground">{t('userAdmin.filterManagers')}</p>
-            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-              {isLoading ? '…' : stats.managers}
-            </p>
+            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{isLoading ? '…' : stats.managers}</p>
           </CardContent>
         </Card>
         <Card className="border-l-4 border-l-green-500">
           <CardContent className="pt-4">
             <p className="text-sm text-muted-foreground">{t('userAdmin.filterLearners')}</p>
-            <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-              {isLoading ? '…' : stats.learners}
-            </p>
+            <p className="text-3xl font-bold text-green-600 dark:text-green-400">{isLoading ? '…' : stats.learners}</p>
           </CardContent>
         </Card>
       </div>
@@ -324,11 +308,7 @@ export function UserAdmin() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <Tabs
-            value={roleFilter}
-            onValueChange={(v: string) => setRoleFilter(v as RoleFilter)}
-            className="w-full"
-          >
+          <Tabs value={roleFilter} onValueChange={(v: string) => setRoleFilter(v as RoleFilter)} className="w-full">
             <div className="border-b px-4">
               <TabsList className="h-10 bg-transparent p-0">
                 <TabsTrigger
@@ -375,15 +355,9 @@ export function UserAdmin() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b bg-muted/30">
-                      <th className="p-3 text-left text-sm font-semibold">
-                        {t('userAdmin.username')}
-                      </th>
-                      <th className="p-3 text-left text-sm font-semibold">
-                        {t('userAdmin.email')}
-                      </th>
-                      <th className="p-3 text-left text-sm font-semibold">
-                        {t('userAdmin.roles')}
-                      </th>
+                      <th className="p-3 text-left text-sm font-semibold">{t('userAdmin.username')}</th>
+                      <th className="p-3 text-left text-sm font-semibold">{t('userAdmin.email')}</th>
+                      <th className="p-3 text-left text-sm font-semibold">{t('userAdmin.roles')}</th>
                       <th className="p-3 text-right text-sm font-semibold"></th>
                     </tr>
                   </thead>
@@ -399,16 +373,11 @@ export function UserAdmin() {
                       </tr>
                     ) : (
                       filteredUsers.map((u) => (
-                        <tr
-                          key={u.id}
-                          className="border-b transition-colors hover:bg-muted/30"
-                        >
+                        <tr key={u.id} className="border-b transition-colors hover:bg-muted/30">
                           <td className="p-3">
                             <div className="flex items-center gap-3">
                               <Avatar className="h-10 w-10">
-                                <AvatarFallback
-                                  className={`text-sm font-semibold text-white ${getAvatarColor(u.id)}`}
-                                >
+                                <AvatarFallback className={`text-sm font-semibold text-white ${getAvatarColor(u.id)}`}>
                                   {getUserInitials(u)}
                                 </AvatarFallback>
                               </Avatar>
