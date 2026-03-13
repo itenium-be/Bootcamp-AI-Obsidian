@@ -103,8 +103,8 @@ public class SkillsController : ControllerBase
             Category = skill.Category,
             Description = skill.Description,
             LevelCount = skill.LevelCount,
-            LevelDescriptors = skill.LevelDescriptors,
-            Prerequisites = skill.Prerequisites,
+            LevelDescriptors = skill.LevelDescriptors.ToList(),
+            Prerequisites = skill.Prerequisites.ToList(),
             PrerequisiteWarnings = prereqWarnings,
             CreatedAt = skill.CreatedAt,
             Profiles = skill.SkillProfiles.Select(sp => sp.Profile).ToList(),
@@ -126,7 +126,7 @@ public class SkillResponse
     public string LevelDescriptorsJson { get; set; } = "[]";
     public string PrerequisitesJson { get; set; } = "[]";
     public DateTime CreatedAt { get; set; }
-    public List<CompetenceCentreProfile> Profiles { get; set; } = [];
+    public IList<CompetenceCentreProfile> Profiles { get; set; } = [];
 }
 
 public class SkillDetailResponse
@@ -136,16 +136,16 @@ public class SkillDetailResponse
     public required string Category { get; set; }
     public string? Description { get; set; }
     public int LevelCount { get; set; }
-    public List<string> LevelDescriptors { get; set; } = [];
-    public List<SkillPrerequisite> Prerequisites { get; set; } = [];
+    public IList<string> LevelDescriptors { get; set; } = [];
+    public IList<SkillPrerequisite> Prerequisites { get; set; } = [];
 
     /// <summary>
     /// Non-blocking warnings for unmet prerequisites (FR8).
     /// Skill is NEVER locked — these are informational only.
     /// </summary>
-    public List<PrerequisiteWarning> PrerequisiteWarnings { get; set; } = [];
+    public IList<PrerequisiteWarning> PrerequisiteWarnings { get; set; } = [];
     public DateTime CreatedAt { get; set; }
-    public List<CompetenceCentreProfile> Profiles { get; set; } = [];
+    public IList<CompetenceCentreProfile> Profiles { get; set; } = [];
 }
 
 public class PrerequisiteWarning

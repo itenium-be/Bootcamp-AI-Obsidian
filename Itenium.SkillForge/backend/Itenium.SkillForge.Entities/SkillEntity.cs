@@ -35,7 +35,7 @@ public class SkillEntity
     public string LevelDescriptorsJson { get; set; } = "[]";
 
     [NotMapped]
-    public List<string> LevelDescriptors
+    public IList<string> LevelDescriptors
     {
         get => JsonSerializer.Deserialize<List<string>>(LevelDescriptorsJson) ?? [];
         set => LevelDescriptorsJson = JsonSerializer.Serialize(value);
@@ -47,7 +47,7 @@ public class SkillEntity
     public string PrerequisitesJson { get; set; } = "[]";
 
     [NotMapped]
-    public List<SkillPrerequisite> Prerequisites
+    public IList<SkillPrerequisite> Prerequisites
     {
         get => JsonSerializer.Deserialize<List<SkillPrerequisite>>(PrerequisitesJson) ?? [];
         set => PrerequisitesJson = JsonSerializer.Serialize(value);

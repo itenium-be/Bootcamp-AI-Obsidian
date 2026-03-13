@@ -48,7 +48,7 @@ public class AppDbContext : ForgeIdentityDbContext
             .IsUnique();
 
         builder.Entity<ConsultantProfileEntity>()
-            .HasOne(cp => cp.User)
+            .HasOne<ForgeUser>()
             .WithMany()
             .HasForeignKey(cp => cp.UserId)
             .OnDelete(DeleteBehavior.Cascade);

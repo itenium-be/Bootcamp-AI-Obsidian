@@ -35,7 +35,7 @@ public class ValidationsControllerTests : DatabaseTestBase
     public async Task CreateValidation_WhenManager_ReturnsCreated()
     {
         _user.IsManager.Returns(true);
-        _user.Id.Returns("coach-user-id");
+        _user.UserId.Returns("coach-user-id");
 
         var request = new CreateValidationRequest(
             SkillId: _skill.Id,
@@ -59,7 +59,7 @@ public class ValidationsControllerTests : DatabaseTestBase
     {
         // FR36: ValidatedBy is always the authenticated coach — cannot be spoofed from request body.
         _user.IsManager.Returns(true);
-        _user.Id.Returns("real-coach-id");
+        _user.UserId.Returns("real-coach-id");
 
         var request = new CreateValidationRequest(
             SkillId: _skill.Id,
@@ -82,7 +82,7 @@ public class ValidationsControllerTests : DatabaseTestBase
         // FR36: ValidatedAt is always server-side UTC — cannot be spoofed.
         var before = DateTime.UtcNow.AddSeconds(-1);
         _user.IsManager.Returns(true);
-        _user.Id.Returns("coach-id");
+        _user.UserId.Returns("coach-id");
 
         var request = new CreateValidationRequest(
             SkillId: _skill.Id,
@@ -142,7 +142,7 @@ public class ValidationsControllerTests : DatabaseTestBase
     public async Task CreateValidation_PersistsToDatabase()
     {
         _user.IsManager.Returns(true);
-        _user.Id.Returns("coach-id");
+        _user.UserId.Returns("coach-id");
 
         var request = new CreateValidationRequest(
             SkillId: _skill.Id,

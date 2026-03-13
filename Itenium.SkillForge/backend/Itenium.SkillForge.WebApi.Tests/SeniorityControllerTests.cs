@@ -60,6 +60,7 @@ public class SeniorityControllerTests : DatabaseTestBase
     public async Task GetProgress_ComputesMediorProgress_FromGoals()
     {
         // Setup profile
+        await CreateTestUser("user-lea");
         Db.ConsultantProfiles.Add(new ConsultantProfileEntity
         {
             UserId = "user-lea",

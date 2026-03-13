@@ -31,7 +31,7 @@ public class SessionsController : ControllerBase
     {
         var session = new CoachingSessionEntity
         {
-            CoachId = _currentUser.Id ?? string.Empty,
+            CoachId = _currentUser.UserId ?? string.Empty,
             ConsultantId = request.ConsultantId,
         };
 
@@ -63,7 +63,7 @@ public class SessionsController : ControllerBase
             return NotFound();
         }
 
-        if (session.CoachId != (_currentUser.Id ?? string.Empty))
+        if (session.CoachId != (_currentUser.UserId ?? string.Empty))
         {
             return Forbid();
         }
@@ -116,7 +116,7 @@ public class SessionsController : ControllerBase
             return NotFound();
         }
 
-        if (session.CoachId != (_currentUser.Id ?? string.Empty))
+        if (session.CoachId != (_currentUser.UserId ?? string.Empty))
         {
             return Forbid();
         }
@@ -154,7 +154,7 @@ public class SessionsController : ControllerBase
             return NotFound();
         }
 
-        if (session.CoachId != (_currentUser.Id ?? string.Empty))
+        if (session.CoachId != (_currentUser.UserId ?? string.Empty))
         {
             return Forbid();
         }
@@ -193,8 +193,8 @@ public record SessionFocusDto
     public Guid SessionId { get; init; }
     public string ConsultantId { get; init; } = "";
     public DateTime StartedAt { get; init; }
-    public List<GoalDto> ActiveGoals { get; init; } = [];
-    public List<ReadinessFlagDto> PendingReadinessFlags { get; init; } = [];
+    public IList<GoalDto> ActiveGoals { get; init; } = [];
+    public IList<ReadinessFlagDto> PendingReadinessFlags { get; init; } = [];
 }
 
 public record GoalDto

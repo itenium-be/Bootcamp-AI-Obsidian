@@ -19,6 +19,7 @@ public class ConsultantsControllerTests : DatabaseTestBase
     public async Task AssignProfile_NewConsultant_CreatesProfile()
     {
         var userId = "user-abc";
+        await CreateTestUser(userId);
         var request = new AssignProfileRequest(CompetenceCentreProfile.Java, "coach-1");
 
         var result = await _sut.AssignProfile(userId, request);
@@ -33,6 +34,7 @@ public class ConsultantsControllerTests : DatabaseTestBase
     public async Task AssignProfile_ExistingConsultant_UpdatesProfile()
     {
         var userId = "user-xyz";
+        await CreateTestUser(userId);
         Db.ConsultantProfiles.Add(new ConsultantProfileEntity
         {
             UserId = userId,
@@ -52,6 +54,7 @@ public class ConsultantsControllerTests : DatabaseTestBase
     public async Task GetConsultantProfile_WhenExists_ReturnsProfile()
     {
         var userId = "user-lea";
+        await CreateTestUser(userId);
         Db.ConsultantProfiles.Add(new ConsultantProfileEntity
         {
             UserId = userId,

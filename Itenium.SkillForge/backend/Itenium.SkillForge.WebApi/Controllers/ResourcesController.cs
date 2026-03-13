@@ -111,7 +111,7 @@ public class ResourcesController : ControllerBase
             SkillId = request.SkillId,
             FromNiveau = request.FromNiveau,
             ToNiveau = request.ToNiveau,
-            ContributedBy = _currentUser.Id ?? string.Empty,
+            ContributedBy = _currentUser.UserId ?? string.Empty,
         };
 
         _db.Resources.Add(resource);
@@ -153,7 +153,7 @@ public class ResourcesController : ControllerBase
             return NotFound(new { message = "Goal not found" });
         }
 
-        if (goal.ConsultantId != (_currentUser.Id ?? string.Empty))
+        if (goal.ConsultantId != (_currentUser.UserId ?? string.Empty))
         {
             return Forbid();
         }
@@ -161,7 +161,7 @@ public class ResourcesController : ControllerBase
         var completion = new ResourceCompletionEntity
         {
             ResourceId = id,
-            ConsultantId = _currentUser.Id ?? string.Empty,
+            ConsultantId = _currentUser.UserId ?? string.Empty,
             GoalId = request.GoalId,
         };
 
@@ -191,7 +191,7 @@ public class ResourcesController : ControllerBase
             return NotFound();
         }
 
-        var userId = _currentUser.Id ?? string.Empty;
+        var userId = _currentUser.UserId ?? string.Empty;
         var rating = request.Rating == "up" ? ResourceRating.ThumbsUp : ResourceRating.ThumbsDown;
 
         var existing = await _db.ResourceRatings

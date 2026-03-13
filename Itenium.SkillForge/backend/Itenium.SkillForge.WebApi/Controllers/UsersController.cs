@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Claims;
 using Itenium.Forge.Security.OpenIddict;
 using Itenium.SkillForge.Data;
@@ -103,7 +104,7 @@ public class UsersController : ControllerBase
 
         foreach (var teamId in request.TeamIds)
         {
-            await _userManager.AddClaimAsync(user, new Claim("team", teamId.ToString()));
+            await _userManager.AddClaimAsync(user, new Claim("team", teamId.ToString(CultureInfo.InvariantCulture)));
         }
 
         return CreatedAtAction(nameof(GetUsers), new { }, new UserResponse
@@ -135,7 +136,7 @@ public class UsersController : ControllerBase
             return NotFound();
         }
 
-        if (EF.Property<bool>(user, "IsArchived"))
+        if (_db.Entry(user).Property<bool>("IsArchived").CurrentValue)
         {
             return Conflict("User is already archived.");
         }
@@ -167,7 +168,7 @@ public class UsersController : ControllerBase
             return NotFound();
         }
 
-        if (!EF.Property<bool>(user, "IsArchived"))
+        if (!_db.Entry(user).Property<bool>("IsArchived").CurrentValue)
         {
             return Conflict("User is not archived.");
         }
@@ -227,10 +228,10 @@ public class UsersController : ControllerBase
             .ToListAsync();
 
         var orphanedIds = learnerIds
-            .Where(id => !consultantsWithActiveCoach.Contains(id) || consultantsWithArchivedCoach.Contains(id))
+            .Where(id => !consultantsWithActiveCoach.Contains(id, StringComparer.Ordinal) || consultantsWithArchivedCoach.Contains(id, StringComparer.Ordinal))
             .ToList();
 
-        var orphanedUsers = allLearners.Where(u => orphanedIds.Contains(u.Id)).ToList();
+        var orphanedUsers = allLearners.Where(u => orphanedIds.Contains(u.Id, StringComparer.Ordinal)).ToList();
 
         var result = new List<UserResponse>();
         foreach (var user in orphanedUsers)
@@ -265,7 +266,7 @@ public record CreateUserRequest(
     string FirstName,
     string LastName,
     string Role,
-    List<int> TeamIds);
+    IList<int> TeamIds);
 
 public class UserResponse
 {
@@ -275,7 +276,7 @@ public class UserResponse
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
     public required string Role { get; set; }
-    public List<int> TeamIds { get; set; } = [];
+    public IList<int> TeamIds { get; set; } = [];
     public bool IsArchived { get; set; }
     public DateTime? ArchivedAt { get; set; }
 }

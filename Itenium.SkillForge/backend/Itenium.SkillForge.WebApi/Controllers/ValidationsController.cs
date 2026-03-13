@@ -64,7 +64,7 @@ public class ValidationsController : ControllerBase
             SkillId = request.SkillId,
             ConsultantId = request.ConsultantId,
             // FR36: ValidatedBy is always the currently authenticated coach — never from the request body.
-            ValidatedBy = _user.Id ?? string.Empty,
+            ValidatedBy = _user.UserId ?? string.Empty,
             // FR36: ValidatedAt is always server-side UTC — never from the request body.
             ValidatedAt = DateTime.UtcNow,
             FromNiveau = request.FromNiveau,

@@ -62,7 +62,7 @@ public class RoadmapController : ControllerBase
 
         var goalsLookup = goals.ToDictionary(g => g.SkillId);
 
-        IQueryable<SkillEntity> pagedQuery = allSkillsQuery.Include(s => s.SkillProfiles);
+        IQueryable<SkillEntity> pagedQuery = allSkillsQuery;
 
         if (!showAll)
         {
@@ -107,7 +107,7 @@ public class RoadmapController : ControllerBase
     }
 
     private static List<PrerequisiteWarning> BuildPrerequisiteWarnings(
-        List<SkillPrerequisite> prerequisites,
+        IList<SkillPrerequisite> prerequisites,
         Dictionary<int, GoalEntity> goalsLookup)
     {
         if (prerequisites.Count == 0)
@@ -139,7 +139,7 @@ public class RoadmapResponse
 {
     public required string UserId { get; set; }
     public CompetenceCentreProfile? Profile { get; set; }
-    public List<RoadmapNode> Nodes { get; set; } = [];
+    public IList<RoadmapNode> Nodes { get; set; } = [];
     public int TotalSkillCount { get; set; }
     public bool ShowAll { get; set; }
 }
@@ -153,7 +153,7 @@ public class RoadmapNode
     public int CurrentNiveau { get; set; }
     public int? TargetNiveau { get; set; }
     public RoadmapNodeStatus Status { get; set; }
-    public List<PrerequisiteWarning> PrerequisiteWarnings { get; set; } = [];
+    public IList<PrerequisiteWarning> PrerequisiteWarnings { get; set; } = [];
 }
 
 public enum RoadmapNodeStatus

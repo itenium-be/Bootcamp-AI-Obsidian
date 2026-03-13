@@ -39,7 +39,7 @@ public class DashboardController : ControllerBase
             .ToListAsync();
 
         var consultantGroups = goals
-            .GroupBy(g => g.ConsultantId)
+            .GroupBy(g => g.ConsultantId, StringComparer.Ordinal)
             .ToList();
 
         // Get all active readiness flags for these consultants
@@ -49,8 +49,8 @@ public class DashboardController : ControllerBase
             .ToListAsync();
 
         var flagsByConsultant = activeFlags
-            .GroupBy(rf => rf.ConsultantId)
-            .ToDictionary(g => g.Key, g => g.OrderBy(rf => rf.RaisedAt).First());
+            .GroupBy(rf => rf.ConsultantId, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.OrderBy(rf => rf.RaisedAt).First(), StringComparer.Ordinal);
 
         var items = consultantGroups.Select(group =>
         {

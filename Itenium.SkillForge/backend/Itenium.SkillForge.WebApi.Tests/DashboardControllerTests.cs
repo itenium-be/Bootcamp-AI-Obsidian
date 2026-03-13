@@ -70,7 +70,7 @@ public class DashboardControllerTests : DatabaseTestBase
 
         var ok = result.Result as OkObjectResult;
         var items = ok!.Value as List<CoachDashboardItem>;
-        Assert.That(items![0].ReadinessFlagAgeInDays, Is.EqualTo(2).Within(1));
+        Assert.That(items![0].ReadinessFlagAgeInDays, Is.EqualTo(2.0).Within(1.0));
     }
 
     [Test]

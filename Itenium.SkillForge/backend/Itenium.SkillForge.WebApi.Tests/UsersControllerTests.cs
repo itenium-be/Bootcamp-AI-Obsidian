@@ -29,6 +29,12 @@ public class UsersControllerTests : DatabaseTestBase
         _sut = new UsersController(_userManager, Db);
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _userManager.Dispose();
+    }
+
     // --- Story #15: POST /api/users ---
 
     [Test]

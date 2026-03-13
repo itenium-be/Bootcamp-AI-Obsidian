@@ -31,6 +31,7 @@ public class RoadmapControllerTests : DatabaseTestBase
             new SkillProfileEntity { SkillId = javaSkill.Id, Profile = CompetenceCentreProfile.Java, SortOrder = 1 });
         await Db.SaveChangesAsync();
 
+        await CreateTestUser("user-dotnet");
         Db.ConsultantProfiles.Add(new ConsultantProfileEntity
         {
             UserId = "user-dotnet",
@@ -76,6 +77,7 @@ public class RoadmapControllerTests : DatabaseTestBase
             new SkillProfileEntity { SkillId = s.Id, Profile = CompetenceCentreProfile.DotNet, SortOrder = i + 1 }));
         await Db.SaveChangesAsync();
 
+        await CreateTestUser("user-dotnet-2");
         Db.ConsultantProfiles.Add(new ConsultantProfileEntity
         {
             UserId = "user-dotnet-2",

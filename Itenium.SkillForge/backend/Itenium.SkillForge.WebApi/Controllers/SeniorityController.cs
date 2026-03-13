@@ -165,7 +165,7 @@ public class SeniorityController : ControllerBase
         Dictionary<int, int> niveauBySkill)
     {
         var levelThresholds = allThresholds.Where(t => t.SeniorityLevel == level).ToList();
-        if (levelThresholds.Count == 0) return false;
+        if (levelThresholds.Count == 0) return true;
         return levelThresholds.All(t => niveauBySkill.TryGetValue(t.SkillId, out var n) && n >= t.MinNiveau);
     }
 }
@@ -175,7 +175,7 @@ public class SeniorityController : ControllerBase
 public class SeniorityRulesetResponse
 {
     public CompetenceCentreProfile Profile { get; set; }
-    public List<SeniorityThresholdDto> Thresholds { get; set; } = [];
+    public IList<SeniorityThresholdDto> Thresholds { get; set; } = [];
 }
 
 public class SeniorityThresholdDto
@@ -201,7 +201,7 @@ public class SeniorityProgressResponse
     public int MetCount { get; set; }
 
     public int RequiredCount { get; set; }
-    public List<UnmetRequirement> UnmetRequirements { get; set; } = [];
+    public IList<UnmetRequirement> UnmetRequirements { get; set; } = [];
 }
 
 public class UnmetRequirement

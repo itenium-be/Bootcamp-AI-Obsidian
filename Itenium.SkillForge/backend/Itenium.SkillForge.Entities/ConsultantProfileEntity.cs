@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Itenium.Forge.Security.OpenIddict;
 
 namespace Itenium.SkillForge.Entities;
 
@@ -14,8 +13,6 @@ public class ConsultantProfileEntity
 
     [Required]
     public required string UserId { get; set; }
-
-    public ForgeUser User { get; set; } = null!;
 
     public CompetenceCentreProfile Profile { get; set; }
 

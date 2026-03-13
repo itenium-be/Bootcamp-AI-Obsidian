@@ -24,7 +24,7 @@ public class SessionsControllerTests : DatabaseTestBase
         await Db.SaveChangesAsync();
 
         _user = Substitute.For<ISkillForgeUser>();
-        _user.Id.Returns("coach-id");
+        _user.UserId.Returns("coach-id");
         _sut = new SessionsController(Db, _user);
     }
 
@@ -93,7 +93,7 @@ public class SessionsControllerTests : DatabaseTestBase
         Db.CoachingSessions.Add(session);
         await Db.SaveChangesAsync();
 
-        _user.Id.Returns("coach-id");
+        _user.UserId.Returns("coach-id");
         var result = await _sut.GetSessionFocus(session.Id);
 
         Assert.That(result.Result, Is.TypeOf<ForbidResult>());
@@ -170,7 +170,7 @@ public class SessionsControllerTests : DatabaseTestBase
         Db.CoachingSessions.Add(session);
         await Db.SaveChangesAsync();
 
-        _user.Id.Returns("coach-id");
+        _user.UserId.Returns("coach-id");
         var result = await _sut.UpdateNotes(session.Id, new UpdateNotesRequest("notes"));
 
         Assert.That(result.Result, Is.TypeOf<ForbidResult>());

@@ -24,7 +24,7 @@ public class ResourcesControllerTests : DatabaseTestBase
         await Db.SaveChangesAsync();
 
         _user = Substitute.For<ISkillForgeUser>();
-        _user.Id.Returns("test-user-id");
+        _user.UserId.Returns("test-user-id");
         _sut = new ResourcesController(Db, _user);
     }
 
@@ -51,6 +51,7 @@ public class ResourcesControllerTests : DatabaseTestBase
     {
         var otherSkill = new SkillEntity { Name = "Java", Category = "Development", LevelCount = 3 };
         Db.Skills.Add(otherSkill);
+        await Db.SaveChangesAsync();
         Db.Resources.AddRange(
             new ResourceEntity { Title = "C# Book", Url = "http://a.com", Type = ResourceType.Book, SkillId = _skill.Id, FromNiveau = 1, ToNiveau = 3, ContributedBy = "u1" },
             new ResourceEntity { Title = "Java Book", Url = "http://b.com", Type = ResourceType.Book, SkillId = otherSkill.Id, FromNiveau = 1, ToNiveau = 3, ContributedBy = "u1" });
@@ -135,7 +136,7 @@ public class ResourcesControllerTests : DatabaseTestBase
     [Test]
     public async Task CreateResource_SetsContributedByFromCurrentUser()
     {
-        _user.Id.Returns("authenticated-user-42");
+        _user.UserId.Returns("authenticated-user-42");
         var request = new CreateResourceRequest("Title", "http://x.com", ResourceType.Article, _skill.Id, 1, 2);
 
         var result = await _sut.CreateResource(request);
@@ -193,7 +194,7 @@ public class ResourcesControllerTests : DatabaseTestBase
         Db.Goals.Add(goal);
         await Db.SaveChangesAsync();
 
-        _user.Id.Returns("current-user");
+        _user.UserId.Returns("current-user");
         var result = await _sut.CompleteResource(resource.Id, new CompleteResourceRequest(goal.Id));
 
         Assert.That(result.Result, Is.TypeOf<ForbidResult>());

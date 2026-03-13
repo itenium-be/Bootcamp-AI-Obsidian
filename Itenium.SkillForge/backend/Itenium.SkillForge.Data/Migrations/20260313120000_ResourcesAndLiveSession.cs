@@ -76,9 +76,9 @@ namespace Itenium.SkillForge.Data.Migrations
                 {
                     table.PrimaryKey("PK_ConsultantProfiles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ConsultantProfiles_AspNetUsers_UserId",
+                        name: "FK_ConsultantProfiles_Users_UserId",
                         column: x => x.UserId,
-                        principalTable: "AspNetUsers",
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
