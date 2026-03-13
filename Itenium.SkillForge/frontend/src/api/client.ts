@@ -206,6 +206,10 @@ export async function updateUserRole(userId: string, role: string): Promise<void
   await api.put(`/api/user/${userId}/role`, { role });
 }
 
+export async function archiveUser(userId: string): Promise<void> {
+  await api.patch(`/api/user/${userId}/archive`);
+}
+
 // ── Team member management (admin) ──────────────────────────────────────────
 
 interface TeamMemberSummary {

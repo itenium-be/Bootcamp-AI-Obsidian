@@ -5,6 +5,7 @@ using Itenium.SkillForge.WebApi.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 
 namespace Itenium.SkillForge.WebApi.Tests;
@@ -37,7 +38,8 @@ public class UserControllerTests
         var store = Substitute.For<IUserStore<ForgeUser>>();
         _userManager = Substitute.For<UserManager<ForgeUser>>(
             store, null, null, null, null, null, null, null, null);
-        _sut = new UserController(_userManager);
+        var logger = Substitute.For<ILogger<UserController>>();
+        _sut = new UserController(_userManager, logger);
     }
 
     [TearDown]
@@ -56,6 +58,7 @@ public class UserControllerTests
             new() { Id = "1", Email = "a@test.com", FirstName = "A", LastName = "B" }
         }.AsQueryable());
         _userManager.GetRolesAsync(Arg.Any<ForgeUser>()).Returns(["learner"]);
+        _userManager.GetClaimsAsync(Arg.Any<ForgeUser>()).Returns(Task.FromResult<IList<Claim>>(new List<Claim>()));
 
         var result = await _sut.GetUsers();
 
@@ -241,5 +244,95 @@ public class UserControllerTests
 
         Assert.That(result, Is.InstanceOf<ObjectResult>());
         Assert.That((result as ObjectResult)!.StatusCode, Is.EqualTo(500));
+    }
+
+    // --- ArchiveUser (Issue #36) ---
+
+    [Test]
+    public async Task ArchiveUser_WhenUserNotFound_ReturnsNotFound()
+    {
+        _userManager.FindByIdAsync("999").Returns(Task.FromResult<ForgeUser?>(null));
+
+        var result = await _sut.ArchiveUser("999");
+
+        Assert.That(result, Is.InstanceOf<NotFoundResult>());
+    }
+
+    [Test]
+    public async Task ArchiveUser_WhenUserExists_ReturnsOk()
+    {
+        var user = new ForgeUser { Id = "1", Email = "a@test.com" };
+        _userManager.FindByIdAsync("1").Returns(Task.FromResult<ForgeUser?>(user));
+        _userManager.SetLockoutEnabledAsync(Arg.Any<ForgeUser>(), Arg.Any<bool>()).Returns(IdentityResult.Success);
+        _userManager.SetLockoutEndDateAsync(Arg.Any<ForgeUser>(), Arg.Any<DateTimeOffset?>()).Returns(IdentityResult.Success);
+        _userManager.AddClaimAsync(Arg.Any<ForgeUser>(), Arg.Any<Claim>()).Returns(IdentityResult.Success);
+
+        var result = await _sut.ArchiveUser("1");
+
+        Assert.That(result, Is.InstanceOf<OkResult>());
+    }
+
+    [Test]
+    public async Task ArchiveUser_SetsLockoutEndToMaxValue()
+    {
+        var user = new ForgeUser { Id = "1", Email = "a@test.com" };
+        _userManager.FindByIdAsync("1").Returns(Task.FromResult<ForgeUser?>(user));
+        _userManager.SetLockoutEnabledAsync(Arg.Any<ForgeUser>(), Arg.Any<bool>()).Returns(IdentityResult.Success);
+        _userManager.SetLockoutEndDateAsync(Arg.Any<ForgeUser>(), Arg.Any<DateTimeOffset?>()).Returns(IdentityResult.Success);
+        _userManager.AddClaimAsync(Arg.Any<ForgeUser>(), Arg.Any<Claim>()).Returns(IdentityResult.Success);
+
+        await _sut.ArchiveUser("1");
+
+        await _userManager.Received(1).SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+    }
+
+    [Test]
+    public async Task ArchiveUser_SetsLockoutEnabled()
+    {
+        var user = new ForgeUser { Id = "1", Email = "a@test.com" };
+        _userManager.FindByIdAsync("1").Returns(Task.FromResult<ForgeUser?>(user));
+        _userManager.SetLockoutEnabledAsync(Arg.Any<ForgeUser>(), Arg.Any<bool>()).Returns(IdentityResult.Success);
+        _userManager.SetLockoutEndDateAsync(Arg.Any<ForgeUser>(), Arg.Any<DateTimeOffset?>()).Returns(IdentityResult.Success);
+        _userManager.AddClaimAsync(Arg.Any<ForgeUser>(), Arg.Any<Claim>()).Returns(IdentityResult.Success);
+
+        await _sut.ArchiveUser("1");
+
+        await _userManager.Received(1).SetLockoutEnabledAsync(user, true);
+    }
+
+    [Test]
+    public async Task ArchiveUser_AddsArchivedClaim()
+    {
+        var user = new ForgeUser { Id = "1", Email = "a@test.com" };
+        _userManager.FindByIdAsync("1").Returns(Task.FromResult<ForgeUser?>(user));
+        _userManager.SetLockoutEnabledAsync(Arg.Any<ForgeUser>(), Arg.Any<bool>()).Returns(IdentityResult.Success);
+        _userManager.SetLockoutEndDateAsync(Arg.Any<ForgeUser>(), Arg.Any<DateTimeOffset?>()).Returns(IdentityResult.Success);
+        _userManager.AddClaimAsync(Arg.Any<ForgeUser>(), Arg.Any<Claim>()).Returns(IdentityResult.Success);
+
+        await _sut.ArchiveUser("1");
+
+        await _userManager.Received(1).AddClaimAsync(
+            user,
+            Arg.Is<Claim>(c => c.Type == "archived" && c.Value == "true"));
+    }
+
+    [Test]
+    public async Task GetUsers_ExcludesArchivedUsers()
+    {
+        var activeUser = new ForgeUser { Id = "1", Email = "active@test.com" };
+        var archivedUser = new ForgeUser { Id = "2", Email = "archived@test.com" };
+        _userManager.Users.Returns(new List<ForgeUser> { activeUser, archivedUser }.AsQueryable());
+        _userManager.GetRolesAsync(Arg.Any<ForgeUser>()).Returns(new List<string> { "learner" }.ToArray() as IList<string>);
+        _userManager.GetClaimsAsync(Arg.Is<ForgeUser>(u => u.Id == activeUser.Id))
+            .Returns(Task.FromResult<IList<Claim>>(new List<Claim>()));
+        _userManager.GetClaimsAsync(Arg.Is<ForgeUser>(u => u.Id == archivedUser.Id))
+            .Returns(Task.FromResult<IList<Claim>>(new List<Claim> { new Claim("archived", "true") }));
+
+        var result = await _sut.GetUsers();
+
+        var ok = result as OkObjectResult;
+        Assert.That(ok, Is.Not.Null);
+        var list = ok!.Value as List<object>;
+        Assert.That(list, Has.Count.EqualTo(1));
     }
 }

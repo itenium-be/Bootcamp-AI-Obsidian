@@ -27,7 +27,7 @@ import {
   SelectValue,
   Checkbox,
 } from '@itenium-forge/ui';
-import { fetchUserTeams, fetchUsers, createUser, updateUserRole } from '@/api/client';
+import { fetchUserTeams, fetchUsers, createUser, updateUserRole, archiveUser } from '@/api/client';
 
 const ROLES = ['learner', 'manager', 'backoffice'] as const;
 type Role = (typeof ROLES)[number];
@@ -101,6 +101,17 @@ export function Users() {
     },
     onError: () => {
       toast.error(t('users.updateRoleError'));
+    },
+  });
+
+  const { mutate: archive } = useMutation({
+    mutationFn: archiveUser,
+    onSuccess: () => {
+      toast.success(t('users.archiveSuccess'));
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    onError: () => {
+      toast.error(t('users.archiveError'));
     },
   });
 
@@ -283,7 +294,7 @@ export function Users() {
               <th className="p-3 text-left font-medium">{t('users.tableName')}</th>
               <th className="p-3 text-left font-medium">{t('users.tableEmail')}</th>
               <th className="p-3 text-left font-medium">{t('users.tableRole')}</th>
-              <th className="p-3 text-left font-medium">{t('common.edit')}</th>
+              <th className="p-3 text-left font-medium">{t('users.tableActions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -328,7 +339,7 @@ export function Users() {
                         </SelectContent>
                       </Select>
                     </td>
-                    <td className="p-3">
+                    <td className="p-3 flex gap-2">
                       {isDirty && (
                         <Button
                           size="sm"
@@ -339,6 +350,9 @@ export function Users() {
                           {t('common.save')}
                         </Button>
                       )}
+                      <Button variant="destructive" size="sm" onClick={() => archive(user.id)}>
+                        {t('users.archive')}
+                      </Button>
                     </td>
                   </tr>
                 );
