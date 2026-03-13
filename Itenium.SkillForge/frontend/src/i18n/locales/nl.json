@@ -37,7 +37,10 @@
     "completion": "Voltooiing",
     "feedback": "Feedback",
     "settingsSection": "Instellingen",
-    "certificateTemplates": "Certificaat Sjablonen"
+    "certificateTemplates": "Certificaat Sjablonen",
+    "games": "Spelletjes",
+    "iteniumDino": "Itenium Dino",
+    "deploy": "Deploy"
   },
   "auth": {
     "signIn": "Inloggen",

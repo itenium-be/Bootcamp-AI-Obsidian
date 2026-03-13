@@ -37,7 +37,10 @@
     "completion": "Completion",
     "feedback": "Feedback",
     "settingsSection": "Settings",
-    "certificateTemplates": "Certificate Templates"
+    "certificateTemplates": "Certificate Templates",
+    "games": "Games",
+    "iteniumDino": "Itenium Dino",
+    "deploy": "Deploy"
   },
   "auth": {
     "signIn": "Sign In",

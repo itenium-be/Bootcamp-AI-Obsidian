@@ -49,6 +49,7 @@ import {
   ClipboardList,
   MessageSquare,
   CheckCircle,
+  Gamepad2,
 } from 'lucide-react';
 import { useAuthStore, useTeamStore, useThemeStore, type Team } from '@/stores';
 import { fetchUserTeams } from '@/api/client';
@@ -257,6 +258,12 @@ export function Layout() {
     { path: '/reports/feedback', icon: MessageSquare, label: t('nav.feedback') },
   ];
 
+  // Games - shown for all users
+  const gamesNavItems = [
+    { path: '/itenium-dino', icon: Gamepad2, label: t('nav.iteniumDino') },
+    { path: '/deploy', icon: Gamepad2, label: t('nav.deploy') },
+  ];
+
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon">
@@ -404,6 +411,25 @@ export function Layout() {
               </SidebarGroupContent>
             </SidebarGroup>
           )}
+
+          {/* Games - shown for all users */}
+          <SidebarGroup>
+            <SidebarGroupLabel>{t('nav.games')}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {gamesNavItems.map((item) => (
+                  <SidebarMenuItem key={item.path}>
+                    <SidebarMenuButton asChild>
+                      <Link to={item.path} activeProps={{ className: 'bg-accent' }}>
+                        <item.icon className="size-4" />
+                        <span>{item.label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
         </SidebarContent>
 
         <SidebarFooter>

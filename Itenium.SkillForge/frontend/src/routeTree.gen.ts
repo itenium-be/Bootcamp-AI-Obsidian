@@ -13,6 +13,8 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedMyProgressRouteImport } from './routes/_authenticated/my-progress'
+import { Route as AuthenticatedIteniumDinoRouteImport } from './routes/_authenticated/itenium-dino'
+import { Route as AuthenticatedDeployRouteImport } from './routes/_authenticated/deploy'
 import { Route as AuthenticatedCoursesRouteImport } from './routes/_authenticated/courses'
 import { Route as AuthenticatedCatalogRouteImport } from './routes/_authenticated/catalog'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
@@ -37,6 +39,17 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
 const AuthenticatedMyProgressRoute = AuthenticatedMyProgressRouteImport.update({
   id: '/my-progress',
   path: '/my-progress',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedIteniumDinoRoute =
+  AuthenticatedIteniumDinoRouteImport.update({
+    id: '/itenium-dino',
+    path: '/itenium-dino',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDeployRoute = AuthenticatedDeployRouteImport.update({
+  id: '/deploy',
+  path: '/deploy',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedCoursesRoute = AuthenticatedCoursesRouteImport.update({
@@ -75,6 +88,8 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof authSignInRoute
   '/catalog': typeof AuthenticatedCatalogRoute
   '/courses': typeof AuthenticatedCoursesRoute
+  '/deploy': typeof AuthenticatedDeployRoute
+  '/itenium-dino': typeof AuthenticatedIteniumDinoRoute
   '/my-progress': typeof AuthenticatedMyProgressRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/': typeof AuthenticatedIndexRoute
@@ -86,6 +101,8 @@ export interface FileRoutesByTo {
   '/sign-in': typeof authSignInRoute
   '/catalog': typeof AuthenticatedCatalogRoute
   '/courses': typeof AuthenticatedCoursesRoute
+  '/deploy': typeof AuthenticatedDeployRoute
+  '/itenium-dino': typeof AuthenticatedIteniumDinoRoute
   '/my-progress': typeof AuthenticatedMyProgressRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/': typeof AuthenticatedIndexRoute
@@ -99,6 +116,8 @@ export interface FileRoutesById {
   '/(auth)/sign-in': typeof authSignInRoute
   '/_authenticated/catalog': typeof AuthenticatedCatalogRoute
   '/_authenticated/courses': typeof AuthenticatedCoursesRoute
+  '/_authenticated/deploy': typeof AuthenticatedDeployRoute
+  '/_authenticated/itenium-dino': typeof AuthenticatedIteniumDinoRoute
   '/_authenticated/my-progress': typeof AuthenticatedMyProgressRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
@@ -112,6 +131,8 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/catalog'
     | '/courses'
+    | '/deploy'
+    | '/itenium-dino'
     | '/my-progress'
     | '/settings'
     | '/'
@@ -123,6 +144,8 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/catalog'
     | '/courses'
+    | '/deploy'
+    | '/itenium-dino'
     | '/my-progress'
     | '/settings'
     | '/'
@@ -135,6 +158,8 @@ export interface FileRouteTypes {
     | '/(auth)/sign-in'
     | '/_authenticated/catalog'
     | '/_authenticated/courses'
+    | '/_authenticated/deploy'
+    | '/_authenticated/itenium-dino'
     | '/_authenticated/my-progress'
     | '/_authenticated/settings'
     | '/_authenticated/'
@@ -175,6 +200,20 @@ declare module '@tanstack/react-router' {
       path: '/my-progress'
       fullPath: '/my-progress'
       preLoaderRoute: typeof AuthenticatedMyProgressRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/itenium-dino': {
+      id: '/_authenticated/itenium-dino'
+      path: '/itenium-dino'
+      fullPath: '/itenium-dino'
+      preLoaderRoute: typeof AuthenticatedIteniumDinoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/deploy': {
+      id: '/_authenticated/deploy'
+      path: '/deploy'
+      fullPath: '/deploy'
+      preLoaderRoute: typeof AuthenticatedDeployRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/courses': {
@@ -242,6 +281,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedCatalogRoute: typeof AuthenticatedCatalogRoute
   AuthenticatedCoursesRoute: typeof AuthenticatedCoursesRoute
+  AuthenticatedDeployRoute: typeof AuthenticatedDeployRoute
+  AuthenticatedIteniumDinoRoute: typeof AuthenticatedIteniumDinoRoute
   AuthenticatedMyProgressRoute: typeof AuthenticatedMyProgressRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
@@ -251,6 +292,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedCatalogRoute: AuthenticatedCatalogRoute,
   AuthenticatedCoursesRoute: AuthenticatedCoursesRoute,
+  AuthenticatedDeployRoute: AuthenticatedDeployRoute,
+  AuthenticatedIteniumDinoRoute: AuthenticatedIteniumDinoRoute,
   AuthenticatedMyProgressRoute: AuthenticatedMyProgressRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
