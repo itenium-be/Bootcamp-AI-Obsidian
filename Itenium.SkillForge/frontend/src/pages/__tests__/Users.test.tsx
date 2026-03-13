@@ -11,15 +11,18 @@ vi.mock('react-i18next', () => ({
 
 const mockUseQuery = vi.fn();
 const mockUseMutation = vi.fn();
+const mockUseQueryClient = vi.fn(() => ({ invalidateQueries: vi.fn() }));
 vi.mock('@tanstack/react-query', () => ({
   useQuery: (...args: unknown[]) => mockUseQuery(...args),
   useMutation: (...args: unknown[]) => mockUseMutation(...args),
+  useQueryClient: () => mockUseQueryClient(),
 }));
 
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 vi.mock('@/api/client', () => ({
   fetchUserTeams: vi.fn(),
+  fetchUsers: vi.fn(),
   createUser: vi.fn(),
 }));
 
@@ -71,9 +74,9 @@ import { Users } from '../Users';
 const mockMutate = vi.fn();
 
 beforeEach(() => {
-  mockUseQuery.mockReturnValue({ data: [{ id: 1, name: 'Java' }] });
-  mockUseMutation.mockReturnValue({ mutate: mockMutate, isPending: false });
+  // Clear first, then set up — prevents stale return values from leaking between tests
   vi.clearAllMocks();
+  mockUseQuery.mockReturnValue({ data: [], isLoading: false });
   mockUseMutation.mockReturnValue({ mutate: mockMutate, isPending: false });
 });
 
@@ -86,6 +89,22 @@ describe('Users', () => {
   it('shows the create user button initially', () => {
     render(<Users />);
     expect(screen.getByText('users.createUser')).toBeInTheDocument();
+  });
+
+  it('shows empty state when no users are returned', () => {
+    render(<Users />);
+    expect(screen.getByText('users.noUsers')).toBeInTheDocument();
+  });
+
+  it('shows users in the table', () => {
+    mockUseQuery.mockReturnValue({
+      data: [{ id: '1', email: 'a@test.com', firstName: 'Alice', lastName: 'Smith', roles: ['learner'] }],
+      isLoading: false,
+    });
+    render(<Users />);
+    expect(screen.getByText('Alice Smith')).toBeInTheDocument();
+    expect(screen.getByText('a@test.com')).toBeInTheDocument();
+    expect(screen.getByText('learner')).toBeInTheDocument();
   });
 
   it('shows the form when create user button is clicked', () => {
@@ -107,7 +126,6 @@ describe('Users', () => {
   it('hides the create button while the form is open', () => {
     render(<Users />);
     fireEvent.click(screen.getByText('users.createUser'));
-    // The header button is gone; only the card title remains
     expect(screen.queryByTestId('user-plus-icon')).not.toBeInTheDocument();
   });
 });

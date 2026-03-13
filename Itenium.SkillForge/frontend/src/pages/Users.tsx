@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -27,7 +27,7 @@ import {
   SelectValue,
   Checkbox,
 } from '@itenium-forge/ui';
-import { fetchUserTeams, createUser } from '@/api/client';
+import { fetchUserTeams, fetchUsers, createUser } from '@/api/client';
 
 const ROLES = ['learner', 'manager', 'backoffice'] as const;
 type Role = (typeof ROLES)[number];
@@ -47,11 +47,21 @@ type FormData = z.infer<ReturnType<typeof createFormSchema>>;
 export function Users() {
   const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
-  const formSchema = createFormSchema(t);
+  const queryClient = useQueryClient();
 
+  // Memoized so zodResolver doesn't get a new schema reference every render
+  const formSchema = useMemo(() => createFormSchema(t), [t]);
+
+  const { data: users = [], isLoading: isLoadingUsers } = useQuery({
+    queryKey: ['users'],
+    queryFn: fetchUsers,
+  });
+
+  // Deferred until the form is opened
   const { data: teams = [] } = useQuery({
     queryKey: ['teams'],
     queryFn: fetchUserTeams,
+    enabled: showForm,
   });
 
   const form = useForm<FormData>({
@@ -74,6 +84,7 @@ export function Users() {
       toast.success(t('users.createSuccess'));
       form.reset();
       setShowForm(false);
+      queryClient.invalidateQueries({ queryKey: ['users'] });
     },
     onError: () => {
       toast.error(t('users.createError'));
@@ -251,6 +262,43 @@ export function Users() {
           </Form>
         </Card>
       )}
+
+      <div className="rounded-md border">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b bg-muted/50">
+              <th className="p-3 text-left font-medium">{t('users.tableName')}</th>
+              <th className="p-3 text-left font-medium">{t('users.tableEmail')}</th>
+              <th className="p-3 text-left font-medium">{t('users.tableRole')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {isLoadingUsers ? (
+              <tr>
+                <td colSpan={3} className="p-3 text-center text-muted-foreground">
+                  {t('common.loading')}
+                </td>
+              </tr>
+            ) : users.length === 0 ? (
+              <tr>
+                <td colSpan={3} className="p-3 text-center text-muted-foreground">
+                  {t('users.noUsers')}
+                </td>
+              </tr>
+            ) : (
+              users.map((user) => (
+                <tr key={user.id} className="border-b">
+                  <td className="p-3">
+                    {user.firstName} {user.lastName}
+                  </td>
+                  <td className="p-3 text-muted-foreground">{user.email}</td>
+                  <td className="p-3">{user.roles[0] ?? '-'}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

@@ -128,7 +128,11 @@
     },
     "teams": "Teams",
     "createSuccess": "Gebruiker succesvol aangemaakt",
-    "createError": "Gebruiker aanmaken mislukt"
+    "createError": "Gebruiker aanmaken mislukt",
+    "noUsers": "Geen gebruikers gevonden",
+    "tableEmail": "E-mail",
+    "tableName": "Naam",
+    "tableRole": "Rol"
   },
   "errors": {
     "sessionExpired": "Sessie verlopen!",

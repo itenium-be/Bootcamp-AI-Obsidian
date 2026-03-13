@@ -128,7 +128,11 @@
     },
     "teams": "Teams",
     "createSuccess": "User created successfully",
-    "createError": "Failed to create user"
+    "createError": "Failed to create user",
+    "noUsers": "No users found",
+    "tableEmail": "Email",
+    "tableName": "Name",
+    "tableRole": "Role"
   },
   "errors": {
     "sessionExpired": "Session expired!",

@@ -85,3 +85,16 @@ interface CreateUserPayload {
 export async function createUser(payload: CreateUserPayload): Promise<void> {
   await api.post('/api/user', payload);
 }
+
+interface UserSummary {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  roles: string[];
+}
+
+export async function fetchUsers(): Promise<UserSummary[]> {
+  const response = await api.get<UserSummary[]>('/api/user');
+  return response.data;
+}

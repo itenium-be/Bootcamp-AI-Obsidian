@@ -28,6 +28,37 @@ public class UserControllerTests
         _userManager.Dispose();
     }
 
+    // --- GetUsers ---
+
+    [Test]
+    public async Task GetUsers_ReturnsOk()
+    {
+        _userManager.Users.Returns(new List<ForgeUser>
+        {
+            new() { Id = "1", Email = "a@test.com", FirstName = "A", LastName = "B" }
+        }.AsQueryable());
+        _userManager.GetRolesAsync(Arg.Any<ForgeUser>()).Returns(["learner"]);
+
+        var result = await _sut.GetUsers();
+
+        Assert.That(result, Is.InstanceOf<OkObjectResult>());
+    }
+
+    [Test]
+    public async Task GetUsers_WhenNoUsers_ReturnsEmptyList()
+    {
+        _userManager.Users.Returns(new List<ForgeUser>().AsQueryable());
+
+        var result = await _sut.GetUsers();
+
+        var ok = result as OkObjectResult;
+        Assert.That(ok, Is.Not.Null);
+        var list = ok!.Value as List<object>;
+        Assert.That(list, Is.Empty);
+    }
+
+    // --- CreateUser ---
+
     [Test]
     public async Task CreateUser_WhenValidRequest_ReturnsCreated()
     {
@@ -43,6 +74,17 @@ public class UserControllerTests
     }
 
     [Test]
+    public async Task CreateUser_WithInvalidRole_ReturnsBadRequest()
+    {
+        var request = new CreateUserRequest("test@test.com", "Test", "User", "Password123!", "superadmin", []);
+
+        var result = await _sut.CreateUser(request);
+
+        Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+        await _userManager.DidNotReceive().CreateAsync(Arg.Any<ForgeUser>(), Arg.Any<string>());
+    }
+
+    [Test]
     public async Task CreateUser_WhenCreationFails_ReturnsBadRequest()
     {
         var request = new CreateUserRequest("test@test.com", "Test", "User", "weak", "learner", []);
@@ -52,6 +94,21 @@ public class UserControllerTests
         var result = await _sut.CreateUser(request);
 
         Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+    }
+
+    [Test]
+    public async Task CreateUser_WhenRoleAssignmentFails_ReturnsServerError()
+    {
+        var request = new CreateUserRequest("test@test.com", "Test", "User", "Password123!", "learner", []);
+        _userManager.CreateAsync(Arg.Any<ForgeUser>(), request.Password)
+            .Returns(IdentityResult.Success);
+        _userManager.AddToRoleAsync(Arg.Any<ForgeUser>(), request.Role)
+            .Returns(IdentityResult.Failed(new IdentityError { Description = "Role does not exist" }));
+
+        var result = await _sut.CreateUser(request);
+
+        Assert.That(result, Is.InstanceOf<ObjectResult>());
+        Assert.That((result as ObjectResult)!.StatusCode, Is.EqualTo(500));
     }
 
     [Test]
