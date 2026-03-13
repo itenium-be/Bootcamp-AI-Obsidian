@@ -219,6 +219,11 @@ export async function fetchArchivedUsers(): Promise<UserSummary[]> {
   return response.data;
 }
 
+export async function fetchOrphanedConsultants(): Promise<UserSummary[]> {
+  const response = await api.get<UserSummary[]>('/api/user/orphaned');
+  return response.data;
+}
+
 // ── Team member management (admin) ──────────────────────────────────────────
 
 interface TeamMemberSummary {

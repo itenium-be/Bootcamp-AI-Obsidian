@@ -37,7 +37,8 @@
     "completion": "Completion",
     "feedback": "Feedback",
     "settingsSection": "Settings",
-    "certificateTemplates": "Certificate Templates"
+    "certificateTemplates": "Certificate Templates",
+    "orphaned": "Orphaned Consultants"
   },
   "auth": {
     "signIn": "Sign In",
@@ -145,7 +146,12 @@
     "restoreError": "Failed to restore user",
     "showArchived": "Show Archived",
     "showActive": "Show Active",
-    "archivedUsers": "Archived Users"
+    "archivedUsers": "Archived Users",
+    "orphaned": {
+      "title": "Orphaned Consultants",
+      "description": "Consultants without an active coach",
+      "noOrphaned": "No orphaned consultants found"
+    }
   },
   "teams": {
     "title": "Teams",

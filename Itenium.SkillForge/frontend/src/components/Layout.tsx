@@ -49,6 +49,7 @@ import {
   ClipboardList,
   MessageSquare,
   CheckCircle,
+  UserX,
 } from 'lucide-react';
 import { useAuthStore, useTeamStore, useThemeStore, type Team } from '@/stores';
 import { fetchUserTeams } from '@/api/client';
@@ -248,6 +249,7 @@ export function Layout() {
   const adminNavItems = [
     { path: '/admin/users', icon: Users, label: t('nav.teamMembers') },
     { path: '/admin/teams', icon: Component, label: t('nav.teams') },
+    { path: '/admin/orphaned', icon: UserX, label: t('nav.orphaned') },
   ];
 
   // Reports - shown for backoffice

@@ -19,6 +19,7 @@ import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedAdminTeamsRouteImport } from './routes/_authenticated/admin/teams'
+import { Route as AuthenticatedAdminOrphanedRouteImport } from './routes/_authenticated/admin/orphaned'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -69,6 +70,12 @@ const AuthenticatedAdminTeamsRoute = AuthenticatedAdminTeamsRouteImport.update({
   path: '/teams',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AuthenticatedAdminOrphanedRoute =
+  AuthenticatedAdminOrphanedRouteImport.update({
+    id: '/orphaned',
+    path: '/orphaned',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
@@ -78,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/my-progress': typeof AuthenticatedMyProgressRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/': typeof AuthenticatedIndexRoute
+  '/admin/orphaned': typeof AuthenticatedAdminOrphanedRoute
   '/admin/teams': typeof AuthenticatedAdminTeamsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
 }
@@ -89,6 +97,7 @@ export interface FileRoutesByTo {
   '/my-progress': typeof AuthenticatedMyProgressRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/': typeof AuthenticatedIndexRoute
+  '/admin/orphaned': typeof AuthenticatedAdminOrphanedRoute
   '/admin/teams': typeof AuthenticatedAdminTeamsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
 }
@@ -102,6 +111,7 @@ export interface FileRoutesById {
   '/_authenticated/my-progress': typeof AuthenticatedMyProgressRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/admin/orphaned': typeof AuthenticatedAdminOrphanedRoute
   '/_authenticated/admin/teams': typeof AuthenticatedAdminTeamsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
 }
@@ -115,6 +125,7 @@ export interface FileRouteTypes {
     | '/my-progress'
     | '/settings'
     | '/'
+    | '/admin/orphaned'
     | '/admin/teams'
     | '/admin/users'
   fileRoutesByTo: FileRoutesByTo
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '/my-progress'
     | '/settings'
     | '/'
+    | '/admin/orphaned'
     | '/admin/teams'
     | '/admin/users'
   id:
@@ -138,6 +150,7 @@ export interface FileRouteTypes {
     | '/_authenticated/my-progress'
     | '/_authenticated/settings'
     | '/_authenticated/'
+    | '/_authenticated/admin/orphaned'
     | '/_authenticated/admin/teams'
     | '/_authenticated/admin/users'
   fileRoutesById: FileRoutesById
@@ -219,16 +232,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminTeamsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/orphaned': {
+      id: '/_authenticated/admin/orphaned'
+      path: '/orphaned'
+      fullPath: '/admin/orphaned'
+      preLoaderRoute: typeof AuthenticatedAdminOrphanedRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminOrphanedRoute: typeof AuthenticatedAdminOrphanedRoute
   AuthenticatedAdminTeamsRoute: typeof AuthenticatedAdminTeamsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
 }
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
+    AuthenticatedAdminOrphanedRoute: AuthenticatedAdminOrphanedRoute,
     AuthenticatedAdminTeamsRoute: AuthenticatedAdminTeamsRoute,
     AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   }

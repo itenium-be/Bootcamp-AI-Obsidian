@@ -429,4 +429,101 @@ public class UserControllerTests
         var list = ok!.Value as List<object>;
         Assert.That(list, Has.Count.EqualTo(1));
     }
+
+    // --- GetOrphanedConsultants (Issue #38) ---
+
+    [Test]
+    public async Task GetOrphanedConsultants_WhenLearnerHasNoTeam_ReturnsOrphaned()
+    {
+        var learner = new ForgeUser { Id = "learner-1", Email = "learner@test.com" };
+        _userManager.GetUsersInRoleAsync("manager")
+            .Returns(Task.FromResult<IList<ForgeUser>>(new List<ForgeUser>()));
+        _userManager.GetUsersInRoleAsync("learner")
+            .Returns(Task.FromResult<IList<ForgeUser>>(new List<ForgeUser> { learner }));
+        _userManager.GetClaimsAsync(Arg.Is<ForgeUser>(u => u.Id == learner.Id))
+            .Returns(Task.FromResult<IList<Claim>>(new List<Claim>())); // no team claim
+        _userManager.GetRolesAsync(Arg.Any<ForgeUser>())
+            .Returns(new List<string> { "learner" }.ToArray() as IList<string>);
+
+        var result = await _sut.GetOrphanedConsultants();
+
+        var ok = result as OkObjectResult;
+        Assert.That(ok, Is.Not.Null);
+        var list = ok!.Value as List<object>;
+        Assert.That(list, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public async Task GetOrphanedConsultants_WhenLearnerTeamHasActiveManager_NotOrphaned()
+    {
+        var learner = new ForgeUser { Id = "learner-1", Email = "learner@test.com" };
+        var manager = new ForgeUser { Id = "manager-1", Email = "manager@test.com" };
+        _userManager.GetUsersInRoleAsync("manager")
+            .Returns(Task.FromResult<IList<ForgeUser>>(new List<ForgeUser> { manager }));
+        _userManager.GetUsersInRoleAsync("learner")
+            .Returns(Task.FromResult<IList<ForgeUser>>(new List<ForgeUser> { learner }));
+        _userManager.GetClaimsAsync(Arg.Is<ForgeUser>(u => u.Id == manager.Id))
+            .Returns(Task.FromResult<IList<Claim>>(new List<Claim> { new Claim("team", "1") }));
+        _userManager.GetClaimsAsync(Arg.Is<ForgeUser>(u => u.Id == learner.Id))
+            .Returns(Task.FromResult<IList<Claim>>(new List<Claim> { new Claim("team", "1") }));
+        _userManager.GetRolesAsync(Arg.Any<ForgeUser>())
+            .Returns(new List<string> { "learner" }.ToArray() as IList<string>);
+
+        var result = await _sut.GetOrphanedConsultants();
+
+        var ok = result as OkObjectResult;
+        Assert.That(ok, Is.Not.Null);
+        var list = ok!.Value as List<object>;
+        Assert.That(list, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetOrphanedConsultants_WhenLearnerTeamHasNoActiveManager_ReturnsOrphaned()
+    {
+        var learner = new ForgeUser { Id = "learner-1", Email = "learner@test.com" };
+        var archivedManager = new ForgeUser { Id = "manager-1", Email = "manager@test.com" };
+        _userManager.GetUsersInRoleAsync("manager")
+            .Returns(Task.FromResult<IList<ForgeUser>>(new List<ForgeUser> { archivedManager }));
+        _userManager.GetUsersInRoleAsync("learner")
+            .Returns(Task.FromResult<IList<ForgeUser>>(new List<ForgeUser> { learner }));
+        // Manager is archived
+        _userManager.GetClaimsAsync(Arg.Is<ForgeUser>(u => u.Id == archivedManager.Id))
+            .Returns(Task.FromResult<IList<Claim>>(new List<Claim>
+            {
+                new Claim("archived", "true"),
+                new Claim("team", "1")
+            }));
+        _userManager.GetClaimsAsync(Arg.Is<ForgeUser>(u => u.Id == learner.Id))
+            .Returns(Task.FromResult<IList<Claim>>(new List<Claim> { new Claim("team", "1") }));
+        _userManager.GetRolesAsync(Arg.Any<ForgeUser>())
+            .Returns(new List<string> { "learner" }.ToArray() as IList<string>);
+
+        var result = await _sut.GetOrphanedConsultants();
+
+        var ok = result as OkObjectResult;
+        Assert.That(ok, Is.Not.Null);
+        var list = ok!.Value as List<object>;
+        Assert.That(list, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public async Task GetOrphanedConsultants_ExcludesArchivedLearners()
+    {
+        var archivedLearner = new ForgeUser { Id = "learner-1", Email = "learner@test.com" };
+        _userManager.GetUsersInRoleAsync("manager")
+            .Returns(Task.FromResult<IList<ForgeUser>>(new List<ForgeUser>()));
+        _userManager.GetUsersInRoleAsync("learner")
+            .Returns(Task.FromResult<IList<ForgeUser>>(new List<ForgeUser> { archivedLearner }));
+        _userManager.GetClaimsAsync(Arg.Is<ForgeUser>(u => u.Id == archivedLearner.Id))
+            .Returns(Task.FromResult<IList<Claim>>(new List<Claim> { new Claim("archived", "true") }));
+        _userManager.GetRolesAsync(Arg.Any<ForgeUser>())
+            .Returns(new List<string> { "learner" }.ToArray() as IList<string>);
+
+        var result = await _sut.GetOrphanedConsultants();
+
+        var ok = result as OkObjectResult;
+        Assert.That(ok, Is.Not.Null);
+        var list = ok!.Value as List<object>;
+        Assert.That(list, Is.Empty);
+    }
 }

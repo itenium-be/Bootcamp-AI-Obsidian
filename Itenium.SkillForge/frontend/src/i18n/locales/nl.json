@@ -37,7 +37,8 @@
     "completion": "Voltooiing",
     "feedback": "Feedback",
     "settingsSection": "Instellingen",
-    "certificateTemplates": "Certificaat Sjablonen"
+    "certificateTemplates": "Certificaat Sjablonen",
+    "orphaned": "Niet-Toegewezen Consultants"
   },
   "auth": {
     "signIn": "Inloggen",
@@ -145,7 +146,12 @@
     "restoreError": "Herstellen mislukt",
     "showArchived": "Toon Gearchiveerde",
     "showActive": "Toon Actieve",
-    "archivedUsers": "Gearchiveerde Gebruikers"
+    "archivedUsers": "Gearchiveerde Gebruikers",
+    "orphaned": {
+      "title": "Niet-Toegewezen Consultants",
+      "description": "Consultants zonder actieve coach",
+      "noOrphaned": "Geen niet-toegewezen consultants gevonden"
+    }
   },
   "teams": {
     "title": "Teams",

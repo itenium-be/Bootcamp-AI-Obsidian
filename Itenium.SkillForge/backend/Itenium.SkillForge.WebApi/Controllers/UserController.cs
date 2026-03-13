@@ -57,6 +57,50 @@ public partial class UserController(UserManager<ForgeUser> userManager, ILogger<
     }
 
     /// <summary>
+    /// Get all consultants (learners) without an active coach.
+    /// An orphaned consultant has no team claim, or all their team claims
+    /// have no active (non-archived) manager assigned.
+    /// </summary>
+    [HttpGet("orphaned")]
+    public async Task<IActionResult> GetOrphanedConsultants()
+    {
+        // Get all active managers and their team claims
+        var managers = await userManager.GetUsersInRoleAsync("manager");
+        var activeManagerTeams = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var manager in managers)
+        {
+            var managerClaims = await userManager.GetClaimsAsync(manager);
+            if (managerClaims.Any(c => c.Type == "archived" && c.Value == "true"))
+                continue; // skip archived managers
+            foreach (var claim in managerClaims.Where(c => c.Type == "team"))
+                activeManagerTeams.Add(claim.Value);
+        }
+
+        // Get all active learners
+        var learners = await userManager.GetUsersInRoleAsync("learner");
+        var result = new List<object>();
+        foreach (var learner in learners)
+        {
+            var learnerClaims = await userManager.GetClaimsAsync(learner);
+            if (learnerClaims.Any(c => c.Type == "archived" && c.Value == "true"))
+                continue; // skip archived learners
+
+            var teamClaims = learnerClaims.Where(c => c.Type == "team").Select(c => c.Value).ToList();
+
+            // Orphaned if: no team claim OR no active manager covers their team
+            bool isOrphaned = teamClaims.Count == 0 || !teamClaims.Any(t => activeManagerTeams.Contains(t));
+
+            if (isOrphaned)
+            {
+                var roles = await userManager.GetRolesAsync(learner);
+                result.Add(new { learner.Id, learner.Email, learner.FirstName, learner.LastName, Roles = roles });
+            }
+        }
+
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Archive a user account (soft-delete: disables login, preserves history).
     /// </summary>
     [HttpPatch("{id}/archive")]
