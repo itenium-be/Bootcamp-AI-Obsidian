@@ -21,6 +21,8 @@ public class AppDbContext : ForgeIdentityDbContext
 
     public DbSet<CertificateEntity> Certificates => Set<CertificateEntity>();
 
+    public DbSet<CourseTeamEntity> CourseTeams => Set<CourseTeamEntity>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -52,6 +54,20 @@ public class AppDbContext : ForgeIdentityDbContext
             e.HasOne(x => x.Course)
                 .WithMany()
                 .HasForeignKey(x => x.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // CourseTeam: unique per course+team
+        builder.Entity<CourseTeamEntity>(e =>
+        {
+            e.HasIndex(x => new { x.CourseId, x.TeamId }).IsUnique();
+            e.HasOne(x => x.Course)
+                .WithMany()
+                .HasForeignKey(x => x.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.Team)
+                .WithMany()
+                .HasForeignKey(x => x.TeamId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }
