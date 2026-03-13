@@ -17,6 +17,7 @@
     <PackageReference Include="NSubstitute" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="ClosedXML" />
     <PackageReference Include="Testcontainers.PostgreSql" />
   </ItemGroup>
 

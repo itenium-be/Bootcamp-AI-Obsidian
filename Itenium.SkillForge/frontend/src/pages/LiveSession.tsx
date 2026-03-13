@@ -6,12 +6,6 @@ import { toast } from 'sonner';
 import { CheckCircle, Plus, X, Save } from 'lucide-react';
 import {
   Button,
-  Textarea,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
   Label,
   Select,
   SelectContent,
@@ -20,6 +14,8 @@ import {
   SelectValue,
   Input,
 } from '@itenium-forge/ui';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/Dialog';
+import { Textarea } from '@/components/Textarea';
 import {
   startSession,
   getSessionFocus,
@@ -59,7 +55,7 @@ export function LiveSession({ consultantId }: LiveSessionProps) {
   const [goalTargetNiveau, setGoalTargetNiveau] = useState('2');
   const [goalDeadline, setGoalDeadline] = useState('');
 
-  const { data: skills } = useQuery({ queryKey: ['skills'], queryFn: fetchSkills });
+  const { data: skills } = useQuery({ queryKey: ['skills'], queryFn: () => fetchSkills() });
 
   // Start session on mount
   const startMutation = useMutation({
@@ -78,13 +74,13 @@ export function LiveSession({ consultantId }: LiveSessionProps) {
 
   const { data: focus, refetch: refetchFocus } = useQuery({
     queryKey: ['session-focus', sessionId],
-    queryFn: () => getSessionFocus(sessionId!),
+    queryFn: () => getSessionFocus(sessionId ?? ''),
     enabled: !!sessionId,
     refetchInterval: 10000,
   });
 
   const endMutation = useMutation({
-    mutationFn: () => endSession(sessionId!),
+    mutationFn: () => endSession(sessionId ?? ''),
     onSuccess: () => {
       toast.success(t('session.ended'));
       queryClient.invalidateQueries({ queryKey: ['session-focus'] });
@@ -94,7 +90,7 @@ export function LiveSession({ consultantId }: LiveSessionProps) {
   });
 
   const notesMutation = useMutation({
-    mutationFn: (text: string) => updateSessionNotes(sessionId!, text),
+    mutationFn: (text: string) => updateSessionNotes(sessionId ?? '', text),
   });
 
   const handleNotesChange = (value: string) => {
@@ -128,7 +124,7 @@ export function LiveSession({ consultantId }: LiveSessionProps) {
     mutationFn: () =>
       createGoal({
         consultantId,
-        coachId: user!.id,
+        coachId: user?.id ?? '',
         skillId: parseInt(goalSkillId, 10),
         currentNiveau: parseInt(goalCurrentNiveau, 10),
         targetNiveau: parseInt(goalTargetNiveau, 10),

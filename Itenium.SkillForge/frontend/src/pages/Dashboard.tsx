@@ -46,8 +46,9 @@ function LearnerDashboard() {
           <h2 className="mb-3 text-lg font-semibold">{t('goals.activeGoals')}</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {goals.map((goal) => {
+              const now = new Date();
               const deadline = new Date(goal.deadline);
-              const daysLeft = Math.ceil((deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+              const daysLeft = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
               const pct = goal.skill
                 ? Math.round((goal.currentNiveau / goal.skill.levelCount) * 100)
                 : 0;
@@ -176,7 +177,7 @@ function ManagerDashboard() {
                   <p className="font-medium text-sm">{item.consultantId}</p>
                   <Badge variant="destructive" className="flex items-center gap-1 w-fit text-xs">
                     <Flag className="size-3" />
-                    {t('dashboard.raisedDaysAgo', { days: Math.floor(item.readinessFlagAgeInDays!) })}
+                    {t('dashboard.raisedDaysAgo', { days: Math.floor(item.readinessFlagAgeInDays ?? 0) })}
                   </Badge>
                   <p className="text-xs text-muted-foreground">
                     {t('dashboard.activeGoals', { count: item.activeGoalCount })}

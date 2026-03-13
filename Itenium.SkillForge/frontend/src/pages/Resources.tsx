@@ -11,13 +11,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
   Label,
 } from '@itenium-forge/ui';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/Dialog';
 import {
   fetchResources,
   fetchSkills,
@@ -56,7 +52,7 @@ export function Resources() {
 
   const { data: skills } = useQuery({
     queryKey: ['skills'],
-    queryFn: fetchSkills,
+    queryFn: () => fetchSkills(),
   });
 
   const { data: resources, isLoading } = useQuery({
@@ -71,7 +67,7 @@ export function Resources() {
 
   const { data: myGoals } = useQuery({
     queryKey: ['my-goals', user?.id],
-    queryFn: () => fetchMyGoals(user!.id),
+    queryFn: () => fetchMyGoals(user?.id ?? ''),
     enabled: !!user?.id && !!completingResource,
   });
 

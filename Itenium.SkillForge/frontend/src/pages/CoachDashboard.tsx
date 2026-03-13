@@ -1,13 +1,56 @@
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Flag, AlertTriangle, Target, Activity } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent, Badge, Button } from '@itenium-forge/ui';
-import { useAuthStore } from '@/stores';
-import { fetchCoachDashboard, type CoachDashboardItem } from '@/api/client';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  Badge,
+  Button,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@itenium-forge/ui';
 import { Link } from '@tanstack/react-router';
+import { toast } from 'sonner';
+import { useAuthStore } from '@/stores';
+import {
+  fetchCoachDashboard,
+  fetchConsultantProfile,
+  assignConsultantProfile,
+  type CoachDashboardItem,
+} from '@/api/client';
 
-function ConsultantCard({ item }: { item: CoachDashboardItem }) {
+const PROFILE_OPTIONS: { value: number; label: string }[] = [
+  { value: 1, label: 'Java' },
+  { value: 2, label: '.NET' },
+  { value: 3, label: 'PO & Analysis' },
+  { value: 4, label: 'QA' },
+];
+
+function ConsultantCard({ item, coachId }: { item: CoachDashboardItem; coachId: string }) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+
+  const { data: profileData } = useQuery({
+    queryKey: ['consultant-profile', item.consultantId],
+    queryFn: () => fetchConsultantProfile(item.consultantId),
+    staleTime: 30_000,
+  });
+
+  const assignMutation = useMutation({
+    mutationFn: (profile: number) => assignConsultantProfile(item.consultantId, profile, coachId),
+    onSuccess: () => {
+      toast.success(t('dashboard.profileAssigned'));
+      void queryClient.invalidateQueries({ queryKey: ['consultant-profile', item.consultantId] });
+    },
+    onError: () => toast.error(t('dashboard.profileAssignError')),
+  });
+
+  const currentProfile = profileData?.profile ?? null;
 
   return (
     <Card className={item.isInactive ? 'border-warning/50 bg-warning/5' : ''}>
@@ -41,6 +84,28 @@ function ConsultantCard({ item }: { item: CoachDashboardItem }) {
             {t('dashboard.lastActivity')}: {new Date(item.lastActivityAt).toLocaleDateString()}
           </span>
         </div>
+
+        {/* Profile assignment */}
+        <div className="space-y-1">
+          <p className="text-xs text-muted-foreground">{t('dashboard.competenceProfile')}</p>
+          <Select
+            value={currentProfile !== null ? String(currentProfile) : ''}
+            onValueChange={(v) => assignMutation.mutate(Number(v))}
+            disabled={assignMutation.isPending}
+          >
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue placeholder={t('dashboard.noProfile')} />
+            </SelectTrigger>
+            <SelectContent>
+              {PROFILE_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={String(opt.value)} className="text-xs">
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <Link
           to="/consultants/$consultantId"
           params={{ consultantId: item.consultantId }}
@@ -119,7 +184,7 @@ export function CoachDashboard() {
           </h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {withFlags.map((item) => (
-              <ConsultantCard key={item.consultantId} item={item} />
+              <ConsultantCard key={item.consultantId} item={item} coachId={coachId} />
             ))}
           </div>
         </div>
@@ -135,7 +200,7 @@ export function CoachDashboard() {
         )}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {items?.map((item) => (
-            <ConsultantCard key={item.consultantId} item={item} />
+            <ConsultantCard key={item.consultantId} item={item} coachId={coachId} />
           ))}
         </div>
       </div>

@@ -3,6 +3,7 @@ import { vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as client from '@/api/client';
+// eslint-disable-next-line import-x/order -- must come after vi.mock calls
 import { Roadmap } from '../Roadmap';
 
 // Minimal auth store mock
@@ -34,7 +35,9 @@ describe('Roadmap', () => {
   });
 
   it('shows loading state', () => {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     vi.spyOn(client, 'fetchRoadmap').mockReturnValue(new Promise(() => {}));
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     vi.spyOn(client, 'fetchSeniorityProgress').mockReturnValue(new Promise(() => {}));
 
     renderWithQuery(<Roadmap />);

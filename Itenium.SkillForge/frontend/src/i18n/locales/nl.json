@@ -95,12 +95,23 @@
     "viewProfile": "Profiel Bekijken",
     "needsAttention": "Aandacht Nodig",
     "allConsultants": "Alle Consultants",
-    "noConsultants": "Geen consultants aan u toegewezen."
+    "noConsultants": "Geen consultants aan u toegewezen.",
+    "competenceProfile": "Competentieprofiel",
+    "noProfile": "Geen profiel toegewezen",
+    "profileAssigned": "Profiel succesvol toegewezen",
+    "profileAssignError": "Kon profiel niet toewijzen"
   },
   "consultant": {
     "profile": "Consultant Profiel",
     "activityHistory": "Activiteitsgeschiedenis",
     "noActivity": "Nog geen activiteit geregistreerd."
+  },
+  "onboarding": {
+    "title": "Welkom bij SkillForge!",
+    "subtitle": "Uw coach heeft uw leertraject opgezet. Dit wacht op u:",
+    "goalsReady": "{{count}} doel(en) klaar voor u",
+    "andMore": "...en {{count}} meer",
+    "getStarted": "Aan de slag!"
   },
   "activity": {
     "GoalCreated": "Doel",

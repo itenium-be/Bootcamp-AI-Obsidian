@@ -95,12 +95,23 @@
     "viewProfile": "View Profile",
     "needsAttention": "Needs Attention",
     "allConsultants": "All Consultants",
-    "noConsultants": "No consultants assigned to you yet."
+    "noConsultants": "No consultants assigned to you yet.",
+    "competenceProfile": "Competence Profile",
+    "noProfile": "No profile assigned",
+    "profileAssigned": "Profile assigned successfully",
+    "profileAssignError": "Could not assign profile"
   },
   "consultant": {
     "profile": "Consultant Profile",
     "activityHistory": "Activity History",
     "noActivity": "No activity recorded yet."
+  },
+  "onboarding": {
+    "title": "Welcome to SkillForge!",
+    "subtitle": "Your coach has set up your learning journey. Here's what's waiting for you:",
+    "goalsReady": "{{count}} goal(s) ready for you",
+    "andMore": "...and {{count}} more",
+    "getStarted": "Let's get started!"
   },
   "activity": {
     "GoalCreated": "Goal",

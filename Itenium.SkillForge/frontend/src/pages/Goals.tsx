@@ -1,11 +1,50 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Flag, CheckCircle, Target, Calendar } from 'lucide-react';
+import { Flag, CheckCircle, Target, Calendar, Sparkles } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, Badge, Button } from '@itenium-forge/ui';
+import { toast } from 'sonner';
 import { useAuthStore } from '@/stores';
 import { fetchMyGoals, raiseReadinessFlag, lowerReadinessFlag, type Goal } from '@/api/client';
-import { toast } from 'sonner';
+
+const ONBOARDING_KEY = 'skillforge-onboarding-dismissed';
+
+function OnboardingModal({ goals, onDismiss }: { goals: Goal[]; onDismiss: () => void }) {
+  const { t } = useTranslation();
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="bg-background rounded-lg border shadow-lg w-full max-w-md mx-4 p-6 space-y-4">
+        <div className="flex items-center gap-2">
+          <Sparkles className="size-5 text-primary" />
+          <h2 className="text-xl font-semibold">{t('onboarding.title')}</h2>
+        </div>
+        <p className="text-muted-foreground">{t('onboarding.subtitle')}</p>
+        {goals.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-sm font-medium">{t('onboarding.goalsReady', { count: goals.length })}</p>
+            <ul className="space-y-1">
+              {goals.slice(0, 5).map((goal) => (
+                <li key={goal.id} className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Target className="size-3 text-primary shrink-0" />
+                  {goal.skill?.name ?? `Skill #${goal.skillId}`}
+                </li>
+              ))}
+              {goals.length > 5 && (
+                <li className="text-xs text-muted-foreground pl-5">
+                  {t('onboarding.andMore', { count: goals.length - 5 })}
+                </li>
+              )}
+            </ul>
+          </div>
+        )}
+        <div className="flex justify-end pt-2">
+          <Button onClick={onDismiss}>{t('onboarding.getStarted')}</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function GoalProgressBar({ current, target, max }: { current: number; target: number; max: number }) {
   const pct = max > 0 ? Math.round((current / max) * 100) : 0;
@@ -40,9 +79,10 @@ function GoalCard({ goal, onRaiseFlag, onLowerFlag }: {
   onLowerFlag: (goalId: string) => void;
 }) {
   const { t } = useTranslation();
+  const now = new Date();
   const deadline = new Date(goal.deadline);
-  const isOverdue = deadline < new Date();
-  const daysLeft = Math.ceil((deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  const isOverdue = deadline < now;
+  const daysLeft = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
   return (
     <Card>
@@ -113,6 +153,17 @@ export function Goals() {
     enabled: !!consultantId,
   });
 
+  const [onboardingDismissed, setOnboardingDismissed] = useState(
+    () => !!localStorage.getItem(`${ONBOARDING_KEY}-${consultantId}`),
+  );
+
+  const showOnboarding = !onboardingDismissed && !isLoading && !!goals && goals.length > 0;
+
+  const handleDismissOnboarding = () => {
+    localStorage.setItem(`${ONBOARDING_KEY}-${consultantId}`, '1');
+    setOnboardingDismissed(true);
+  };
+
   const raiseMutation = useMutation({
     mutationFn: (goalId: string) => raiseReadinessFlag(goalId, consultantId),
     onSuccess: () => {
@@ -137,6 +188,9 @@ export function Goals() {
 
   return (
     <div className="space-y-6">
+      {showOnboarding && goals && (
+        <OnboardingModal goals={goals} onDismiss={handleDismissOnboarding} />
+      )}
       <div>
         <h1 className="text-3xl font-bold">{t('goals.title')}</h1>
         <p className="text-muted-foreground">{t('goals.subtitle')}</p>

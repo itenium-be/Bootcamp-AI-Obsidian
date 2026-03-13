@@ -106,7 +106,6 @@ function SkillCard({ node }: { node: RoadmapNode }) {
 }
 
 function SeniorityProgressBar({ userId }: { userId: string }) {
-  const { t } = useTranslation();
   const { data: progress } = useQuery({
     queryKey: ['seniority-progress', userId],
     queryFn: () => fetchSeniorityProgress(userId),
@@ -180,7 +179,7 @@ export function Roadmap() {
     return <div className="p-6">{t('common.loading')}</div>;
   }
 
-  if (!roadmap || roadmap.nodes.length === 0) {
+  if (!roadmap || roadmap.profile === null) {
     return (
       <div className="space-y-6">
         <h1 className="text-3xl font-bold">My Roadmap</h1>
@@ -191,7 +190,7 @@ export function Roadmap() {
     );
   }
 
-  const profileName = roadmap.profile ? PROFILE_NAMES[roadmap.profile] ?? 'Unknown' : 'Unknown';
+  const profileName = PROFILE_NAMES[roadmap.profile] ?? 'Unknown';
 
   // Group by category for better visual organisation
   const byCategory = roadmap.nodes.reduce<Record<string, RoadmapNode[]>>((acc, node) => {

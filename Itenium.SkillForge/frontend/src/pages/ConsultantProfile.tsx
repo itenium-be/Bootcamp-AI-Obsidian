@@ -92,8 +92,9 @@ export function ConsultantProfile({ consultantId }: ConsultantProfileProps) {
             )}
             <div className="space-y-3">
               {goals?.filter((g) => g.status === 'Active').map((goal) => {
+                const now = new Date();
                 const deadline = new Date(goal.deadline);
-                const daysLeft = Math.ceil((deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                const daysLeft = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
                 return (
                   <div key={goal.id} className="flex items-start justify-between rounded border p-3">

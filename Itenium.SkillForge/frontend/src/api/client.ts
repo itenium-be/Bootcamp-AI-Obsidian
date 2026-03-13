@@ -94,13 +94,13 @@ export interface SkillDetail {
   description: string | null;
   levelCount: number;
   levelDescriptors: string[];
-  prerequisites: Array<{ skillId: number; requiredNiveau: number }>;
-  prerequisiteWarnings: Array<{
+  prerequisites: { skillId: number; requiredNiveau: number }[];
+  prerequisiteWarnings: {
     skillId: number;
     skillName: string;
     requiredNiveau: number;
     warningText: string;
-  }>;
+  }[];
   createdAt: string;
   profiles: number[];
 }

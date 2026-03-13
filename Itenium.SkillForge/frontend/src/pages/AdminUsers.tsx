@@ -10,11 +10,6 @@ import {
   CardTitle,
   CardContent,
   Badge,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
   Input,
   Label,
   Select,
@@ -23,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@itenium-forge/ui';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/Dialog';
 import {
   fetchUsers,
   createUser,
