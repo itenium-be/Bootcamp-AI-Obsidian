@@ -12,8 +12,15 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedMyProgressRouteImport } from './routes/_authenticated/my-progress'
+import { Route as AuthenticatedMyCoursesRouteImport } from './routes/_authenticated/my-courses'
+import { Route as AuthenticatedMyCertificatesRouteImport } from './routes/_authenticated/my-certificates'
 import { Route as AuthenticatedCoursesRouteImport } from './routes/_authenticated/courses'
+import { Route as AuthenticatedCatalogRouteImport } from './routes/_authenticated/catalog'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
+import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
+import { Route as AuthenticatedAdminTeamsRouteImport } from './routes/_authenticated/admin/teams'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -29,9 +36,30 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMyProgressRoute = AuthenticatedMyProgressRouteImport.update({
+  id: '/my-progress',
+  path: '/my-progress',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMyCoursesRoute = AuthenticatedMyCoursesRouteImport.update({
+  id: '/my-courses',
+  path: '/my-courses',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMyCertificatesRoute =
+  AuthenticatedMyCertificatesRouteImport.update({
+    id: '/my-certificates',
+    path: '/my-certificates',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCoursesRoute = AuthenticatedCoursesRouteImport.update({
   id: '/courses',
   path: '/courses',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCatalogRoute = AuthenticatedCatalogRouteImport.update({
+  id: '/catalog',
+  path: '/catalog',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const authSignInRoute = authSignInRouteImport.update({
@@ -39,39 +67,104 @@ const authSignInRoute = authSignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const AuthenticatedAdminTeamsRoute = AuthenticatedAdminTeamsRouteImport.update({
+  id: '/teams',
+  path: '/teams',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
+  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/sign-in': typeof authSignInRoute
+  '/catalog': typeof AuthenticatedCatalogRoute
   '/courses': typeof AuthenticatedCoursesRoute
+  '/my-certificates': typeof AuthenticatedMyCertificatesRoute
+  '/my-courses': typeof AuthenticatedMyCoursesRoute
+  '/my-progress': typeof AuthenticatedMyProgressRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/': typeof AuthenticatedIndexRoute
+  '/admin/teams': typeof AuthenticatedAdminTeamsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
 }
 export interface FileRoutesByTo {
+  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/sign-in': typeof authSignInRoute
+  '/catalog': typeof AuthenticatedCatalogRoute
   '/courses': typeof AuthenticatedCoursesRoute
+  '/my-certificates': typeof AuthenticatedMyCertificatesRoute
+  '/my-courses': typeof AuthenticatedMyCoursesRoute
+  '/my-progress': typeof AuthenticatedMyProgressRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/': typeof AuthenticatedIndexRoute
+  '/admin/teams': typeof AuthenticatedAdminTeamsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/(auth)/sign-in': typeof authSignInRoute
+  '/_authenticated/catalog': typeof AuthenticatedCatalogRoute
   '/_authenticated/courses': typeof AuthenticatedCoursesRoute
+  '/_authenticated/my-certificates': typeof AuthenticatedMyCertificatesRoute
+  '/_authenticated/my-courses': typeof AuthenticatedMyCoursesRoute
+  '/_authenticated/my-progress': typeof AuthenticatedMyProgressRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/admin/teams': typeof AuthenticatedAdminTeamsRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/sign-in' | '/courses' | '/settings' | '/'
+  fullPaths:
+    | '/admin'
+    | '/sign-in'
+    | '/catalog'
+    | '/courses'
+    | '/my-certificates'
+    | '/my-courses'
+    | '/my-progress'
+    | '/settings'
+    | '/'
+    | '/admin/teams'
+    | '/admin/users'
   fileRoutesByTo: FileRoutesByTo
-  to: '/sign-in' | '/courses' | '/settings' | '/'
+  to:
+    | '/admin'
+    | '/sign-in'
+    | '/catalog'
+    | '/courses'
+    | '/my-certificates'
+    | '/my-courses'
+    | '/my-progress'
+    | '/settings'
+    | '/'
+    | '/admin/teams'
+    | '/admin/users'
   id:
     | '__root__'
     | '/_authenticated'
+    | '/_authenticated/admin'
     | '/(auth)/sign-in'
+    | '/_authenticated/catalog'
     | '/_authenticated/courses'
+    | '/_authenticated/my-certificates'
+    | '/_authenticated/my-courses'
+    | '/_authenticated/my-progress'
     | '/_authenticated/settings'
     | '/_authenticated/'
+    | '/_authenticated/admin/teams'
+    | '/_authenticated/admin/users'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -102,11 +195,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/my-progress': {
+      id: '/_authenticated/my-progress'
+      path: '/my-progress'
+      fullPath: '/my-progress'
+      preLoaderRoute: typeof AuthenticatedMyProgressRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-courses': {
+      id: '/_authenticated/my-courses'
+      path: '/my-courses'
+      fullPath: '/my-courses'
+      preLoaderRoute: typeof AuthenticatedMyCoursesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-certificates': {
+      id: '/_authenticated/my-certificates'
+      path: '/my-certificates'
+      fullPath: '/my-certificates'
+      preLoaderRoute: typeof AuthenticatedMyCertificatesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/courses': {
       id: '/_authenticated/courses'
       path: '/courses'
       fullPath: '/courses'
       preLoaderRoute: typeof AuthenticatedCoursesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/catalog': {
+      id: '/_authenticated/catalog'
+      path: '/catalog'
+      fullPath: '/catalog'
+      preLoaderRoute: typeof AuthenticatedCatalogRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/(auth)/sign-in': {
@@ -116,17 +237,64 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authSignInRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/users': {
+      id: '/_authenticated/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/teams': {
+      id: '/_authenticated/admin/teams'
+      path: '/teams'
+      fullPath: '/admin/teams'
+      preLoaderRoute: typeof AuthenticatedAdminTeamsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
 
+interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminTeamsRoute: typeof AuthenticatedAdminTeamsRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
+}
+
+const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+  {
+    AuthenticatedAdminTeamsRoute: AuthenticatedAdminTeamsRoute,
+    AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+  }
+
+const AuthenticatedAdminRouteRouteWithChildren =
+  AuthenticatedAdminRouteRoute._addFileChildren(
+    AuthenticatedAdminRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedCatalogRoute: typeof AuthenticatedCatalogRoute
   AuthenticatedCoursesRoute: typeof AuthenticatedCoursesRoute
+  AuthenticatedMyCertificatesRoute: typeof AuthenticatedMyCertificatesRoute
+  AuthenticatedMyCoursesRoute: typeof AuthenticatedMyCoursesRoute
+  AuthenticatedMyProgressRoute: typeof AuthenticatedMyProgressRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedCatalogRoute: AuthenticatedCatalogRoute,
   AuthenticatedCoursesRoute: AuthenticatedCoursesRoute,
+  AuthenticatedMyCertificatesRoute: AuthenticatedMyCertificatesRoute,
+  AuthenticatedMyCoursesRoute: AuthenticatedMyCoursesRoute,
+  AuthenticatedMyProgressRoute: AuthenticatedMyProgressRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
