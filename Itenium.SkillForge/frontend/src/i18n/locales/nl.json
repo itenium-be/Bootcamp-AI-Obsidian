@@ -108,5 +108,52 @@
   "errors": {
     "sessionExpired": "Sessie verlopen!",
     "internalServerError": "Interne serverfout!"
+  },
+  "catalog": {
+    "title": "Cursus Catalogus",
+    "subtitle": "Verken onze curated leerpaden",
+    "enrollNow": "Inschrijven",
+    "enrolled": "Ingeschreven",
+    "viewProgress": "Voortgang bekijken",
+    "allCategories": "Alle Categorieën",
+    "allLevels": "Alle Niveaus",
+    "searchPlaceholder": "Zoek cursussen...",
+    "noCoursesFound": "Geen cursussen gevonden",
+    "enrollSuccess": "Succesvol ingeschreven!",
+    "unenrollSuccess": "Uitgeschreven"
+  },
+  "myCourses": {
+    "title": "Mijn Cursussen",
+    "subtitle": "Beheer je ingeschreven cursussen",
+    "noEnrollments": "Je bent nog niet ingeschreven voor cursussen",
+    "browseCatalog": "Blader door de catalogus",
+    "completed": "Voltooid",
+    "inProgress": "Bezig",
+    "notStarted": "Niet gestart",
+    "completedOn": "Voltooid op",
+    "enrolledOn": "Ingeschreven op",
+    "continueLearning": "Doorgaan",
+    "startLearning": "Beginnen"
+  },
+  "myProgress": {
+    "title": "Mijn Voortgang",
+    "subtitle": "Je leerreis in één oogopslag",
+    "overallProgress": "Totale Voortgang",
+    "coursesCompleted": "Cursussen Voltooid",
+    "inProgress": "Bezig",
+    "noProgress": "Nog geen voortgang",
+    "updateProgress": "Voortgang Bijwerken",
+    "progressUpdated": "Voortgang bijgewerkt!",
+    "lastUpdated": "Laatst bijgewerkt",
+    "notes": "Notities",
+    "saveProgress": "Sla voortgang op"
+  },
+  "myCertificates": {
+    "title": "Mijn Certificaten",
+    "subtitle": "Je prestaties en certificeringen",
+    "noCertificates": "Nog geen certificaten verdiend",
+    "earnedOn": "Verdiend op",
+    "certificateNumber": "Certificaat",
+    "completeCourseToEarn": "Voltooi cursussen om certificaten te verdienen"
   }
 }
