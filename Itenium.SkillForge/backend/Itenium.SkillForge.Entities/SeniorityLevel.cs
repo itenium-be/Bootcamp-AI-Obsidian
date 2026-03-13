@@ -1,7 +1,7 @@
 namespace Itenium.SkillForge.Entities;
 
 /// <summary>
-/// Seniority levels for consultant career progression.
+/// Seniority levels used in threshold rulesets.
 /// </summary>
 public enum SeniorityLevel
 {

@@ -17,9 +17,9 @@ public static class SeedData
 
         await SeedTeams(db);
         await SeedCourses(db);
-        await SeedSkills(db);
-        await SeedSeniorityThresholds(db);
+        await SkillSeedData.SeedSkills(db);
         await app.SeedTestUsers();
+        await SeedDemoGoals(app, db);
     }
 
     private static async Task SeedTeams(AppDbContext db)
@@ -44,205 +44,6 @@ public static class SeedData
                 new CourseEntity { Id = 2, Name = "Advanced C#", Description = "Master C# programming language", Category = "Development", Level = "Advanced" },
                 new CourseEntity { Id = 3, Name = "Cloud Architecture", Description = "Design scalable cloud solutions", Category = "Architecture", Level = "Intermediate" },
                 new CourseEntity { Id = 4, Name = "Agile Project Management", Description = "Learn agile methodologies", Category = "Management", Level = "Beginner" });
-            await db.SaveChangesAsync();
-        }
-    }
-
-    private static async Task SeedSkills(AppDbContext db)
-    {
-        if (!await db.Skills.AnyAsync())
-        {
-            var skills = new List<SkillEntity>
-            {
-                new SkillEntity
-                {
-                    Id = 1,
-                    Name = "C# Programming",
-                    Description = "Proficiency in C# language and .NET ecosystem",
-                    Category = "Backend Development",
-                    LevelCount = 5,
-                    IsUniversal = false,
-                    LevelDescriptors =
-                    [
-                        new SkillLevelDescriptorEntity { Level = 1, Description = "Knows basic syntax, variables, loops, and conditionals" },
-                        new SkillLevelDescriptorEntity { Level = 2, Description = "Uses OOP principles, collections, and LINQ" },
-                        new SkillLevelDescriptorEntity { Level = 3, Description = "Applies async/await, generics, and design patterns" },
-                        new SkillLevelDescriptorEntity { Level = 4, Description = "Implements advanced patterns, performance tuning" },
-                        new SkillLevelDescriptorEntity { Level = 5, Description = "Contributes to language/runtime internals; mentors others" },
-                    ],
-                },
-                new SkillEntity
-                {
-                    Id = 2,
-                    Name = "Java Programming",
-                    Description = "Proficiency in Java language and JVM ecosystem",
-                    Category = "Backend Development",
-                    LevelCount = 5,
-                    IsUniversal = false,
-                    LevelDescriptors =
-                    [
-                        new SkillLevelDescriptorEntity { Level = 1, Description = "Knows basic syntax, variables, loops, and conditionals" },
-                        new SkillLevelDescriptorEntity { Level = 2, Description = "Uses OOP, collections, and streams" },
-                        new SkillLevelDescriptorEntity { Level = 3, Description = "Applies Spring Boot, dependency injection, and JPA" },
-                        new SkillLevelDescriptorEntity { Level = 4, Description = "Implements reactive programming and microservices" },
-                        new SkillLevelDescriptorEntity { Level = 5, Description = "JVM tuning; contributes to frameworks; mentors others" },
-                    ],
-                },
-                new SkillEntity
-                {
-                    Id = 3,
-                    Name = "Clean Code",
-                    Description = "Writing readable, maintainable, and testable code",
-                    Category = "Software Craftsmanship",
-                    LevelCount = 4,
-                    IsUniversal = true,
-                    LevelDescriptors =
-                    [
-                        new SkillLevelDescriptorEntity { Level = 1, Description = "Follows naming conventions and keeps functions short" },
-                        new SkillLevelDescriptorEntity { Level = 2, Description = "Applies SOLID principles and avoids code smells" },
-                        new SkillLevelDescriptorEntity { Level = 3, Description = "Refactors legacy code; leads code review culture" },
-                        new SkillLevelDescriptorEntity { Level = 4, Description = "Defines standards; coaches team on craftsmanship" },
-                    ],
-                },
-                new SkillEntity
-                {
-                    Id = 4,
-                    Name = "Unit Testing",
-                    Description = "Writing automated unit and integration tests",
-                    Category = "Quality Assurance",
-                    LevelCount = 4,
-                    IsUniversal = true,
-                    LevelDescriptors =
-                    [
-                        new SkillLevelDescriptorEntity { Level = 1, Description = "Writes basic unit tests with assertions" },
-                        new SkillLevelDescriptorEntity { Level = 2, Description = "Uses mocking frameworks and test doubles" },
-                        new SkillLevelDescriptorEntity { Level = 3, Description = "Practices TDD; achieves meaningful coverage" },
-                        new SkillLevelDescriptorEntity { Level = 4, Description = "Designs testability into architecture; introduces BDD" },
-                    ],
-                },
-                new SkillEntity
-                {
-                    Id = 5,
-                    Name = "Docker & Containers",
-                    Description = "Containerising applications and using Docker Compose",
-                    Category = "DevOps",
-                    LevelCount = 3,
-                    IsUniversal = true,
-                    LevelDescriptors =
-                    [
-                        new SkillLevelDescriptorEntity { Level = 1, Description = "Runs and pulls images; uses docker-compose up" },
-                        new SkillLevelDescriptorEntity { Level = 2, Description = "Writes Dockerfiles; understands layering and networking" },
-                        new SkillLevelDescriptorEntity { Level = 3, Description = "Optimises images; orchestrates with Compose in CI/CD" },
-                    ],
-                },
-                new SkillEntity
-                {
-                    Id = 6,
-                    Name = "SQL & Databases",
-                    Description = "Relational database design and query optimisation",
-                    Category = "Data",
-                    LevelCount = 4,
-                    IsUniversal = true,
-                    LevelDescriptors =
-                    [
-                        new SkillLevelDescriptorEntity { Level = 1, Description = "Writes SELECT, INSERT, UPDATE, DELETE queries" },
-                        new SkillLevelDescriptorEntity { Level = 2, Description = "Designs normalised schemas; uses JOINs and indexes" },
-                        new SkillLevelDescriptorEntity { Level = 3, Description = "Analyses query plans; tunes performance" },
-                        new SkillLevelDescriptorEntity { Level = 4, Description = "Architects for high availability; partitioning strategies" },
-                    ],
-                },
-                new SkillEntity
-                {
-                    Id = 7,
-                    Name = "Communication",
-                    Description = "Communicating clearly with teammates and stakeholders",
-                    Category = "Soft Skills",
-                    LevelCount = 3,
-                    IsUniversal = true,
-                    LevelDescriptors =
-                    [
-                        new SkillLevelDescriptorEntity { Level = 1, Description = "Participates in meetings; asks questions" },
-                        new SkillLevelDescriptorEntity { Level = 2, Description = "Presents ideas clearly; adapts to audience" },
-                        new SkillLevelDescriptorEntity { Level = 3, Description = "Facilitates workshops; influences without authority" },
-                    ],
-                },
-                new SkillEntity
-                {
-                    Id = 8,
-                    Name = "ASP.NET Core",
-                    Description = "Building REST APIs and web applications with ASP.NET Core",
-                    Category = "Backend Development",
-                    LevelCount = 5,
-                    IsUniversal = false,
-                    Prerequisites =
-                    [
-                        new SkillPrerequisiteEntity { PrerequisiteSkillId = 1, RequiredLevel = 2 },
-                    ],
-                    LevelDescriptors =
-                    [
-                        new SkillLevelDescriptorEntity { Level = 1, Description = "Creates basic controllers and routes" },
-                        new SkillLevelDescriptorEntity { Level = 2, Description = "Uses DI, middleware, and model validation" },
-                        new SkillLevelDescriptorEntity { Level = 3, Description = "Implements auth, filters, and custom middleware" },
-                        new SkillLevelDescriptorEntity { Level = 4, Description = "Designs minimal APIs; applies performance patterns" },
-                        new SkillLevelDescriptorEntity { Level = 5, Description = "Contributes to framework; architects large systems" },
-                    ],
-                },
-            };
-
-            db.Skills.AddRange(skills);
-            await db.SaveChangesAsync();
-
-            // Reset the sequence so new inserts don't conflict with the seeded explicit IDs
-            await db.Database.ExecuteSqlRawAsync(
-                "SELECT setval(pg_get_serial_sequence('\"Skills\"', 'Id'), (SELECT MAX(\"Id\") FROM \"Skills\"))");
-        }
-    }
-
-    private static async Task SeedSeniorityThresholds(AppDbContext db)
-    {
-        if (!await db.SeniorityThresholds.AnyAsync())
-        {
-            // .NET team (teamId = 2): C# (1), Clean Code (3), Unit Testing (4), ASP.NET Core (8), SQL (6)
-            db.SeniorityThresholds.AddRange(
-                // Junior .NET: 3 skills at level 1+
-                new SeniorityThresholdEntity { TeamId = 2, SeniorityLevel = SeniorityLevel.Junior, SkillId = 1, MinimumLevel = 1 },
-                new SeniorityThresholdEntity { TeamId = 2, SeniorityLevel = SeniorityLevel.Junior, SkillId = 3, MinimumLevel = 1 },
-                new SeniorityThresholdEntity { TeamId = 2, SeniorityLevel = SeniorityLevel.Junior, SkillId = 4, MinimumLevel = 1 },
-
-                // Medior .NET: 5 skills at level 2+
-                new SeniorityThresholdEntity { TeamId = 2, SeniorityLevel = SeniorityLevel.Medior, SkillId = 1, MinimumLevel = 2 },
-                new SeniorityThresholdEntity { TeamId = 2, SeniorityLevel = SeniorityLevel.Medior, SkillId = 3, MinimumLevel = 2 },
-                new SeniorityThresholdEntity { TeamId = 2, SeniorityLevel = SeniorityLevel.Medior, SkillId = 4, MinimumLevel = 2 },
-                new SeniorityThresholdEntity { TeamId = 2, SeniorityLevel = SeniorityLevel.Medior, SkillId = 6, MinimumLevel = 2 },
-                new SeniorityThresholdEntity { TeamId = 2, SeniorityLevel = SeniorityLevel.Medior, SkillId = 8, MinimumLevel = 2 },
-
-                // Senior .NET: 5 skills at level 3+
-                new SeniorityThresholdEntity { TeamId = 2, SeniorityLevel = SeniorityLevel.Senior, SkillId = 1, MinimumLevel = 3 },
-                new SeniorityThresholdEntity { TeamId = 2, SeniorityLevel = SeniorityLevel.Senior, SkillId = 3, MinimumLevel = 3 },
-                new SeniorityThresholdEntity { TeamId = 2, SeniorityLevel = SeniorityLevel.Senior, SkillId = 4, MinimumLevel = 3 },
-                new SeniorityThresholdEntity { TeamId = 2, SeniorityLevel = SeniorityLevel.Senior, SkillId = 6, MinimumLevel = 3 },
-                new SeniorityThresholdEntity { TeamId = 2, SeniorityLevel = SeniorityLevel.Senior, SkillId = 8, MinimumLevel = 3 },
-
-                // Java team (teamId = 1): Java (2), Clean Code (3), Unit Testing (4), Docker (5), SQL (6)
-                // Junior Java: 3 skills at level 1+
-                new SeniorityThresholdEntity { TeamId = 1, SeniorityLevel = SeniorityLevel.Junior, SkillId = 2, MinimumLevel = 1 },
-                new SeniorityThresholdEntity { TeamId = 1, SeniorityLevel = SeniorityLevel.Junior, SkillId = 3, MinimumLevel = 1 },
-                new SeniorityThresholdEntity { TeamId = 1, SeniorityLevel = SeniorityLevel.Junior, SkillId = 4, MinimumLevel = 1 },
-
-                // Medior Java: 5 skills at level 2+
-                new SeniorityThresholdEntity { TeamId = 1, SeniorityLevel = SeniorityLevel.Medior, SkillId = 2, MinimumLevel = 2 },
-                new SeniorityThresholdEntity { TeamId = 1, SeniorityLevel = SeniorityLevel.Medior, SkillId = 3, MinimumLevel = 2 },
-                new SeniorityThresholdEntity { TeamId = 1, SeniorityLevel = SeniorityLevel.Medior, SkillId = 4, MinimumLevel = 2 },
-                new SeniorityThresholdEntity { TeamId = 1, SeniorityLevel = SeniorityLevel.Medior, SkillId = 5, MinimumLevel = 2 },
-                new SeniorityThresholdEntity { TeamId = 1, SeniorityLevel = SeniorityLevel.Medior, SkillId = 6, MinimumLevel = 2 },
-
-                // Senior Java: 5 skills at level 3+
-                new SeniorityThresholdEntity { TeamId = 1, SeniorityLevel = SeniorityLevel.Senior, SkillId = 2, MinimumLevel = 3 },
-                new SeniorityThresholdEntity { TeamId = 1, SeniorityLevel = SeniorityLevel.Senior, SkillId = 3, MinimumLevel = 3 },
-                new SeniorityThresholdEntity { TeamId = 1, SeniorityLevel = SeniorityLevel.Senior, SkillId = 4, MinimumLevel = 3 },
-                new SeniorityThresholdEntity { TeamId = 1, SeniorityLevel = SeniorityLevel.Senior, SkillId = 5, MinimumLevel = 3 },
-                new SeniorityThresholdEntity { TeamId = 1, SeniorityLevel = SeniorityLevel.Senior, SkillId = 6, MinimumLevel = 3 });
-
             await db.SaveChangesAsync();
         }
     }
@@ -344,6 +145,190 @@ public static class SeedData
             {
                 await userManager.AddToRoleAsync(user, "learner");
             }
+        }
+
+        // Journey 1: Lea — .NET consultant with pre-populated goals
+        if (await userManager.FindByEmailAsync("lea@test.local") == null)
+        {
+            var user = new ForgeUser
+            {
+                UserName = "lea",
+                Email = "lea@test.local",
+                EmailConfirmed = true,
+                FirstName = "Lea",
+                LastName = "Demo"
+            };
+            var result = await userManager.CreateAsync(user, "UserPassword123!");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(user, "learner");
+            }
+        }
+
+        // Journey 4: Sander — Java consultant with pre-populated goals
+        if (await userManager.FindByEmailAsync("sander@test.local") == null)
+        {
+            var user = new ForgeUser
+            {
+                UserName = "sander",
+                Email = "sander@test.local",
+                EmailConfirmed = true,
+                FirstName = "Sander",
+                LastName = "Demo"
+            };
+            var result = await userManager.CreateAsync(user, "UserPassword123!");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(user, "learner");
+            }
+        }
+
+        // Journey 2: Nathalie — coach for Lea and Sander
+        if (await userManager.FindByEmailAsync("nathalie@test.local") == null)
+        {
+            var user = new ForgeUser
+            {
+                UserName = "nathalie",
+                Email = "nathalie@test.local",
+                EmailConfirmed = true,
+                FirstName = "Nathalie",
+                LastName = "Coach"
+            };
+            var result = await userManager.CreateAsync(user, "UserPassword123!");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(user, "manager");
+                await userManager.AddClaimAsync(user, new Claim("team", "1")); // Java
+                await userManager.AddClaimAsync(user, new Claim("team", "2")); // .NET
+            }
+        }
+    }
+
+    /// <summary>
+    /// Seed demo goals for Journey 1 (Lea) and Journey 4 (Sander). Story #21.
+    /// </summary>
+    private static async Task SeedDemoGoals(WebApplication app, AppDbContext db)
+    {
+        if (await db.Goals.AnyAsync())
+        {
+            return;
+        }
+
+        using var scope = app.Services.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ForgeUser>>();
+
+        var lea = await userManager.FindByEmailAsync("lea@test.local");
+        var sander = await userManager.FindByEmailAsync("sander@test.local");
+        var nathalie = await userManager.FindByEmailAsync("nathalie@test.local");
+
+        if (lea == null || sander == null || nathalie == null)
+        {
+            return;
+        }
+
+        var now = DateTime.UtcNow;
+
+        // Journey 1: Lea — 3 .NET goals already set by coach
+        // SkillIds match SkillSeedData: C# Fundamentals=10, ASP.NET Core=11, .NET Testing=13
+        db.Goals.AddRange(
+            new GoalEntity
+            {
+                ConsultantId = lea.Id,
+                CoachId = nathalie.Id,
+                SkillId = 10, // C# Fundamentals
+                CurrentNiveau = 1,
+                TargetNiveau = 3,
+                Deadline = now.AddMonths(2),
+                CreatedAt = now.AddDays(-1),
+                Status = GoalStatus.Active,
+            },
+            new GoalEntity
+            {
+                ConsultantId = lea.Id,
+                CoachId = nathalie.Id,
+                SkillId = 11, // ASP.NET Core Web API
+                CurrentNiveau = 1,
+                TargetNiveau = 2,
+                Deadline = now.AddMonths(3),
+                CreatedAt = now.AddDays(-1),
+                Status = GoalStatus.Active,
+            },
+            new GoalEntity
+            {
+                ConsultantId = lea.Id,
+                CoachId = nathalie.Id,
+                SkillId = 13, // .NET Testing
+                CurrentNiveau = 0,
+                TargetNiveau = 2,
+                Deadline = now.AddMonths(6),
+                CreatedAt = now.AddDays(-1),
+                Status = GoalStatus.Active,
+            });
+
+        // Journey 4: Sander — 3 Java goals for first 6 weeks
+        // SkillIds match SkillSeedData: Java Fundamentals=20, Spring Boot=21, Java Testing=22
+        db.Goals.AddRange(
+            new GoalEntity
+            {
+                ConsultantId = sander.Id,
+                CoachId = nathalie.Id,
+                SkillId = 20, // Java Fundamentals
+                CurrentNiveau = 1,
+                TargetNiveau = 3,
+                Deadline = now.AddDays(42),
+                CreatedAt = now.AddDays(-1),
+                Status = GoalStatus.Active,
+            },
+            new GoalEntity
+            {
+                ConsultantId = sander.Id,
+                CoachId = nathalie.Id,
+                SkillId = 21, // Spring Boot
+                CurrentNiveau = 1,
+                TargetNiveau = 2,
+                Deadline = now.AddDays(42),
+                CreatedAt = now.AddDays(-1),
+                Status = GoalStatus.Active,
+            },
+            new GoalEntity
+            {
+                ConsultantId = sander.Id,
+                CoachId = nathalie.Id,
+                SkillId = 22, // Java Testing (JUnit/Mockito)
+                CurrentNiveau = 0,
+                TargetNiveau = 1,
+                Deadline = now.AddDays(42),
+                CreatedAt = now.AddDays(-1),
+                Status = GoalStatus.Active,
+            });
+
+        await db.SaveChangesAsync();
+
+        // Journey 4: Assign Sander to Java profile (Story #19)
+        // Journey 1: Assign Lea to .NET profile
+        if (!await db.ConsultantProfiles.AnyAsync())
+        {
+            if (lea != null)
+            {
+                db.ConsultantProfiles.Add(new ConsultantProfileEntity
+                {
+                    UserId = lea.Id,
+                    Profile = CompetenceCentreProfile.DotNet,
+                    AssignedBy = nathalie?.Id,
+                });
+            }
+
+            if (sander != null)
+            {
+                db.ConsultantProfiles.Add(new ConsultantProfileEntity
+                {
+                    UserId = sander.Id,
+                    Profile = CompetenceCentreProfile.Java,
+                    AssignedBy = nathalie?.Id,
+                });
+            }
+
+            await db.SaveChangesAsync();
         }
     }
 }

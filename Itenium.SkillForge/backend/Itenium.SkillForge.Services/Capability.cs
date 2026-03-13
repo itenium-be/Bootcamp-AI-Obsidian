@@ -10,6 +10,17 @@ public enum Capability
     ManageCourse,
     ReadSkill,
     ManageSkill,
-    ManageProfile,
-    ReadProgress,
+    ReadRoadmap,
+    ManageConsultantProfile,
+    ReadSeniority,
+
+    /// <summary>
+    /// Allows writing skill validations (FR4 — Coach role only).
+    /// </summary>
+    ValidateSkill,
+
+    /// <summary>
+    /// Allows platform-wide admin operations (FR3 — BackOffice only).
+    /// </summary>
+    ManageUsers,
 }

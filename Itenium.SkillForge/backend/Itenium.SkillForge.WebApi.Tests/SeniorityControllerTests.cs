@@ -8,80 +8,95 @@ namespace Itenium.SkillForge.WebApi.Tests;
 public class SeniorityControllerTests : DatabaseTestBase
 {
     private SeniorityController _sut = null!;
+    private SkillEntity _skill1 = null!;
+    private SkillEntity _skill2 = null!;
 
     [SetUp]
-    public void Setup()
+    public async Task Setup()
     {
+        _skill1 = new SkillEntity { Name = "C# Basics", Category = "Core", LevelCount = 5 };
+        _skill2 = new SkillEntity { Name = "LINQ", Category = "Core", LevelCount = 3 };
+        Db.Skills.AddRange(_skill1, _skill2);
+        await Db.SaveChangesAsync();
+
         _sut = new SeniorityController(Db);
     }
 
+    // ── GET /api/seniority/{profile} ─────────────────────────────────────────
+
     [Test]
-    public async Task GetProgress_ReturnsProgressForAllLevels()
+    public async Task GetThresholds_ReturnsAllThresholdsForProfile()
     {
-        var team = new TeamEntity { Name = "Seniority Team" };
-        Db.Teams.Add(team);
+        Db.SeniorityThresholds.AddRange(
+            new SeniorityThresholdEntity { Profile = CompetenceCentreProfile.DotNet, SeniorityLevel = SeniorityLevel.Junior, SkillId = _skill1.Id, MinNiveau = 1 },
+            new SeniorityThresholdEntity { Profile = CompetenceCentreProfile.DotNet, SeniorityLevel = SeniorityLevel.Medior, SkillId = _skill1.Id, MinNiveau = 3 },
+            new SeniorityThresholdEntity { Profile = CompetenceCentreProfile.Java, SeniorityLevel = SeniorityLevel.Junior, SkillId = _skill2.Id, MinNiveau = 1 });
         await Db.SaveChangesAsync();
 
-        var skill = new SkillEntity { Name = "Core Skill", LevelCount = 3 };
-        Db.Skills.Add(skill);
-        await Db.SaveChangesAsync();
+        var result = await _sut.GetThresholds(CompetenceCentreProfile.DotNet);
 
-        Db.SeniorityThresholds.Add(new SeniorityThresholdEntity
-        {
-            TeamId = team.Id,
-            SeniorityLevel = SeniorityLevel.Junior,
-            SkillId = skill.Id,
-            MinimumLevel = 1,
-        });
-        Db.ConsultantProfiles.Add(new ConsultantProfileEntity { UserId = "seniority-user", TeamId = team.Id });
-        await Db.SaveChangesAsync();
-
-        var result = await _sut.GetProgress("seniority-user");
-
-        var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
-        var response = okResult!.Value as List<SeniorityProgressItem>;
-        Assert.That(response, Is.Not.Null);
-        Assert.That(response!, Has.Count.EqualTo(3)); // Junior, Medior, Senior
+        var ok = result.Result as OkObjectResult;
+        Assert.That(ok, Is.Not.Null);
+        var ruleset = ok!.Value as SeniorityRulesetResponse;
+        Assert.That(ruleset, Is.Not.Null);
+        Assert.That(ruleset!.Profile, Is.EqualTo(CompetenceCentreProfile.DotNet));
+        Assert.That(ruleset.Thresholds, Has.Count.EqualTo(2));
     }
 
     [Test]
-    public async Task GetProgress_WhenRequirementsMet_ShowsCorrectCount()
+    public async Task GetThresholds_WhenNoThresholds_ReturnsEmptyList()
     {
-        var team = new TeamEntity { Name = "Met Team" };
-        Db.Teams.Add(team);
-        await Db.SaveChangesAsync();
+        var result = await _sut.GetThresholds(CompetenceCentreProfile.QA);
 
-        var skill = new SkillEntity { Name = "Met Skill", LevelCount = 3 };
-        Db.Skills.Add(skill);
-        await Db.SaveChangesAsync();
+        var ok = result.Result as OkObjectResult;
+        Assert.That(ok, Is.Not.Null);
+        var ruleset = ok!.Value as SeniorityRulesetResponse;
+        Assert.That(ruleset!.Thresholds, Is.Empty);
+    }
 
-        Db.SeniorityThresholds.Add(new SeniorityThresholdEntity
+    // ── GET /api/seniority/progress ──────────────────────────────────────────
+
+    [Test]
+    public async Task GetProgress_ComputesMediorProgress_FromGoals()
+    {
+        // Setup profile
+        Db.ConsultantProfiles.Add(new ConsultantProfileEntity
         {
-            TeamId = team.Id,
-            SeniorityLevel = SeniorityLevel.Junior,
-            SkillId = skill.Id,
-            MinimumLevel = 1,
+            UserId = "user-lea",
+            Profile = CompetenceCentreProfile.DotNet,
         });
 
-        // Consultant has achieved level 2 for this skill
-        Db.ConsultantSkillProgress.Add(new ConsultantSkillProgressEntity
-        {
-            UserId = "met-user",
-            SkillId = skill.Id,
-            AchievedLevel = 2,
-        });
-        Db.ConsultantProfiles.Add(new ConsultantProfileEntity { UserId = "met-user", TeamId = team.Id });
+        // Setup Medior thresholds: 2 skills required
+        Db.SeniorityThresholds.AddRange(
+            new SeniorityThresholdEntity { Profile = CompetenceCentreProfile.DotNet, SeniorityLevel = SeniorityLevel.Medior, SkillId = _skill1.Id, MinNiveau = 3 },
+            new SeniorityThresholdEntity { Profile = CompetenceCentreProfile.DotNet, SeniorityLevel = SeniorityLevel.Medior, SkillId = _skill2.Id, MinNiveau = 2 });
+
+        // Lea meets skill1 (niveau 3) but not skill2 (niveau 1 < 2)
+        Db.Goals.AddRange(
+            new GoalEntity { ConsultantId = "user-lea", CoachId = "coach", SkillId = _skill1.Id, CurrentNiveau = 3, TargetNiveau = 5, Deadline = DateTime.UtcNow.AddMonths(6) },
+            new GoalEntity { ConsultantId = "user-lea", CoachId = "coach", SkillId = _skill2.Id, CurrentNiveau = 1, TargetNiveau = 3, Deadline = DateTime.UtcNow.AddMonths(3) });
+
         await Db.SaveChangesAsync();
 
-        var result = await _sut.GetProgress("met-user");
+        var result = await _sut.GetProgress("user-lea");
 
-        var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
-        var response = okResult!.Value as List<SeniorityProgressItem>;
+        var ok = result.Result as OkObjectResult;
+        Assert.That(ok, Is.Not.Null);
+        var progress = ok!.Value as SeniorityProgressResponse;
+        Assert.That(progress, Is.Not.Null);
+        Assert.That(progress!.MetCount, Is.EqualTo(1));
+        Assert.That(progress.RequiredCount, Is.EqualTo(2));
+    }
 
-        var juniorProgress = response!.First(r => r.Level == "Junior");
-        Assert.That(juniorProgress.Met, Is.EqualTo(1));
-        Assert.That(juniorProgress.Required, Is.EqualTo(1));
+    [Test]
+    public async Task GetProgress_WhenNoProfile_ReturnsNoProgress()
+    {
+        var result = await _sut.GetProgress("user-noprofile");
+
+        var ok = result.Result as OkObjectResult;
+        Assert.That(ok, Is.Not.Null);
+        var progress = ok!.Value as SeniorityProgressResponse;
+        Assert.That(progress!.MetCount, Is.EqualTo(0));
+        Assert.That(progress.RequiredCount, Is.EqualTo(0));
     }
 }

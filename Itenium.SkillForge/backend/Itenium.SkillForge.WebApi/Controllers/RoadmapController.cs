@@ -6,23 +6,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Itenium.SkillForge.WebApi.Controllers;
 
-public record UpdateProgressRequest(int SkillId, int AchievedLevel);
-
-public record RoadmapSkillItem(
-    int SkillId,
-    string Name,
-    string? Category,
-    int LevelCount,
-    int AchievedLevel,
-    IReadOnlyList<PrerequisiteCheckItem> UnmetPrerequisites);
-
-public record RoadmapResponse(IReadOnlyList<RoadmapSkillItem> Skills);
-
 [ApiController]
 [Route("api/roadmap")]
 [Authorize]
 public class RoadmapController : ControllerBase
 {
+    private const int DefaultNodeLimit = 12;
+
     private readonly AppDbContext _db;
 
     public RoadmapController(AppDbContext db)
@@ -31,128 +21,144 @@ public class RoadmapController : ControllerBase
     }
 
     /// <summary>
-    /// Get the personalised roadmap for a consultant.
-    /// Default returns up to 12 skills (anchors + next tier). Use showAll=true for all.
+    /// Get personalised roadmap for a consultant.
+    /// FR12: Only skills in the consultant's assigned competence centre profile are returned.
+    /// FR13: Default shows 8-12 nodes (progressive disclosure).
+    /// FR14: showAll=true reveals the complete profile roadmap.
+    /// GET /api/roadmap?userId={id}
+    /// GET /api/roadmap?userId={id}&amp;showAll=true
     /// </summary>
-    [HttpGet("{userId}")]
-    public async Task<ActionResult<RoadmapResponse>> GetRoadmap(string userId, [FromQuery] bool showAll = false)
+    [HttpGet]
+    public async Task<ActionResult<RoadmapResponse>> GetRoadmap(
+        [FromQuery] string userId,
+        [FromQuery] bool showAll = false)
     {
+        // Look up consultant's profile assignment
         var profile = await _db.ConsultantProfiles
-            .FirstOrDefaultAsync(p => p.UserId == userId);
+            .FirstOrDefaultAsync(cp => cp.UserId == userId);
 
         if (profile == null)
         {
-            return Ok(new RoadmapResponse([]));
+            return Ok(new RoadmapResponse
+            {
+                UserId = userId,
+                Nodes = [],
+                TotalSkillCount = 0,
+            });
         }
 
-        // Load universal skills + any skills that have seniority thresholds for this team
-        var teamSkillIds = await _db.SeniorityThresholds
-            .Where(t => t.TeamId == profile.TeamId)
-            .Select(t => t.SkillId)
-            .Distinct()
+        // Get all skills for this profile, ordered by sort order
+        var allSkillsQuery = _db.SkillProfiles
+            .Where(sp => sp.Profile == profile.Profile)
+            .OrderBy(sp => sp.SortOrder)
+            .Select(sp => sp.Skill);
+
+        var totalCount = await allSkillsQuery.CountAsync();
+
+        // Get active goals for this consultant (for status/niveau overlay)
+        var goals = await _db.Goals
+            .Where(g => g.ConsultantId == userId && g.Status == GoalStatus.Active)
             .ToListAsync();
 
-        var skills = await _db.Skills
-            .Include(s => s.LevelDescriptors)
-            .Include(s => s.Prerequisites)
-                .ThenInclude(p => p.PrerequisiteSkill)
-            .Where(s => s.IsUniversal || teamSkillIds.Contains(s.Id))
-            .ToListAsync();
+        var goalsLookup = goals.ToDictionary(g => g.SkillId);
 
-        var progressMap = await _db.ConsultantSkillProgress
-            .Where(p => p.UserId == userId)
-            .ToDictionaryAsync(p => p.SkillId, p => p.AchievedLevel);
-
-        var roadmapItems = skills.Select(skill =>
-        {
-            var achieved = progressMap.GetValueOrDefault(skill.Id, 0);
-
-            var unmet = skill.Prerequisites
-                .Where(p =>
-                {
-                    var prereqAchieved = progressMap.GetValueOrDefault(p.PrerequisiteSkillId, 0);
-                    return prereqAchieved < p.RequiredLevel;
-                })
-                .Select(p => new PrerequisiteCheckItem(
-                    p.PrerequisiteSkill.Name,
-                    p.RequiredLevel,
-                    progressMap.GetValueOrDefault(p.PrerequisiteSkillId, 0)))
-                .ToList();
-
-            return new RoadmapSkillItem(skill.Id, skill.Name, skill.Category, skill.LevelCount, achieved, unmet);
-        }).ToList();
+        IQueryable<SkillEntity> pagedQuery = allSkillsQuery.Include(s => s.SkillProfiles);
 
         if (!showAll)
         {
-            // Default: return anchors (in-progress or not started) + next tier
-            // Show skills not yet mastered, limited to 12
-            roadmapItems = roadmapItems
-                .OrderBy(r => r.AchievedLevel == r.LevelCount ? 1 : 0)  // mastered last
-                .ThenBy(r => r.AchievedLevel)
-                .Take(12)
-                .ToList();
+            pagedQuery = pagedQuery.Take(DefaultNodeLimit);
         }
 
-        return Ok(new RoadmapResponse(roadmapItems));
-    }
+        var skills = await pagedQuery.ToListAsync();
 
-    /// <summary>
-    /// Update a consultant's skill progress.
-    /// </summary>
-    [HttpPut("{userId}/progress")]
-    public async Task<ActionResult> UpdateProgress(string userId, [FromBody] UpdateProgressRequest request)
-    {
-        var existing = await _db.ConsultantSkillProgress
-            .FirstOrDefaultAsync(p => p.UserId == userId && p.SkillId == request.SkillId);
-
-        if (existing == null)
+        var nodes = skills.Select(s =>
         {
-            _db.ConsultantSkillProgress.Add(new ConsultantSkillProgressEntity
+            goalsLookup.TryGetValue(s.Id, out var goal);
+            var currentNiveau = goal?.CurrentNiveau ?? 0;
+            var targetNiveau = goal?.TargetNiveau;
+
+            var status = currentNiveau >= s.LevelCount
+                ? RoadmapNodeStatus.Complete
+                : goal != null
+                    ? RoadmapNodeStatus.Active
+                    : RoadmapNodeStatus.Locked;
+
+            return new RoadmapNode
             {
-                UserId = userId,
-                SkillId = request.SkillId,
-                AchievedLevel = request.AchievedLevel,
-                UpdatedAt = DateTime.UtcNow,
-            });
-        }
-        else
+                SkillId = s.Id,
+                SkillName = s.Name,
+                Category = s.Category,
+                LevelCount = s.LevelCount,
+                CurrentNiveau = currentNiveau,
+                TargetNiveau = targetNiveau,
+                Status = status,
+                PrerequisiteWarnings = BuildPrerequisiteWarnings(s.Prerequisites, goalsLookup),
+            };
+        }).ToList();
+
+        return Ok(new RoadmapResponse
         {
-            existing.AchievedLevel = request.AchievedLevel;
-            existing.UpdatedAt = DateTime.UtcNow;
-        }
-
-        await _db.SaveChangesAsync();
-
-        return NoContent();
+            UserId = userId,
+            Profile = profile.Profile,
+            Nodes = nodes,
+            TotalSkillCount = totalCount,
+            ShowAll = showAll,
+        });
     }
 
-    /// <summary>
-    /// Check unmet prerequisites for a skill for a given user (non-blocking warning).
-    /// </summary>
-    [HttpGet("{userId}/skill/{skillId:int}/prerequisite-check")]
-    public async Task<ActionResult<List<PrerequisiteCheckItem>>> CheckPrerequisites(string userId, int skillId)
+    private static List<PrerequisiteWarning> BuildPrerequisiteWarnings(
+        List<SkillPrerequisite> prerequisites,
+        Dictionary<int, GoalEntity> goalsLookup)
     {
-        var prerequisites = await _db.SkillPrerequisites
-            .Where(p => p.SkillId == skillId)
-            .Include(p => p.PrerequisiteSkill)
-            .ToListAsync();
+        if (prerequisites.Count == 0)
+        {
+            return [];
+        }
 
-        var progressMap = await _db.ConsultantSkillProgress
-            .Where(p => p.UserId == userId && prerequisites.Select(pr => pr.PrerequisiteSkillId).Contains(p.SkillId))
-            .ToDictionaryAsync(p => p.SkillId, p => p.AchievedLevel);
-
-        var unmet = prerequisites
+        // FR8: Non-blocking — we just surface warnings, never lock the skill
+        return prerequisites
             .Where(p =>
             {
-                var achieved = progressMap.GetValueOrDefault(p.PrerequisiteSkillId, 0);
-                return achieved < p.RequiredLevel;
+                goalsLookup.TryGetValue(p.SkillId, out var g);
+                return g == null || g.CurrentNiveau < p.RequiredNiveau;
             })
-            .Select(p => new PrerequisiteCheckItem(
-                p.PrerequisiteSkill.Name,
-                p.RequiredLevel,
-                progressMap.GetValueOrDefault(p.PrerequisiteSkillId, 0)))
+            .Select(p => new PrerequisiteWarning
+            {
+                SkillId = p.SkillId,
+                SkillName = $"Skill#{p.SkillId}",
+                RequiredNiveau = p.RequiredNiveau,
+                WarningText = $"Skill#{p.SkillId} niveau {p.RequiredNiveau} not yet met — you can explore this skill, but your coach may ask you to address prerequisites first",
+            })
             .ToList();
-
-        return Ok(unmet);
     }
+}
+
+// ── Response models ───────────────────────────────────────────────────────────
+
+public class RoadmapResponse
+{
+    public required string UserId { get; set; }
+    public CompetenceCentreProfile? Profile { get; set; }
+    public List<RoadmapNode> Nodes { get; set; } = [];
+    public int TotalSkillCount { get; set; }
+    public bool ShowAll { get; set; }
+}
+
+public class RoadmapNode
+{
+    public int SkillId { get; set; }
+    public required string SkillName { get; set; }
+    public required string Category { get; set; }
+    public int LevelCount { get; set; }
+    public int CurrentNiveau { get; set; }
+    public int? TargetNiveau { get; set; }
+    public RoadmapNodeStatus Status { get; set; }
+    public List<PrerequisiteWarning> PrerequisiteWarnings { get; set; } = [];
+}
+
+public enum RoadmapNodeStatus
+{
+    Active,
+    Locked,
+    Complete,
 }

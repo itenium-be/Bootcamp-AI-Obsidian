@@ -1,6 +1,13 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { Users } from '@/pages/Users';
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { useAuthStore } from '@/stores';
+import { AdminUsers } from '@/pages/AdminUsers';
 
 export const Route = createFileRoute('/_authenticated/admin/users')({
-  component: Users,
+  component: AdminUsers,
+  beforeLoad: () => {
+    const { user } = useAuthStore.getState();
+    if (!user?.isBackOffice) {
+      throw redirect({ to: '/' });
+    }
+  },
 });

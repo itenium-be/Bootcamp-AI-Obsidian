@@ -16,46 +16,78 @@ public class RoadmapControllerTests : DatabaseTestBase
     }
 
     [Test]
-    public async Task GetRoadmap_ReturnsSkillsInConsultantProfile()
+    public async Task GetRoadmap_WhenConsultantHasProfile_ReturnsFilteredSkills()
     {
-        // Arrange: team with universal skills, consultant assigned to that team
-        var team = new TeamEntity { Name = "Test Team" };
-        Db.Teams.Add(team);
+        // Arrange: 2 DotNet skills + 1 Java skill
+        var dotNetSkill1 = new SkillEntity { Name = "C# Basics", Category = "Core" };
+        var dotNetSkill2 = new SkillEntity { Name = "LINQ", Category = "Core" };
+        var javaSkill = new SkillEntity { Name = "Java Basics", Category = "Core" };
+        Db.Skills.AddRange(dotNetSkill1, dotNetSkill2, javaSkill);
         await Db.SaveChangesAsync();
 
-        var skill1 = new SkillEntity { Name = "Skill A", IsUniversal = true };
-        var skill2 = new SkillEntity { Name = "Skill B", IsUniversal = true };
-        Db.Skills.AddRange(skill1, skill2);
+        Db.SkillProfiles.AddRange(
+            new SkillProfileEntity { SkillId = dotNetSkill1.Id, Profile = CompetenceCentreProfile.DotNet, SortOrder = 1 },
+            new SkillProfileEntity { SkillId = dotNetSkill2.Id, Profile = CompetenceCentreProfile.DotNet, SortOrder = 2 },
+            new SkillProfileEntity { SkillId = javaSkill.Id, Profile = CompetenceCentreProfile.Java, SortOrder = 1 });
+        await Db.SaveChangesAsync();
 
-        Db.ConsultantProfiles.Add(new ConsultantProfileEntity { UserId = "roadmap-user", TeamId = team.Id });
+        Db.ConsultantProfiles.Add(new ConsultantProfileEntity
+        {
+            UserId = "user-dotnet",
+            Profile = CompetenceCentreProfile.DotNet,
+        });
         await Db.SaveChangesAsync();
 
         // Act
-        var result = await _sut.GetRoadmap("roadmap-user");
+        var result = await _sut.GetRoadmap("user-dotnet");
 
-        var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
-        var roadmap = okResult!.Value as RoadmapResponse;
-        Assert.That(roadmap, Is.Not.Null);
-        Assert.That(roadmap!.Skills, Has.Count.GreaterThanOrEqualTo(2));
+        // Assert
+        var ok = result.Result as OkObjectResult;
+        Assert.That(ok, Is.Not.Null);
+        var response = ok!.Value as RoadmapResponse;
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response!.Profile, Is.EqualTo(CompetenceCentreProfile.DotNet));
+        Assert.That(response.Nodes, Has.Count.EqualTo(2));
     }
 
     [Test]
-    public async Task UpdateProgress_UpdatesConsultantSkillLevel()
+    public async Task GetRoadmap_WhenNoProfile_ReturnsEmptyNodes()
     {
-        var skill = new SkillEntity { Name = "Progressable Skill", LevelCount = 5 };
-        Db.Skills.Add(skill);
+        var result = await _sut.GetRoadmap("user-noprofile");
+
+        var ok = result.Result as OkObjectResult;
+        Assert.That(ok, Is.Not.Null);
+        var response = ok!.Value as RoadmapResponse;
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response!.Nodes, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetRoadmap_DefaultView_ReturnsMaxTwelveNodes()
+    {
+        // Create 15 DotNet skills
+        var skills = Enumerable.Range(1, 15)
+            .Select(i => new SkillEntity { Name = $"Skill {i}", Category = "Core" })
+            .ToList();
+        Db.Skills.AddRange(skills);
         await Db.SaveChangesAsync();
 
-        var request = new UpdateProgressRequest(skill.Id, 3);
+        Db.SkillProfiles.AddRange(skills.Select((s, i) =>
+            new SkillProfileEntity { SkillId = s.Id, Profile = CompetenceCentreProfile.DotNet, SortOrder = i + 1 }));
+        await Db.SaveChangesAsync();
 
-        var result = await _sut.UpdateProgress("progress-user", request);
+        Db.ConsultantProfiles.Add(new ConsultantProfileEntity
+        {
+            UserId = "user-dotnet-2",
+            Profile = CompetenceCentreProfile.DotNet,
+        });
+        await Db.SaveChangesAsync();
 
-        Assert.That(result, Is.TypeOf<NoContentResult>());
+        var result = await _sut.GetRoadmap("user-dotnet-2", showAll: false);
 
-        var progress = Db.ConsultantSkillProgress
-            .FirstOrDefault(p => p.UserId == "progress-user" && p.SkillId == skill.Id);
-        Assert.That(progress, Is.Not.Null);
-        Assert.That(progress!.AchievedLevel, Is.EqualTo(3));
+        var ok = result.Result as OkObjectResult;
+        var response = ok!.Value as RoadmapResponse;
+        Assert.That(response!.Nodes, Has.Count.LessThanOrEqualTo(12));
+        Assert.That(response.TotalSkillCount, Is.EqualTo(15));
     }
 }

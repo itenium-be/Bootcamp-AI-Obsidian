@@ -11,8 +11,16 @@ public class SkillForgeUser : CurrentUser, ISkillForgeUser
     {
     }
 
+    /// <inheritdoc />
     public bool IsBackOffice => User?.IsInRole("backoffice") ?? false;
 
+    /// <inheritdoc />
+    public bool IsManager => User?.IsInRole("manager") ?? false;
+
+    /// <inheritdoc />
+    public bool IsConsultant => User?.IsInRole("learner") ?? false;
+
+    /// <inheritdoc />
     public ICollection<int> Teams
     {
         get

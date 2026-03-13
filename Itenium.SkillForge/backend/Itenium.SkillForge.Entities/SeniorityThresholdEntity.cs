@@ -3,16 +3,15 @@ using System.ComponentModel.DataAnnotations;
 namespace Itenium.SkillForge.Entities;
 
 /// <summary>
-/// Defines the minimum skill level required for a given seniority level within a team profile.
+/// Seniority threshold ruleset entry: a required minimum niveau for a skill within a profile/level.
+/// FR38: thresholds are computed at read time — no background jobs.
 /// </summary>
 public class SeniorityThresholdEntity
 {
     [Key]
     public int Id { get; set; }
 
-    public int TeamId { get; set; }
-
-    public TeamEntity Team { get; set; } = null!;
+    public CompetenceCentreProfile Profile { get; set; }
 
     public SeniorityLevel SeniorityLevel { get; set; }
 
@@ -21,9 +20,7 @@ public class SeniorityThresholdEntity
     public SkillEntity Skill { get; set; } = null!;
 
     /// <summary>
-    /// The minimum level the consultant must have achieved for this skill.
+    /// Minimum niveau (1-based) the consultant must reach for this threshold to be met.
     /// </summary>
-    public int MinimumLevel { get; set; }
-
-    public override string ToString() => $"Team {TeamId} — {SeniorityLevel}: Skill {SkillId} >= {MinimumLevel}";
+    public int MinNiveau { get; set; }
 }

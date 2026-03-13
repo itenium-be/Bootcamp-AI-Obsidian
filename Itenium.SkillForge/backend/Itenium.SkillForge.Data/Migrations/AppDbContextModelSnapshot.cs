@@ -30,6 +30,9 @@ namespace Itenium.SkillForge.Data.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("text");
@@ -43,6 +46,10 @@ namespace Itenium.SkillForge.Data.Migrations
 
                     b.Property<string>("FirstName")
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsArchived")
+                        .HasDefaultValue(false)
+                        .HasColumnType("boolean");
 
                     b.Property<string>("LastName")
                         .HasColumnType("text");
@@ -81,6 +88,9 @@ namespace Itenium.SkillForge.Data.Migrations
                         .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IsArchived")
+                        .HasDatabaseName("IX_Users_IsArchived");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");

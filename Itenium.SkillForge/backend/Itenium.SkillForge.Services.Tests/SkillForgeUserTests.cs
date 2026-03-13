@@ -91,6 +91,91 @@ public class SkillForgeUserTests
         Assert.That(result, Is.Empty);
     }
 
+    // Story #12 — Coach (manager) role checks
+    [Test]
+    public void IsManager_WhenUserHasManagerRole_ReturnsTrue()
+    {
+        var claims = new List<Claim> { new(ClaimTypes.Role, "manager") };
+        SetupUser(claims);
+        var sut = new SkillForgeUser(_httpContextAccessor);
+
+        var result = sut.IsManager;
+
+        Assert.That(result, Is.True);
+    }
+
+    [Test]
+    public void IsManager_WhenUserDoesNotHaveManagerRole_ReturnsFalse()
+    {
+        var claims = new List<Claim> { new(ClaimTypes.Role, "learner") };
+        SetupUser(claims);
+        var sut = new SkillForgeUser(_httpContextAccessor);
+
+        var result = sut.IsManager;
+
+        Assert.That(result, Is.False);
+    }
+
+    [Test]
+    public void IsManager_WhenNoUser_ReturnsFalse()
+    {
+        _httpContextAccessor.HttpContext.Returns((HttpContext?)null);
+        var sut = new SkillForgeUser(_httpContextAccessor);
+
+        var result = sut.IsManager;
+
+        Assert.That(result, Is.False);
+    }
+
+    // Story #11 — Consultant (learner) role checks
+    [Test]
+    public void IsConsultant_WhenUserHasLearnerRole_ReturnsTrue()
+    {
+        var claims = new List<Claim> { new(ClaimTypes.Role, "learner") };
+        SetupUser(claims);
+        var sut = new SkillForgeUser(_httpContextAccessor);
+
+        var result = sut.IsConsultant;
+
+        Assert.That(result, Is.True);
+    }
+
+    [Test]
+    public void IsConsultant_WhenUserHasManagerRole_ReturnsFalse()
+    {
+        var claims = new List<Claim> { new(ClaimTypes.Role, "manager") };
+        SetupUser(claims);
+        var sut = new SkillForgeUser(_httpContextAccessor);
+
+        var result = sut.IsConsultant;
+
+        Assert.That(result, Is.False);
+    }
+
+    [Test]
+    public void IsConsultant_WhenNoUser_ReturnsFalse()
+    {
+        _httpContextAccessor.HttpContext.Returns((HttpContext?)null);
+        var sut = new SkillForgeUser(_httpContextAccessor);
+
+        var result = sut.IsConsultant;
+
+        Assert.That(result, Is.False);
+    }
+
+    // Story #13 — Admin/BackOffice cannot be manager or consultant simultaneously
+    [Test]
+    public void IsBackOffice_WhenBackoffice_IsNotManagerOrConsultant()
+    {
+        var claims = new List<Claim> { new(ClaimTypes.Role, "backoffice") };
+        SetupUser(claims);
+        var sut = new SkillForgeUser(_httpContextAccessor);
+
+        Assert.That(sut.IsBackOffice, Is.True);
+        Assert.That(sut.IsManager, Is.False);
+        Assert.That(sut.IsConsultant, Is.False);
+    }
+
     private void SetupUser(List<Claim> claims)
     {
         var identity = new ClaimsIdentity(claims, "TestAuth");
