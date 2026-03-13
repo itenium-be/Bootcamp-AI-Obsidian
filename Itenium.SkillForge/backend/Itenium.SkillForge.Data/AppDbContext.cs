@@ -27,6 +27,8 @@ public class AppDbContext : ForgeIdentityDbContext
 
     public DbSet<SeniorityThresholdEntity> SeniorityThresholds => Set<SeniorityThresholdEntity>();
 
+    public DbSet<SkillValidationEntity> SkillValidations => Set<SkillValidationEntity>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
