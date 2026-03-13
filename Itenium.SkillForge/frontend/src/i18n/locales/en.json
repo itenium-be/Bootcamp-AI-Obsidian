@@ -137,7 +137,13 @@
     "tableActions": "Actions",
     "archive": "Archive",
     "archiveSuccess": "User archived successfully",
-    "archiveError": "Failed to archive user"
+    "archiveError": "Failed to archive user",
+    "restore": "Restore",
+    "restoreSuccess": "User restored successfully",
+    "restoreError": "Failed to restore user",
+    "showArchived": "Show Archived",
+    "showActive": "Show Active",
+    "archivedUsers": "Archived Users"
   },
   "errors": {
     "sessionExpired": "Session expired!",

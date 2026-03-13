@@ -137,7 +137,13 @@
     "tableActions": "Acties",
     "archive": "Archiveren",
     "archiveSuccess": "Gebruiker succesvol gearchiveerd",
-    "archiveError": "Archiveren mislukt"
+    "archiveError": "Archiveren mislukt",
+    "restore": "Herstellen",
+    "restoreSuccess": "Gebruiker succesvol hersteld",
+    "restoreError": "Herstellen mislukt",
+    "showArchived": "Toon Gearchiveerde",
+    "showActive": "Toon Actieve",
+    "archivedUsers": "Gearchiveerde Gebruikers"
   },
   "errors": {
     "sessionExpired": "Sessie verlopen!",
