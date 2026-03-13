@@ -60,7 +60,7 @@ export async function fetchUserTeams(): Promise<Team[]> {
   return response.data;
 }
 
-interface Course {
+export interface Course {
   id: number;
   name: string;
   description: string | null;
@@ -70,5 +70,56 @@ interface Course {
 
 export async function fetchCourses(): Promise<Course[]> {
   const response = await api.get<Course[]>('/api/course');
+  return response.data;
+}
+
+export interface Stats {
+  totalCourses: number;
+  totalLearners: number;
+  totalEnrollments: number;
+  totalCertificates: number;
+  completionRate: number;
+}
+
+export async function fetchStats(): Promise<Stats> {
+  const response = await api.get<Stats>('/api/stats');
+  return response.data;
+}
+
+export interface Enrollment {
+  id: number;
+  learnerId: string;
+  courseId: number;
+  enrolledAt: string;
+  completedAt: string | null;
+}
+
+export async function fetchEnrollments(): Promise<Enrollment[]> {
+  const response = await api.get<Enrollment[]>('/api/enrollment');
+  return response.data;
+}
+
+export interface Progress {
+  id: number;
+  learnerId: string;
+  courseId: number;
+  percentageComplete: number;
+  lastUpdated: string;
+}
+
+export async function fetchProgress(): Promise<Progress[]> {
+  const response = await api.get<Progress[]>('/api/progress');
+  return response.data;
+}
+
+export interface Certificate {
+  id: number;
+  learnerId: string;
+  courseId: number;
+  issuedAt: string;
+}
+
+export async function fetchCertificates(): Promise<Certificate[]> {
+  const response = await api.get<Certificate[]>('/api/certificate');
   return response.data;
 }
