@@ -18,7 +18,7 @@ import {
 } from '@itenium-forge/ui';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { fetchCourses, fetchEnrollments, fetchCertificates } from '@/api/client';
+import { fetchCourses, fetchEnrollments, fetchCertificates, fetchMonthlyStats, exportCompletionReport } from '@/api/client';
 
 interface CompletionRow {
   id: number;
@@ -36,15 +36,7 @@ function getPerformanceBadge(rate: number) {
   return { label: 'Poor', variant: 'destructive' as const };
 }
 
-// Mocked monthly trend data
-const monthlyTrend = [
-  { month: 'Oct', completions: 4 },
-  { month: 'Nov', completions: 7 },
-  { month: 'Dec', completions: 5 },
-  { month: 'Jan', completions: 12 },
-  { month: 'Feb', completions: 9 },
-  { month: 'Mar', completions: 15 },
-];
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export function CompletionReport() {
   const { t } = useTranslation();
@@ -64,6 +56,12 @@ export function CompletionReport() {
   const { data: certificates, isLoading: certificatesLoading } = useQuery({
     queryKey: ['certificates'],
     queryFn: fetchCertificates,
+    staleTime: 30_000,
+  });
+
+  const { data: monthlyStatsData, isLoading: monthlyLoading } = useQuery({
+    queryKey: ['monthlyStats'],
+    queryFn: fetchMonthlyStats,
     staleTime: 30_000,
   });
 
@@ -92,10 +90,30 @@ export function CompletionReport() {
   const totalCertificates = (certificates ?? []).length;
   const overallRate = totalEnrollments > 0 ? Math.round((totalCompleted / totalEnrollments) * 100) : 0;
 
-  const maxTrend = Math.max(...monthlyTrend.map((m) => m.completions), 1);
+  // Last 6 months of real data
+  const last6Months = [...(monthlyStatsData ?? [])]
+    .sort((a, b) => a.year !== b.year ? a.year - b.year : a.month - b.month)
+    .slice(-6)
+    .map((m) => ({
+      label: `${MONTH_NAMES[m.month - 1]} ${m.year}`,
+      enrollments: m.enrollments,
+      completions: m.completions,
+    }));
 
-  const handleExport = () => {
-    toast.info('Export feature coming soon');
+  const maxTrend = Math.max(...last6Months.flatMap((m) => [m.enrollments, m.completions]), 1);
+
+  const handleExport = async () => {
+    try {
+      const blob = await exportCompletionReport();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'completion-report.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error('Export failed. Please try again.');
+    }
   };
 
   return (
@@ -192,26 +210,47 @@ export function CompletionReport() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              {monthlyTrend.map((entry) => {
-                const pct = Math.round((entry.completions / maxTrend) * 100);
-                return (
-                  <div key={entry.month} className="flex items-center gap-3">
-                    <span className="w-8 text-xs text-muted-foreground">{entry.month}</span>
-                    <div className="flex-1 bg-muted rounded-full h-2">
-                      <div
-                        className="bg-primary h-2 rounded-full transition-all"
-                        style={{ width: `${pct}%` }}
-                      />
+            {monthlyLoading ? (
+              <div className="space-y-2">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} className="h-8 w-full" />
+                ))}
+              </div>
+            ) : last6Months.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{t('reports.noData')}</p>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center gap-4 text-xs text-muted-foreground mb-2">
+                  <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-2 rounded bg-blue-400" /> Enrollments</span>
+                  <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-2 rounded bg-primary" /> Completions</span>
+                </div>
+                {last6Months.map((entry) => {
+                  const enrollPct = Math.round((entry.enrollments / maxTrend) * 100);
+                  const completePct = Math.round((entry.completions / maxTrend) * 100);
+                  return (
+                    <div key={entry.label} className="space-y-1">
+                      <div className="flex items-center gap-3">
+                        <span className="w-16 text-xs text-muted-foreground shrink-0">{entry.label}</span>
+                        <div className="flex-1 space-y-1">
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 bg-muted rounded-full h-2">
+                              <div className="bg-blue-400 h-2 rounded-full transition-all" style={{ width: `${enrollPct}%` }} />
+                            </div>
+                            <span className="text-xs text-muted-foreground w-6 text-right">{entry.enrollments}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 bg-muted rounded-full h-2">
+                              <div className="bg-primary h-2 rounded-full transition-all" style={{ width: `${completePct}%` }} />
+                            </div>
+                            <span className="text-xs text-muted-foreground w-6 text-right">{entry.completions}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <span className="text-sm text-muted-foreground w-8 text-right">
-                      {entry.completions}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-            <p className="text-xs text-muted-foreground mt-3 italic">{t('reports.comingSoon')}</p>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
 

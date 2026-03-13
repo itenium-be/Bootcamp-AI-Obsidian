@@ -141,3 +141,113 @@ export interface Stats {
 export async function fetchStats(): Promise<Stats> {
   return (await api.get<Stats>('/api/stats')).data;
 }
+
+// Team management
+export interface TeamCreateData {
+  name: string;
+  description?: string;
+}
+export async function createTeam(data: TeamCreateData): Promise<Team> {
+  return (await api.post<Team>('/api/team', data)).data;
+}
+export async function updateTeam(id: number, data: TeamCreateData): Promise<Team> {
+  return (await api.put<Team>(`/api/team/${id}`, data)).data;
+}
+export async function deleteTeam(id: number): Promise<void> {
+  await api.delete(`/api/team/${id}`);
+}
+export async function fetchTeamMembers(teamId: number): Promise<User[]> {
+  return (await api.get<User[]>(`/api/team/${teamId}/members`)).data;
+}
+export async function addTeamMember(teamId: number, userId: string): Promise<void> {
+  await api.post(`/api/team/${teamId}/members`, { userId });
+}
+export async function removeTeamMember(teamId: number, userId: string): Promise<void> {
+  await api.delete(`/api/team/${teamId}/members/${userId}`);
+}
+
+// User management
+export interface UserCreateData {
+  userName: string;
+  email: string;
+  password: string;
+  firstName?: string;
+  lastName?: string;
+  roles: string[];
+}
+export async function createUser(data: UserCreateData): Promise<User> {
+  return (await api.post<User>('/api/user', data)).data;
+}
+export async function deleteUser(id: string): Promise<void> {
+  await api.delete(`/api/user/${id}`);
+}
+
+// CourseTeam assignment
+export interface CourseTeam {
+  courseId: number;
+  teamId: number;
+  assignedAt: string;
+}
+export async function fetchCourseTeams(courseId: number): Promise<CourseTeam[]> {
+  return (await api.get<CourseTeam[]>(`/api/courseteam/course/${courseId}`)).data;
+}
+export async function assignTeamToCourse(courseId: number, teamId: number): Promise<void> {
+  await api.post('/api/courseteam', { courseId, teamId });
+}
+export async function removeTeamFromCourse(courseId: number, teamId: number): Promise<void> {
+  await api.delete(`/api/courseteam/${courseId}/${teamId}`);
+}
+
+// Feedback/Ratings
+export interface CourseFeedback {
+  id: number;
+  learnerId: string;
+  courseId: number;
+  courseName?: string;
+  rating: number;
+  comment: string | null;
+  submittedAt: string;
+}
+export interface FeedbackSummary {
+  courseId: number;
+  courseName: string;
+  averageRating: number;
+  totalRatings: number;
+}
+export interface CourseFeedbackDetail {
+  averageRating: number;
+  totalRatings: number;
+  feedback: CourseFeedback[];
+}
+export interface MonthlyStats {
+  year: number;
+  month: number;
+  enrollments: number;
+  completions: number;
+}
+
+export async function fetchFeedback(): Promise<CourseFeedback[]> {
+  return (await api.get<CourseFeedback[]>('/api/feedback')).data;
+}
+export async function fetchCourseFeedback(courseId: number): Promise<CourseFeedbackDetail> {
+  return (await api.get<CourseFeedbackDetail>(`/api/feedback/course/${courseId}`)).data;
+}
+export async function submitFeedback(data: {
+  courseId: number;
+  rating: number;
+  comment?: string;
+}): Promise<CourseFeedback> {
+  return (await api.post<CourseFeedback>('/api/feedback', data)).data;
+}
+export async function fetchFeedbackSummary(): Promise<FeedbackSummary[]> {
+  return (await api.get<FeedbackSummary[]>('/api/feedback/summary')).data;
+}
+export async function fetchMonthlyStats(): Promise<MonthlyStats[]> {
+  return (await api.get<MonthlyStats[]>('/api/stats/monthly')).data;
+}
+export async function exportUsageReport(): Promise<Blob> {
+  return (await api.get<Blob>('/api/stats/export/usage', { responseType: 'blob' })).data;
+}
+export async function exportCompletionReport(): Promise<Blob> {
+  return (await api.get<Blob>('/api/stats/export/completion', { responseType: 'blob' })).data;
+}

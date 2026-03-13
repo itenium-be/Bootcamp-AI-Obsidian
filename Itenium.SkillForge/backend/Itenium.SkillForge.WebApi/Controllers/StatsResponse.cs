@@ -20,3 +20,12 @@ public record StatsResponse(
     int ActiveLearners,
     IDictionary<string, int> CoursesByCategory,
     double AverageProgress);
+
+/// <summary>
+/// Represents the enrollment and completion counts for a single calendar month.
+/// </summary>
+/// <param name="Year">The four-digit year (e.g. 2026).</param>
+/// <param name="Month">The month number (1 = January, 12 = December).</param>
+/// <param name="Enrollments">Total new enrollments in this month.</param>
+/// <param name="Completions">Total completions (CompletedAt) recorded in this month.</param>
+public record MonthlyStatsItem(int Year, int Month, int Enrollments, int Completions);

@@ -273,14 +273,14 @@ export function Dashboard() {
               <CardContent>
                 <div className="space-y-2">
                   <Link
-                    to="/courses"
+                    to="/catalog"
                     className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
                   >
                     <BookOpen className="size-4 text-blue-500" />
                     <span className="text-sm font-medium">{t('dashboard.browseCatalog')}</span>
                   </Link>
                   <Link
-                    to="/settings"
+                    to="/my-certificates"
                     className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
                   >
                     <Award className="size-4 text-amber-500" />
@@ -327,21 +327,21 @@ export function Dashboard() {
             <CardContent>
               <div className="space-y-2">
                 <Link
-                  to="/courses"
+                  to="/team/members"
                   className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
                 >
                   <Users className="size-4 text-purple-500" />
                   <span className="text-sm font-medium">{t('dashboard.teamMembers')}</span>
                 </Link>
                 <Link
-                  to="/courses"
+                  to="/team/progress"
                   className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
                 >
                   <BarChart3 className="size-4 text-blue-500" />
                   <span className="text-sm font-medium">{t('dashboard.teamProgress')}</span>
                 </Link>
                 <Link
-                  to="/courses"
+                  to="/team/assignments"
                   className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
                 >
                   <BookOpen className="size-4 text-green-500" />
@@ -364,21 +364,21 @@ export function Dashboard() {
             <CardContent>
               <div className="space-y-2">
                 <Link
-                  to="/courses"
+                  to="/admin/users"
                   className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
                 >
                   <Users className="size-4 text-purple-500" />
                   <span className="text-sm font-medium">{t('dashboard.manageUsers')}</span>
                 </Link>
                 <Link
-                  to="/courses"
+                  to="/admin/teams"
                   className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
                 >
                   <Target className="size-4 text-blue-500" />
                   <span className="text-sm font-medium">{t('dashboard.manageTeams')}</span>
                 </Link>
                 <Link
-                  to="/courses"
+                  to="/reports/usage"
                   className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
                 >
                   <FileText className="size-4 text-green-500" />

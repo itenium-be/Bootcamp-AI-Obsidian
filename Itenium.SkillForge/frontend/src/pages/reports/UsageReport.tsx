@@ -18,7 +18,7 @@ import {
 } from '@itenium-forge/ui';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { fetchCourses, fetchEnrollments } from '@/api/client';
+import { fetchCourses, fetchEnrollments, exportUsageReport } from '@/api/client';
 
 interface CourseUsageRow {
   id: number;
@@ -89,8 +89,18 @@ export function UsageReport() {
   const maxEnrollments = Math.max(...courseUsage.map((c) => c.enrollments), 1);
   const top3 = courseUsage.slice(0, 3);
 
-  const handleExport = () => {
-    toast.info('Export feature coming soon');
+  const handleExport = async () => {
+    try {
+      const blob = await exportUsageReport();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'usage-report.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error('Export failed. Please try again.');
+    }
   };
 
   return (

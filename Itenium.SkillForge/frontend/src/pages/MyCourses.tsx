@@ -1,18 +1,21 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { Card, CardHeader, CardTitle, CardContent, Badge, Button } from '@itenium-forge/ui';
-import { BookOpen, CheckCircle, Clock, PlayCircle, BookMarked, Trophy } from 'lucide-react';
+import { BookOpen, CheckCircle, Clock, PlayCircle, BookMarked, Trophy, Star } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   fetchEnrollments,
   fetchCourses,
   fetchProgress,
+  fetchFeedback,
+  submitFeedback,
   type Enrollment,
   type Course,
   type Progress as ProgressType,
 } from '@/api/client';
-import { Progress } from '@/components/ui-extras';
+import { Progress, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Textarea } from '@/components/ui-extras';
 
 interface EnrichedCourse {
   enrollment: Enrollment;
@@ -55,18 +58,112 @@ function StatusBadge({ status }: { status: 'completed' | 'inProgress' | 'notStar
   );
 }
 
-function CourseItem({ item }: { item: EnrichedCourse }) {
+function StarPicker({ value, onChange }: { value: number; onChange: (r: number) => void }) {
+  const [hovered, setHovered] = useState(0);
+  return (
+    <span className="inline-flex gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type="button"
+          onClick={() => onChange(star)}
+          onMouseEnter={() => setHovered(star)}
+          onMouseLeave={() => setHovered(0)}
+          className="focus:outline-none"
+        >
+          <Star
+            className={`size-7 transition-colors ${
+              star <= (hovered || value)
+                ? 'text-amber-400 fill-amber-400'
+                : 'text-gray-300 fill-gray-100'
+            }`}
+          />
+        </button>
+      ))}
+    </span>
+  );
+}
+
+function CourseRatingDialog({
+  open,
+  onClose,
+  courseId,
+  courseName,
+  existingRating,
+}: {
+  open: boolean;
+  onClose: () => void;
+  courseId: number;
+  courseName: string;
+  existingRating?: number;
+}) {
+  const [rating, setRating] = useState(existingRating ?? 0);
+  const [comment, setComment] = useState('');
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: submitFeedback,
+    onSuccess: () => {
+      toast.success(`Thank you for rating "${courseName}"!`);
+      queryClient.invalidateQueries({ queryKey: ['feedback'] });
+      onClose();
+    },
+    onError: () => {
+      toast.error('Failed to submit rating. Please try again.');
+    },
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Rate This Course</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-2">
+          <p className="text-sm text-muted-foreground font-medium">{courseName}</p>
+          <div>
+            <p className="text-sm font-medium mb-2">Your Rating</p>
+            <StarPicker value={rating} onChange={setRating} />
+          </div>
+          <div>
+            <p className="text-sm font-medium mb-2">Comment (optional)</p>
+            <Textarea
+              placeholder="Share your thoughts about this course..."
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              rows={3}
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={mutation.isPending}>
+            Cancel
+          </Button>
+          <Button onClick={() => mutation.mutate({ courseId, rating, comment: comment.trim() || undefined })} disabled={mutation.isPending || rating === 0}>
+            {mutation.isPending ? 'Submitting...' : 'Submit Rating'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function CourseItem({ item, ratedCourseIds }: { item: EnrichedCourse; ratedCourseIds: Set<number> }) {
   const { t } = useTranslation();
   const status = getStatus(item.enrollment, item.progress);
   const pct = item.progress?.percentageComplete ?? 0;
+  const [ratingOpen, setRatingOpen] = useState(false);
+  const isRated = ratedCourseIds.has(item.enrollment.courseId);
+  const courseName = item.course?.name ?? `Course #${item.enrollment.courseId}`;
 
   return (
+    <>
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="pt-4">
         <div className="flex flex-col gap-3">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold truncate">{item.course?.name ?? `Course #${item.enrollment.courseId}`}</h3>
+              <h3 className="font-semibold truncate">{courseName}</h3>
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {item.course?.category && (
                   <Badge variant="outline" className="text-xs">
@@ -102,7 +199,20 @@ function CourseItem({ item }: { item: EnrichedCourse }) {
           </div>
 
           {/* Action button */}
-          <div className="flex justify-end">
+          <div className="flex items-center justify-end gap-2">
+            {status === 'completed' && (
+              isRated ? (
+                <span className="inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+                  <Star className="size-3 fill-amber-400 text-amber-400" />
+                  Rated
+                </span>
+              ) : (
+                <Button variant="ghost" size="sm" onClick={() => setRatingOpen(true)} className="gap-1 text-amber-600 hover:text-amber-700">
+                  <Star className="size-3" />
+                  Rate
+                </Button>
+              )
+            )}
             {status === 'completed' ? (
               <Button variant="outline" size="sm" asChild>
                 <Link to="/my-certificates">
@@ -129,6 +239,15 @@ function CourseItem({ item }: { item: EnrichedCourse }) {
         </div>
       </CardContent>
     </Card>
+    {ratingOpen && (
+      <CourseRatingDialog
+        open={ratingOpen}
+        onClose={() => setRatingOpen(false)}
+        courseId={item.enrollment.courseId}
+        courseName={courseName}
+      />
+    )}
+    </>
   );
 }
 
@@ -138,6 +257,9 @@ export function MyCourses() {
   const { data: enrollments } = useQuery({ queryKey: ['enrollments'], queryFn: fetchEnrollments });
   const { data: courses } = useQuery({ queryKey: ['courses'], queryFn: fetchCourses });
   const { data: progressList } = useQuery({ queryKey: ['progress'], queryFn: fetchProgress });
+  const { data: feedback } = useQuery({ queryKey: ['feedback'], queryFn: fetchFeedback });
+
+  const ratedCourseIds = useMemo(() => new Set((feedback ?? []).map((f) => f.courseId)), [feedback]);
 
   const enrichedCourses = useMemo<EnrichedCourse[]>(
     () =>
@@ -204,7 +326,7 @@ export function MyCourses() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {enrichedCourses.map((item) => (
-            <CourseItem key={item.enrollment.id} item={item} />
+            <CourseItem key={item.enrollment.id} item={item} ratedCourseIds={ratedCourseIds} />
           ))}
         </div>
       )}

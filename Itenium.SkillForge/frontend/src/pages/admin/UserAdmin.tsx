@@ -1,7 +1,11 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
-import { Users, UserPlus, Shield, Search, UserCheck } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { toast } from 'sonner';
+import { Users, UserPlus, Shield, Search, UserCheck, Trash2 } from 'lucide-react';
 import {
   Avatar,
   AvatarFallback,
@@ -10,15 +14,33 @@ import {
   Card,
   CardContent,
   CardHeader,
+  Checkbox,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
   Input,
+  Label,
   Skeleton,
 } from '@itenium-forge/ui';
-import { fetchUsers, type User } from '@/api/client';
+import { fetchUsers, createUser, deleteUser, type User, type UserCreateData } from '@/api/client';
 import { useAuthStore } from '@/stores';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   Separator,
@@ -27,6 +49,8 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui-extras';
+
+// ─── Helpers ───────────────────────────────────────────────────────────────────
 
 function getRoleBadgeClass(role: string) {
   switch (role.toLowerCase()) {
@@ -73,6 +97,8 @@ function getAvatarColor(userId: string): string {
   const index = userId.charCodeAt(0) % colors.length;
   return colors[index];
 }
+
+// ─── User Detail Dialog ────────────────────────────────────────────────────────
 
 interface UserDetailDialogProps {
   user: User | null;
@@ -152,6 +178,193 @@ function UserDetailDialog({ user, open, onClose }: UserDetailDialogProps) {
   );
 }
 
+// ─── Create User Dialog ────────────────────────────────────────────────────────
+
+const createUserSchema = z.object({
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  userName: z.string().min(1, 'Username is required'),
+  email: z.string().email('Valid email is required'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  roles: z.array(z.string()),
+});
+
+type CreateUserFormValues = z.infer<typeof createUserSchema>;
+
+const AVAILABLE_ROLES = ['backoffice', 'manager', 'learner'];
+
+interface CreateUserDialogProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+function CreateUserDialog({ open, onClose }: CreateUserDialogProps) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+
+  const form = useForm<CreateUserFormValues>({
+    resolver: zodResolver(createUserSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      userName: '',
+      email: '',
+      password: '',
+      roles: ['learner'],
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (data: UserCreateData) => createUser(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast.success('User created successfully');
+      form.reset();
+      onClose();
+    },
+    onError: () => toast.error(t('common.error')),
+  });
+
+  function onSubmit(values: CreateUserFormValues) {
+    createMutation.mutate({
+      userName: values.userName,
+      email: values.email,
+      password: values.password,
+      firstName: values.firstName || undefined,
+      lastName: values.lastName || undefined,
+      roles: values.roles,
+    });
+  }
+
+  function handleClose() {
+    form.reset();
+    onClose();
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(o: boolean) => !o && handleClose()}>
+      <DialogContent className="sm:max-w-[480px]">
+        <DialogHeader>
+          <DialogTitle>{t('userAdmin.addUser')}</DialogTitle>
+          <DialogDescription>Create a new SkillForge user account.</DialogDescription>
+        </DialogHeader>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('userAdmin.firstName')}</FormLabel>
+                    <FormControl>
+                      <Input placeholder="John" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('userAdmin.lastName')}</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <FormField
+              control={form.control}
+              name="userName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('userAdmin.username')}</FormLabel>
+                  <FormControl>
+                    <Input placeholder="johndoe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('userAdmin.email')}</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder="john@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Min. 6 characters" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="roles"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('userAdmin.roles')}</FormLabel>
+                  <div className="flex flex-wrap gap-4 pt-1">
+                    {AVAILABLE_ROLES.map((role) => (
+                      <div key={role} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`role-${role}`}
+                          checked={field.value.includes(role)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              field.onChange([...field.value, role]);
+                            } else {
+                              field.onChange(field.value.filter((r) => r !== role));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={`role-${role}`} className="text-sm capitalize">
+                          {getRoleLabel(role, t)}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={handleClose} disabled={createMutation.isPending}>
+                {t('common.cancel')}
+              </Button>
+              <Button type="submit" disabled={createMutation.isPending}>
+                {createMutation.isPending ? t('common.loading') : t('userAdmin.addUser')}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Row Skeleton ──────────────────────────────────────────────────────────────
+
 interface UserRowSkeletonProps {
   count?: number;
 }
@@ -185,21 +398,34 @@ function UserRowSkeleton({ count = 5 }: UserRowSkeletonProps) {
   );
 }
 
+// ─── Main Component ────────────────────────────────────────────────────────────
+
 type RoleFilter = 'all' | 'backoffice' | 'manager' | 'learner';
 
 export function UserAdmin() {
   const { t } = useTranslation();
   const { user: currentUser } = useAuthStore();
+  const queryClient = useQueryClient();
 
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<RoleFilter>('all');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   const { data: users, isLoading } = useQuery({
     queryKey: ['users'],
     queryFn: fetchUsers,
     enabled: currentUser?.isBackOffice ?? false,
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteUser(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast.success('User deleted successfully');
+    },
+    onError: () => toast.error(t('common.error')),
   });
 
   const filteredUsers = useMemo(() => {
@@ -256,7 +482,7 @@ export function UserAdmin() {
           </h1>
           <p className="mt-1 text-muted-foreground">{t('userAdmin.subtitle')}</p>
         </div>
-        <Button disabled className="gap-2 opacity-60" title={t('userAdmin.comingSoon')}>
+        <Button className="gap-2" onClick={() => setCreateDialogOpen(true)}>
           <UserPlus className="h-4 w-4" />
           {t('userAdmin.addUser')}
         </Button>
@@ -372,61 +598,96 @@ export function UserAdmin() {
                         </td>
                       </tr>
                     ) : (
-                      filteredUsers.map((u) => (
-                        <tr key={u.id} className="border-b transition-colors hover:bg-muted/30">
-                          <td className="p-3">
-                            <div className="flex items-center gap-3">
-                              <Avatar className="h-10 w-10">
-                                <AvatarFallback className={`text-sm font-semibold text-white ${getAvatarColor(u.id)}`}>
-                                  {getUserInitials(u)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <p className="font-medium">
-                                  {u.firstName || u.lastName
-                                    ? `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim()
-                                    : u.userName}
-                                </p>
-                                <p className="text-xs text-muted-foreground">@{u.userName}</p>
+                      filteredUsers.map((u) => {
+                        const displayName =
+                          u.firstName || u.lastName
+                            ? `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim()
+                            : u.userName;
+                        return (
+                          <tr key={u.id} className="border-b transition-colors hover:bg-muted/30">
+                            <td className="p-3">
+                              <div className="flex items-center gap-3">
+                                <Avatar className="h-10 w-10">
+                                  <AvatarFallback className={`text-sm font-semibold text-white ${getAvatarColor(u.id)}`}>
+                                    {getUserInitials(u)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <p className="font-medium">{displayName}</p>
+                                  <p className="text-xs text-muted-foreground">@{u.userName}</p>
+                                </div>
                               </div>
-                            </div>
-                          </td>
-                          <td className="p-3 text-sm text-muted-foreground">{u.email}</td>
-                          <td className="p-3">
-                            <div className="flex flex-wrap gap-1.5">
-                              {u.roles.map((role) => (
-                                <span
-                                  key={role}
-                                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${getRoleBadgeClass(role)}`}
+                            </td>
+                            <td className="p-3 text-sm text-muted-foreground">{u.email}</td>
+                            <td className="p-3">
+                              <div className="flex flex-wrap gap-1.5">
+                                {u.roles.map((role) => (
+                                  <span
+                                    key={role}
+                                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${getRoleBadgeClass(role)}`}
+                                  >
+                                    {getRoleLabel(role, t)}
+                                  </span>
+                                ))}
+                                {u.roles.length === 0 && (
+                                  <span
+                                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${getRoleBadgeClass('learner')}`}
+                                  >
+                                    {t('userAdmin.learnerRole')}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="p-3 text-right">
+                              <div className="flex items-center justify-end gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="gap-1.5"
+                                  onClick={() => {
+                                    setSelectedUser(u);
+                                    setDetailOpen(true);
+                                  }}
                                 >
-                                  {getRoleLabel(role, t)}
-                                </span>
-                              ))}
-                              {u.roles.length === 0 && (
-                                <span
-                                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${getRoleBadgeClass('learner')}`}
-                                >
-                                  {t('userAdmin.learnerRole')}
-                                </span>
-                              )}
-                            </div>
-                          </td>
-                          <td className="p-3 text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="gap-1.5"
-                              onClick={() => {
-                                setSelectedUser(u);
-                                setDetailOpen(true);
-                              }}
-                            >
-                              <UserCheck className="h-3.5 w-3.5" />
-                              {t('userAdmin.viewDetails')}
-                            </Button>
-                          </td>
-                        </tr>
-                      ))
+                                  <UserCheck className="h-3.5 w-3.5" />
+                                  {t('userAdmin.viewDetails')}
+                                </Button>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                      <span className="sr-only">{t('userAdmin.deleteUser')}</span>
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>{t('userAdmin.confirmDelete')}</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Are you sure you want to delete{' '}
+                                        <span className="font-semibold">{displayName}</span>?{' '}
+                                        {t('userAdmin.deleteWarning')}
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() => deleteMutation.mutate(u.id)}
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      >
+                                        {t('common.delete')}
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>
@@ -443,6 +704,11 @@ export function UserAdmin() {
           setDetailOpen(false);
           setSelectedUser(null);
         }}
+      />
+
+      <CreateUserDialog
+        open={createDialogOpen}
+        onClose={() => setCreateDialogOpen(false)}
       />
     </div>
   );

@@ -23,6 +23,8 @@ public class AppDbContext : ForgeIdentityDbContext
 
     public DbSet<CourseTeamEntity> CourseTeams => Set<CourseTeamEntity>();
 
+    public DbSet<CourseFeedbackEntity> CourseFeedbacks => Set<CourseFeedbackEntity>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -68,6 +70,16 @@ public class AppDbContext : ForgeIdentityDbContext
             e.HasOne(x => x.Team)
                 .WithMany()
                 .HasForeignKey(x => x.TeamId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // CourseFeedback: one feedback per learner per course
+        builder.Entity<CourseFeedbackEntity>(e =>
+        {
+            e.HasIndex(x => new { x.LearnerId, x.CourseId }).IsUnique();
+            e.HasOne(x => x.Course)
+                .WithMany()
+                .HasForeignKey(x => x.CourseId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

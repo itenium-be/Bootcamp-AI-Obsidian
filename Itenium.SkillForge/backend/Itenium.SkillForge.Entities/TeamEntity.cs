@@ -17,6 +17,10 @@ public class TeamEntity
     [MaxLength(200)]
     public required string Name { get; set; }
 
+    /// <summary>Gets or sets an optional description of the team and its focus area. Max 1000 characters.</summary>
+    [MaxLength(1000)]
+    public string? Description { get; set; }
+
     /// <inheritdoc/>
     public override string ToString() => Name;
 }

@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, BookOpen } from 'lucide-react';
+import { Plus, Pencil, Trash2, BookOpen, Users, X } from 'lucide-react';
 import {
   Button,
   Badge,
@@ -23,7 +23,19 @@ import {
   SelectValue,
   Skeleton,
 } from '@itenium-forge/ui';
-import { fetchCourses, createCourse, updateCourse, deleteCourse, type Course, type CourseFormData } from '@/api/client';
+import {
+  fetchCourses,
+  createCourse,
+  updateCourse,
+  deleteCourse,
+  fetchCourseTeams,
+  fetchUserTeams,
+  assignTeamToCourse,
+  removeTeamFromCourse,
+  type Course,
+  type CourseFormData,
+  type Team,
+} from '@/api/client';
 import { useAuthStore, useTeamStore } from '@/stores';
 import {
   Dialog,
@@ -65,6 +77,8 @@ function getLevelBadgeColor(level: string | null) {
       return 'bg-muted text-muted-foreground';
   }
 }
+
+// ─── Course Dialog ─────────────────────────────────────────────────────────────
 
 interface CourseDialogProps {
   open: boolean;
@@ -218,6 +232,150 @@ function CourseDialog({ open, onClose, course }: CourseDialogProps) {
   );
 }
 
+// ─── Manage Teams Dialog ───────────────────────────────────────────────────────
+
+interface ManageTeamsDialogProps {
+  course: Course;
+  open: boolean;
+  onClose: () => void;
+}
+
+function ManageTeamsDialog({ course, open, onClose }: ManageTeamsDialogProps) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [selectedTeamId, setSelectedTeamId] = useState<string>('');
+
+  const { data: courseTeams, isLoading: teamsLoading } = useQuery({
+    queryKey: ['course-teams', course.id],
+    queryFn: () => fetchCourseTeams(course.id),
+    enabled: open,
+  });
+
+  const { data: allTeams } = useQuery({
+    queryKey: ['teams'],
+    queryFn: fetchUserTeams,
+    enabled: open,
+  });
+
+  const assignedTeamIds = new Set(courseTeams?.map((ct) => ct.teamId) ?? []);
+
+  const availableTeams: Team[] = (allTeams ?? []).filter((t) => !assignedTeamIds.has(t.id));
+
+  const assignMutation = useMutation({
+    mutationFn: (teamId: number) => assignTeamToCourse(course.id, teamId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['course-teams', course.id] });
+      setSelectedTeamId('');
+      toast.success('Team assigned successfully');
+    },
+    onError: () => toast.error(t('common.error')),
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: (teamId: number) => removeTeamFromCourse(course.id, teamId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['course-teams', course.id] });
+      toast.success('Team removed successfully');
+    },
+    onError: () => toast.error(t('common.error')),
+  });
+
+  function getTeamName(teamId: number): string {
+    return allTeams?.find((t) => t.id === teamId)?.name ?? `Team #${teamId}`;
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(o: boolean) => !o && onClose()}>
+      <DialogContent className="sm:max-w-[480px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Manage Teams — {course.name}
+          </DialogTitle>
+          <DialogDescription>Assign or remove teams for this course.</DialogDescription>
+        </DialogHeader>
+
+        {/* Assigned Teams */}
+        <div className="space-y-2">
+          <p className="text-sm font-medium">Assigned Teams</p>
+          {teamsLoading ? (
+            <div className="space-y-2">
+              {[1, 2].map((i) => (
+                <div key={i} className="flex items-center gap-3 rounded-md border p-2">
+                  <Skeleton className="h-4 w-32" />
+                </div>
+              ))}
+            </div>
+          ) : courseTeams && courseTeams.length > 0 ? (
+            <div className="space-y-2">
+              {courseTeams.map((ct) => (
+                <div key={ct.teamId} className="flex items-center justify-between rounded-md border p-2">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">{getTeamName(ct.teamId)}</span>
+                    <span className="text-xs text-muted-foreground">
+                      since {new Date(ct.assignedAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                    onClick={() => removeMutation.mutate(ct.teamId)}
+                    disabled={removeMutation.isPending}
+                  >
+                    <X className="h-3.5 w-3.5" />
+                    <span className="sr-only">Remove</span>
+                  </Button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground py-2">No teams assigned yet.</p>
+          )}
+        </div>
+
+        {/* Assign a Team */}
+        {availableTeams.length > 0 && (
+          <div className="space-y-2 border-t pt-3">
+            <p className="text-sm font-medium">Assign a Team</p>
+            <div className="flex gap-2">
+              <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Select a team..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableTeams.map((team) => (
+                    <SelectItem key={team.id} value={String(team.id)}>
+                      {team.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                onClick={() => selectedTeamId && assignMutation.mutate(Number(selectedTeamId))}
+                disabled={!selectedTeamId || assignMutation.isPending}
+                className="gap-1"
+              >
+                <Plus className="h-4 w-4" />
+                Assign
+              </Button>
+            </div>
+          </div>
+        )}
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t('common.cancel')}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Main Component ────────────────────────────────────────────────────────────
+
 export function Courses() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
@@ -226,6 +384,8 @@ export function Courses() {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+  const [manageTeamsCourse, setManageTeamsCourse] = useState<Course | null>(null);
+  const [manageTeamsOpen, setManageTeamsOpen] = useState(false);
 
   const canManage = user?.isBackOffice || teams.length > 0;
 
@@ -258,6 +418,11 @@ export function Courses() {
   function handleDialogClose() {
     setDialogOpen(false);
     setEditingCourse(null);
+  }
+
+  function handleManageTeams(course: Course) {
+    setManageTeamsCourse(course);
+    setManageTeamsOpen(true);
   }
 
   if (isLoading) {
@@ -336,6 +501,18 @@ export function Courses() {
                 {canManage && (
                   <td className="p-3 text-right">
                     <div className="flex items-center justify-end gap-2">
+                      {user?.isBackOffice && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-1.5 h-8 px-2 text-xs"
+                          onClick={() => handleManageTeams(course)}
+                          title="Manage Teams"
+                        >
+                          <Users className="h-3.5 w-3.5" />
+                          Teams
+                        </Button>
+                      )}
                       <Button variant="ghost" size="sm" onClick={() => handleEdit(course)} className="h-8 w-8 p-0">
                         <Pencil className="h-4 w-4" />
                         <span className="sr-only">{t('common.edit')}</span>
@@ -385,6 +562,17 @@ export function Courses() {
       </div>
 
       <CourseDialog open={dialogOpen} onClose={handleDialogClose} course={editingCourse} />
+
+      {manageTeamsCourse && (
+        <ManageTeamsDialog
+          course={manageTeamsCourse}
+          open={manageTeamsOpen}
+          onClose={() => {
+            setManageTeamsOpen(false);
+            setManageTeamsCourse(null);
+          }}
+        />
+      )}
     </div>
   );
 }
