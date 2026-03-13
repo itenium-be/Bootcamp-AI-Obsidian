@@ -105,7 +105,7 @@ export async function fetchSkills(): Promise<Skill[]> {
   return response.data;
 }
 
-export async function fetchSkill(id: number): Promise<Skill> {
+async function fetchSkill(id: number): Promise<Skill> {
   const response = await api.get<Skill>(`/api/skill/${id}`);
   return response.data;
 }
@@ -140,7 +140,7 @@ export interface PrerequisiteCheckItem {
   currentLevel: number;
 }
 
-export async function fetchPrerequisiteCheck(skillId: number, userId: string): Promise<PrerequisiteCheckItem[]> {
+async function fetchPrerequisiteCheck(skillId: number, userId: string): Promise<PrerequisiteCheckItem[]> {
   const response = await api.get<PrerequisiteCheckItem[]>(`/api/skill/${skillId}/prerequisite-check`, {
     params: { userId },
   });
@@ -158,7 +158,7 @@ export interface RoadmapSkillItem {
   unmetPrerequisites: PrerequisiteCheckItem[];
 }
 
-export interface RoadmapResponse {
+interface RoadmapResponse {
   skills: RoadmapSkillItem[];
 }
 
@@ -175,7 +175,7 @@ export async function updateSkillProgress(userId: string, skillId: number, achie
 
 // ── Seniority ────────────────────────────────────────────────────────────────
 
-export interface SeniorityProgressItem {
+interface SeniorityProgressItem {
   level: string;
   met: number;
   required: number;
@@ -188,7 +188,7 @@ export async function fetchSeniority(userId: string): Promise<SeniorityProgressI
 
 // ── Skill Import (admin) ─────────────────────────────────────────────────────
 
-export interface ImportSkillRequest {
+interface ImportSkillRequest {
   name: string;
   description: string | null;
   category: string | null;
@@ -197,12 +197,40 @@ export interface ImportSkillRequest {
   levelDescriptors: { level: number; description: string }[];
 }
 
-export interface ImportResult {
+interface ImportResult {
   created: number;
   updated: number;
 }
 
-export async function importSkills(skills: ImportSkillRequest[]): Promise<ImportResult> {
+async function importSkills(skills: ImportSkillRequest[]): Promise<ImportResult> {
   const response = await api.post<ImportResult>('/api/admin/skills/import', skills);
+  return response.data;
+}
+
+// ── User management (admin) ──────────────────────────────────────────────────
+
+interface CreateUserPayload {
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  role: string;
+  teamIds: number[];
+}
+
+export async function createUser(payload: CreateUserPayload): Promise<void> {
+  await api.post('/api/user', payload);
+}
+
+interface UserSummary {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  roles: string[];
+}
+
+export async function fetchUsers(): Promise<UserSummary[]> {
+  const response = await api.get<UserSummary[]>('/api/user');
   return response.data;
 }
