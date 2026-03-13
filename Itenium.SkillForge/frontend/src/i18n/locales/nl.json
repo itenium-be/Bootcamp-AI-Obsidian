@@ -179,7 +179,9 @@
     "accessDenied": "Toegang Geweigerd",
     "accessDeniedDesc": "U heeft geen toestemming om deze pagina te bekijken.",
     "searchPlaceholder": "Gebruikers zoeken...",
+
     "allRoles": "Alle",
+
     "comingSoon": "Binnenkort beschikbaar",
     "viewDetails": "Details Bekijken",
     "totalUsers": "Totaal Gebruikers",
@@ -226,6 +228,7 @@
     "saveSuccess": "Cursus succesvol opgeslagen",
     "deleteSuccess": "Cursus succesvol verwijderd"
   },
+
   "teamMembers": {
     "title": "Teamleden",
     "subtitle": "Overzicht van de leeractiviteiten van uw team",
@@ -283,6 +286,7 @@
     "removeError": "Verwijderen van inschrijving mislukt"
 
   },
+
   "catalog": {
     "title": "Cursus Catalogus",
     "subtitle": "Verken onze curated leerpaden",

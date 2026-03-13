@@ -57,6 +57,11 @@ export interface Course {
 
 export interface CourseFormData {
   name: string; description?: string; category?: string; level?: string;
+  id: number;
+  name: string;
+  description: string | null;
+  category: string | null;
+  level: string | null;
 }
 
 export async function fetchCourses(): Promise<Course[]> {
@@ -124,4 +129,44 @@ export interface Stats {
 }
 export async function fetchStats(): Promise<Stats> {
   return (await api.get<Stats>('/api/stats')).data;
+}
+
+export async function createCourse(data: CourseFormData): Promise<Course> {
+  const response = await api.post<Course>('/api/course', data);
+  return response.data;
+}
+
+export async function updateCourse(id: number, data: CourseFormData): Promise<Course> {
+  const response = await api.put<Course>(`/api/course/${id}`, data);
+  return response.data;
+}
+
+export async function deleteCourse(id: number): Promise<void> {
+  await api.delete(`/api/course/${id}`);
+}
+
+export interface User {
+  id: string;
+  userName: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  roles: string[];
+}
+
+export interface CourseFormData {
+  name: string;
+  description?: string;
+  category?: string;
+  level?: string;
+}
+
+export async function fetchUsers(): Promise<User[]> {
+  const response = await api.get<User[]>('/api/user');
+  return response.data;
+}
+
+export async function fetchUser(id: string): Promise<User> {
+  const response = await api.get<User>(`/api/user/${id}`);
+  return response.data;
 }

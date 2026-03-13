@@ -179,7 +179,9 @@
     "accessDenied": "Access Denied",
     "accessDeniedDesc": "You do not have permission to view this page.",
     "searchPlaceholder": "Search users...",
+
     "allRoles": "All",
+
     "comingSoon": "Coming soon",
     "viewDetails": "View Details",
     "totalUsers": "Total Users",
@@ -226,6 +228,7 @@
     "saveSuccess": "Course saved successfully",
     "deleteSuccess": "Course deleted successfully"
   },
+
   "teamMembers": {
     "title": "Team Members",
     "subtitle": "Overview of your team's learning activities",
@@ -283,6 +286,7 @@
     "removeError": "Failed to remove enrollment"
 
   },
+
   "catalog": {
     "title": "Course Catalog",
     "subtitle": "Explore our curated learning paths",
