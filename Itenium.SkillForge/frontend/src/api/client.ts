@@ -60,7 +60,7 @@ export async function fetchUserTeams(): Promise<Team[]> {
   return response.data;
 }
 
-interface Course {
+export interface Course {
   id: number;
   name: string;
   description: string | null;
@@ -70,5 +70,69 @@ interface Course {
 
 export async function fetchCourses(): Promise<Course[]> {
   const response = await api.get<Course[]>('/api/course');
+  return response.data;
+}
+
+export interface Enrollment {
+  id: number;
+  learnerId: string;
+  courseId: number;
+  enrolledAt: string;
+  completedAt: string | null;
+}
+
+export interface Progress {
+  id: number;
+  learnerId: string;
+  courseId: number;
+  percentageComplete: number;
+  lastUpdated: string;
+  notes: string | null;
+}
+
+export interface Certificate {
+  id: number;
+  learnerId: string;
+  learnerName: string;
+  courseId: number;
+  courseName: string;
+  issuedAt: string;
+  certificateNumber: string;
+}
+
+export async function fetchEnrollments(): Promise<Enrollment[]> {
+  const response = await api.get<Enrollment[]>('/api/enrollment');
+  return response.data;
+}
+
+export async function enrollInCourse(courseId: number): Promise<Enrollment> {
+  const response = await api.post<Enrollment>(`/api/enrollment/${courseId}`);
+  return response.data;
+}
+
+export async function unenrollFromCourse(courseId: number): Promise<void> {
+  await api.delete(`/api/enrollment/${courseId}`);
+}
+
+export async function fetchProgress(): Promise<Progress[]> {
+  const response = await api.get<Progress[]>('/api/progress');
+  return response.data;
+}
+
+export async function fetchCourseProgress(courseId: number): Promise<Progress> {
+  const response = await api.get<Progress>(`/api/progress/${courseId}`);
+  return response.data;
+}
+
+export async function updateProgress(
+  courseId: number,
+  data: { percentageComplete: number; notes?: string },
+): Promise<Progress> {
+  const response = await api.put<Progress>(`/api/progress/${courseId}`, data);
+  return response.data;
+}
+
+export async function fetchCertificates(): Promise<Certificate[]> {
+  const response = await api.get<Certificate[]>('/api/certificate');
   return response.data;
 }
