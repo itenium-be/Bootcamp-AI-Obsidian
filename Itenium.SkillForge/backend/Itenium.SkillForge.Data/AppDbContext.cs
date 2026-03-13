@@ -15,8 +15,44 @@ public class AppDbContext : ForgeIdentityDbContext
 
     public DbSet<CourseEntity> Courses => Set<CourseEntity>();
 
+    public DbSet<EnrollmentEntity> Enrollments => Set<EnrollmentEntity>();
+
+    public DbSet<ProgressEntity> Progresses => Set<ProgressEntity>();
+
+    public DbSet<CertificateEntity> Certificates => Set<CertificateEntity>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        // Enrollment: unique per learner+course
+        builder.Entity<EnrollmentEntity>(e =>
+        {
+            e.HasIndex(x => new { x.LearnerId, x.CourseId }).IsUnique();
+            e.HasOne(x => x.Course)
+                .WithMany()
+                .HasForeignKey(x => x.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Progress: unique per learner+course
+        builder.Entity<ProgressEntity>(e =>
+        {
+            e.HasIndex(x => new { x.LearnerId, x.CourseId }).IsUnique();
+            e.HasOne(x => x.Course)
+                .WithMany()
+                .HasForeignKey(x => x.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Certificate: unique certificate number
+        builder.Entity<CertificateEntity>(e =>
+        {
+            e.HasIndex(x => x.CertificateNumber).IsUnique();
+            e.HasOne(x => x.Course)
+                .WithMany()
+                .HasForeignKey(x => x.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 }

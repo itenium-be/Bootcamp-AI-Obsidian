@@ -1,6 +1,8 @@
 using Itenium.SkillForge.Entities;
+using Itenium.SkillForge.Services;
 using Itenium.SkillForge.WebApi.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using NSubstitute;
 
 namespace Itenium.SkillForge.WebApi.Tests;
 
@@ -8,11 +10,15 @@ namespace Itenium.SkillForge.WebApi.Tests;
 public class CourseControllerTests : DatabaseTestBase
 {
     private CourseController _sut = null!;
+    private ISkillForgeUser _user = null!;
 
     [SetUp]
     public void Setup()
     {
-        _sut = new CourseController(Db);
+        _user = Substitute.For<ISkillForgeUser>();
+        _user.IsBackOffice.Returns(true);
+        _user.Teams.Returns(new List<int>());
+        _sut = new CourseController(Db, _user);
     }
 
     [Test]

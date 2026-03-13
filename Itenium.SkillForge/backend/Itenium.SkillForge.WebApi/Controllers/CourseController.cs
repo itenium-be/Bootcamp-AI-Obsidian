@@ -1,5 +1,6 @@
 using Itenium.SkillForge.Data;
 using Itenium.SkillForge.Entities;
+using Itenium.SkillForge.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,14 +13,17 @@ namespace Itenium.SkillForge.WebApi.Controllers;
 public class CourseController : ControllerBase
 {
     private readonly AppDbContext _db;
+    private readonly ISkillForgeUser _user;
 
-    public CourseController(AppDbContext db)
+    public CourseController(AppDbContext db, ISkillForgeUser user)
     {
         _db = db;
+        _user = user;
     }
 
     /// <summary>
-    /// Get all courses.
+    /// Get all courses (requires ReadCourse capability).
+    /// BackOffice sees all; managers see all; learners see all.
     /// </summary>
     [HttpGet]
     public async Task<ActionResult<List<CourseEntity>>> GetCourses()
@@ -44,11 +48,16 @@ public class CourseController : ControllerBase
     }
 
     /// <summary>
-    /// Create a new course.
+    /// Create a new course (requires ManageCourse capability).
     /// </summary>
     [HttpPost]
     public async Task<ActionResult<CourseEntity>> CreateCourse([FromBody] CreateCourseRequest request)
     {
+        if (!_user.IsBackOffice && _user.Teams.Count == 0)
+        {
+            return Forbid();
+        }
+
         var course = new CourseEntity
         {
             Name = request.Name,
@@ -64,11 +73,16 @@ public class CourseController : ControllerBase
     }
 
     /// <summary>
-    /// Update an existing course.
+    /// Update an existing course (requires ManageCourse capability).
     /// </summary>
     [HttpPut("{id:int}")]
     public async Task<ActionResult<CourseEntity>> UpdateCourse(int id, [FromBody] UpdateCourseRequest request)
     {
+        if (!_user.IsBackOffice && _user.Teams.Count == 0)
+        {
+            return Forbid();
+        }
+
         var course = await _db.Courses.FindAsync(id);
         if (course == null)
         {
@@ -86,11 +100,16 @@ public class CourseController : ControllerBase
     }
 
     /// <summary>
-    /// Delete a course.
+    /// Delete a course (requires ManageCourse capability).
     /// </summary>
     [HttpDelete("{id:int}")]
     public async Task<ActionResult> DeleteCourse(int id)
     {
+        if (!_user.IsBackOffice && _user.Teams.Count == 0)
+        {
+            return Forbid();
+        }
+
         var course = await _db.Courses.FindAsync(id);
         if (course == null)
         {
